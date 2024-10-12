@@ -1,4 +1,4 @@
-mod agent;
+mod worker;
 pub mod error;
 mod model;
 mod runtime;

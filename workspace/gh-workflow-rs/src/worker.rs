@@ -1,21 +1,18 @@
 use derive_setters::Setters;
 
 use crate::error::{Error, Result};
-use crate::runtime::Runtime;
 use crate::Workflow;
 
 #[derive(Setters)]
-pub struct Agent {
+pub struct Worker {
     workflow: Workflow,
     file: String,
-    rtm: Box<dyn Runtime>,
 }
 
-impl Agent {
-    pub fn new(workflow: Workflow, rtm: Box<dyn Runtime>) -> Self {
+impl Worker {
+    pub fn new(workflow: Workflow) -> Self {
         Self {
             workflow,
-            rtm,
             file: "./.github/workflows/ci.yml".to_string(),
         }
     }
@@ -24,19 +21,14 @@ impl Agent {
         workflow
     }
 
-    fn generate(&self) -> Result<String> {
+    pub fn generate(&self) -> Result<String> {
         let workflow = self.modify(self.workflow.clone());
-        Ok(serde_yaml::to_string(&self.workflow)?)
+        Ok(serde_yaml::to_string(&workflow)?)
     }
 
-    pub async fn write(&self) -> Result<()> {
-        let content = self.generate()?;
-        Ok(self.rtm.write(self.file.clone(), content).await?)
-    }
-
-    pub async fn check(&self, workflow: Workflow) -> Result<()> {
-        let actual = self.rtm.read(self.file.clone()).await?;
+    pub async fn compare(&self, actual: Workflow) -> Result<()> {
         let expected = self.generate()?;
+        let actual = serde_yaml::to_string(&actual)?;
 
         if actual != expected {
             Err(Error::WorkflowMismatch)
