@@ -1,5 +1,8 @@
 pub mod error;
-mod schema;
+mod extensions;
 mod runtime;
+pub(crate) mod schema;
+mod toolchain;
 mod worker;
+pub use extensions::*;
 pub use schema::*;
