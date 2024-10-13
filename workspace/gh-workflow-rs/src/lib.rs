@@ -1,5 +1,5 @@
 pub mod error;
-mod model;
+mod schema;
 mod runtime;
 mod worker;
-pub use model::*;
+pub use schema::*;

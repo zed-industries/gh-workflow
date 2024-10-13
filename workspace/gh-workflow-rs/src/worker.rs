@@ -1,23 +1,23 @@
 use derive_setters::Setters;
 
 use crate::error::{Error, Result};
-use crate::Model;
+use crate::Workflow;
 
 #[derive(Setters)]
 pub struct Worker {
-    workflow: Model,
+    workflow: Workflow,
     file: String,
 }
 
 impl Worker {
-    pub fn new(workflow: Model) -> Self {
+    pub fn new(workflow: Workflow) -> Self {
         Self {
             workflow,
             file: "./.github/workflows/ci.yml".to_string(),
         }
     }
 
-    fn modify(&self, workflow: Model) -> Model {
+    fn modify(&self, workflow: Workflow) -> Workflow {
         workflow
     }
 
@@ -26,12 +26,12 @@ impl Worker {
         Ok(serde_yaml::to_string(&workflow)?)
     }
 
-    pub async fn compare(&self, actual: Model) -> Result<()> {
+    pub async fn compare(&self, actual: Workflow) -> Result<()> {
         let expected = self.generate()?;
         let actual = serde_yaml::to_string(&actual)?;
 
         if actual != expected {
-            Err(Error::WorkflowMismatch)
+            Err(Error::GitHubWorkflowMismatch)
         } else {
             Ok(())
         }
