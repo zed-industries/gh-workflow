@@ -1,8 +1,9 @@
+use crate::error::Result;
 use derive_setters::Setters;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+use std::{collections::HashMap, default};
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, Hash)]
+#[derive(Default, Debug, Serialize, Deserialize, Clone, PartialEq, Eq, Hash)]
 #[serde(rename_all = "kebab-case")]
 pub enum Event {
     BranchProtectionRule,
@@ -30,6 +31,7 @@ pub enum Event {
     PullRequestReview,
     PullRequestReviewComment,
     PullRequestTarget,
+    #[default]
     Push,
     RegistryPackage,
     Release,
@@ -41,12 +43,15 @@ pub enum Event {
     RepositoryDispatch,
 }
 
-#[derive(Debug, Setters, Serialize, Deserialize, Clone, PartialEq, Eq, Default)]
+#[derive(Debug, Setters, Serialize, Deserialize, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
 #[setters(strip_option)]
 pub struct Workflow {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub run_name: Option<String>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
     pub on: Vec<EventConfig>,
     pub jobs: HashMap<String, Job>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -61,13 +66,56 @@ pub struct Workflow {
     pub timeout_minutes: Option<u32>,
 }
 
-#[derive(Debug, Setters, Serialize, Deserialize, Clone, PartialEq, Eq)]
+impl Default for Workflow {
+    fn default() -> Self {
+        Self {
+            name: Some("CI".to_string()),
+            on: vec![EventConfig {
+                event: Event::Push,
+                branches: Some(vec!["main".to_string()]),
+                ..Default::default()
+            }],
+            run_name: Default::default(),
+            jobs: Default::default(),
+            concurrency: Default::default(),
+            defaults: Default::default(),
+            secrets: Default::default(),
+            env: Default::default(),
+            timeout_minutes: Default::default(),
+        }
+    }
+}
+
+impl Workflow {
+    pub fn to_string(&self) -> Result<String> {
+        Ok(serde_yaml::to_string(self)?)
+    }
+
+    pub fn add_job(mut self, id: String, job: crate::Job) -> Result<Self> {
+        if self.jobs.contains_key(&id) {
+            return Err(Error::JobIdAlreadyExists(id));
+        }
+
+        self.jobs.insert(id, job);
+        Ok(self)
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+#[serde(rename_all = "kebab-case")]
+pub enum ActivityType {
+    Created,
+    Edited,
+    Deleted,
+}
+
+#[derive(Debug, Default, Setters, Serialize, Deserialize, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
 #[setters(strip_option)]
 pub struct EventConfig {
     pub event: Event,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub types: Option<Vec<String>>,
+    pub types: Option<Vec<ActivityType>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub branches: Option<Vec<String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -123,6 +171,12 @@ pub struct Job {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub artifacts: Option<Artifacts>,
 }
+impl Job {
+    pub fn add_step(mut self, step: crate::Step) -> Self {
+        self.steps.push(step);
+        self
+    }
+}
 
 #[derive(Debug, Setters, Serialize, Deserialize, Clone, PartialEq, Eq, Default)]
 #[serde(rename_all = "kebab-case")]
@@ -152,6 +206,16 @@ pub struct Step {
     pub retry: Option<RetryStrategy>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub artifacts: Option<Artifacts>,
+}
+
+impl Step {
+    pub fn new(step: String) -> Self {
+        Self {
+            run: Some(step),
+            name: None,
+            ..Default::default()
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, Default)]
@@ -384,4 +448,21 @@ pub struct Artifact {
     pub path: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub retention_days: Option<u32>,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::Workflow;
+    use crate::EventConfig;
+    use pretty_assertions::assert_eq;
+
+    #[test]
+    fn test_demo() {
+        let workflow = Workflow::default()
+            .name("Github Actions Demo".to_string())
+            .run_name("${{ github.actor }} is testing out Github Actions 🚀".to_string());
+        let expected = include_str!("./fixtures/ci.yml");
+        let actual = workflow.to_string().unwrap();
+        assert_eq!(actual, expected);
+    }
 }

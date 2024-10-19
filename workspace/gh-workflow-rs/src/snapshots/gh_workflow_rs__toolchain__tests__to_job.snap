@@ -1,0 +1,27 @@
+---
+source: workspace/gh-workflow-rs/src/toolchain.rs
+expression: yml
+---
+name: CI
+on:
+- event: push
+  branches:
+  - main
+- event: pull-request
+  branches:
+  - main
+jobs:
+  build:
+    name: Setup Rust Toolchain
+    runs-on:
+    - linux
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        components: rustfmt, clippy
+        override: 'true'
+    - uses: actions-rs/toolchain@v1
+      with:
+        command: check
