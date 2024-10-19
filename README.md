@@ -1,4 +1,4 @@
-# 🦀 Rust GitHub Actions Workflows 🚀
+# 🦀 [WIP] Rust GitHub Actions Workflows 🚀
 
 [![Rust](https://img.shields.io/badge/Language-Rust-blue.svg)](https://www.rust-lang.org)
 [![Build Status](https://github.com/tailcallhq/rust-gh-workflows/actions/workflows/ci.yml/badge.svg)](https://github.com/tailcallhq/rust-gh-workflows/actions)
