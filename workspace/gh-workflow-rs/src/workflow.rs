@@ -1,7 +1,7 @@
-use crate::error::Result;
+use crate::error::{Error, Result};
 use derive_setters::Setters;
 use serde::{Deserialize, Serialize};
-use std::{collections::HashMap, default};
+use std::collections::HashMap;
 
 #[derive(Default, Debug, Serialize, Deserialize, Clone, PartialEq, Eq, Hash)]
 #[serde(rename_all = "kebab-case")]
@@ -98,6 +98,10 @@ impl Workflow {
 
         self.jobs.insert(id, job);
         Ok(self)
+    }
+
+    pub fn parse(yml: &str) -> Result<Self> {
+        Ok(serde_yaml::from_str(yml)?)
     }
 }
 
@@ -210,11 +214,7 @@ pub struct Step {
 
 impl Step {
     pub fn new(step: String) -> Self {
-        Self {
-            run: Some(step),
-            name: None,
-            ..Default::default()
-        }
+        Self { run: Some(step), name: None, ..Default::default() }
     }
 }
 
@@ -452,17 +452,23 @@ pub struct Artifact {
 
 #[cfg(test)]
 mod tests {
-    use super::Workflow;
-    use crate::EventConfig;
+    use super::*;
     use pretty_assertions::assert_eq;
 
     #[test]
-    fn test_demo() {
-        let workflow = Workflow::default()
-            .name("Github Actions Demo".to_string())
-            .run_name("${{ github.actor }} is testing out Github Actions 🚀".to_string());
-        let expected = include_str!("./fixtures/ci.yml");
-        let actual = workflow.to_string().unwrap();
-        assert_eq!(actual, expected);
+    fn test_workflow_identity() {
+        let workflows = vec![
+            include_str!(".fixtures/workflow-bench.yml"),
+            include_str!(".fixtures/workflow-ci.yml"),
+            include_str!(".fixtures/workflow-demo.yml"),
+            include_str!(".fixtures/workflow-rust.yml"),
+        ];
+
+        for workflow in workflows {
+            let parsed = Workflow::parse(workflow).unwrap();
+            let actual = parsed.to_string().unwrap();
+            let expected = workflow;
+            assert_eq!(actual, expected);
+        }
     }
 }

@@ -43,10 +43,16 @@ impl RustToolchain {
                     .uses("actions-rs/toolchain@v1".to_string())
                     .with(HashMap::from([
                         ("toolchain".into(), self.version.to_string()),
-                        (
-                            "components".into(),
-                            vec!["rustfmt", "clippy"].join(", ").into(),
-                        ),
+                        ("components".into(), {
+                            let mut components = Vec::new();
+                            if self.fmt {
+                                components.push("rustfmt");
+                            }
+                            if self.clippy {
+                                components.push("clippy");
+                            }
+                            components.join(", ").into()
+                        }),
                         ("override".into(), "true".into()),
                     ])),
                 Step::default()

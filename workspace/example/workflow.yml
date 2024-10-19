@@ -1,0 +1,6 @@
+name: CI
+on:
+- event: push
+  branches:
+  - main
+jobs: {}

@@ -1,5 +1,5 @@
 use gh_workflow_rs::*;
 fn main() {
     let workflow = Workflow::default();
-    println!("Hello, world!");
+    std::fs::write("workflow.yml", workflow.to_string().unwrap()).unwrap();
 }
