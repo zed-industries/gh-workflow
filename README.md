@@ -109,6 +109,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🙌 Contributors
 
 A big thank you to all the contributors who helped make this project a success! 🙏
+
 [![Contributors](https://contrib.rocks/image?repo=tailcallhq/rust-gh-workflows)](https://github.com/tailcallhq/rust-gh-workflows/graphs/contributors)
 
 ## 🌟 Show Your Support
