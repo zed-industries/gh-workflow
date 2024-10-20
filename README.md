@@ -12,7 +12,7 @@
 
 ## 🧑‍💻 What is Rust GitHub Workflows?
 
-**Rust GitHub Workflows** is an awesome library that allows developers to write GitHub Actions in Rust, empowering you to automate, manage, and improve your CI/CD pipelines with a language designed for safety and performance.
+**Rust GitHub Workflows** is a library that allows developers to write GitHub Actions in Rust, empowering you to automate, manage, and improve your CI/CD pipelines in a type-safe manner.
 
 GitHub Actions is powerful, but writing workflows can sometimes feel repetitive or tricky. That's where **Rust GitHub Workflows** steps in! 🦾
 
@@ -26,24 +26,24 @@ GitHub Actions is powerful, but writing workflows can sometimes feel repetitive 
 - **Rust-based GitHub Actions**: Create workflows and custom actions in Rust.
 - **Strong typing**: Eliminate YAML errors with Rust's type safety.
 - **Easy setup**: Get started quickly with minimal setup required.
-- **Expandability**: Create your own actions or reuse the community's work.
+- **Expandability**: Create your own actions in rust and use them as a cargo dependency.
 
 ## 📦 Installation
 
 To use **Rust GitHub Workflows** in your project, add it to your `Cargo.toml`:
 
 ```toml
-[dependencies]
-rust-gh-workflows = "0.1.0"
+[dev-dependencies]
+rust-gh-workflows = "1"
 ```
 
-Then you can start creating GitHub Actions with Rust like this:
+Then you can start creating GitHub Actions in your `build.rs` with Rust like this:
 
 ```rust
 use rust_gh_workflows::{Workflow, Job};
 
 fn main() {
-    let workflow = Workflow::new()
+    let workflow = Workflow::new("CI")
         .job(
             Job::new("build")
                 .runs_on("ubuntu-latest")
@@ -54,49 +54,15 @@ fn main() {
                 ]),
         );
 
-    workflow.generate();
-}
+    let yml = std:: workflow.generate();
+    std::fs::write(".github/workflows/ci.yml", yml).expect("Unable to write file");
 ```
-
-## 🎉 Quick Start
-
-1. Clone the repository:
-
-   ```bash
-   git clone https://github.com/tailcallhq/rust-gh-workflows.git
-   cd rust-gh-workflows
-   ```
-
-2. Build the project:
-
-   ```bash
-   cargo build
-   ```
-
-3. Run an example:
-
-   ```bash
-   cargo run --example simple
-   ```
-
-4. See the generated YAML in your GitHub repository!
-
-## 🤝 Contributing
-
-We'd love your contributions! Whether it's bug fixes, features, or improvements, check out our [contributing guide](./CONTRIBUTING.md).
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/my-feature`)
-3. Commit your changes (`git commit -am 'Add my feature'`)
-4. Push to the branch (`git push origin feature/my-feature`)
-5. Create a new Pull Request!
 
 ## 🛠️ Roadmap
 
-- [x] Initial Rust workflow generation
+- [ ] Github Actions Type System and Operators
 - [ ] Custom action library support
 - [ ] Documentation improvements
-- [ ] Integration testing and examples
 
 ## 💡 Why Rust?
 
@@ -104,7 +70,7 @@ Rust provides the perfect combination of speed, safety, and flexibility, making 
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the Apache 2.0 License - see the [LICENSE](LICENSE) file for details.
 
 ## 🙌 Contributors
 
@@ -115,6 +81,13 @@ A big thank you to all the contributors who helped make this project a success! 
 ## 🌟 Show Your Support
 
 If you like this project, please consider giving it a ⭐ on [GitHub](https://github.com/tailcallhq/rust-gh-workflows) and share it with the community!
+
+## 🔗 Inspiration
+
+This project was inspired by the following repositories:
+
+- [sbt/sbt-github-actions](https://github.com/sbt/sbt-github-actions)
+- [emmanuelnk/github-actions-workflow-ts](https://github.com/emmanuelnk/github-actions-workflow-ts)
 
 ---
 
