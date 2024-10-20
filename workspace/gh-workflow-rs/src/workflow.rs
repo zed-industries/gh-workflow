@@ -1,7 +1,10 @@
 use std::collections::HashMap;
 
+use indexmap::IndexMap;
+
 use derive_setters::Setters;
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 
 use crate::error::{Error, Result};
 
@@ -55,15 +58,15 @@ pub struct Workflow {
     pub run_name: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub on: Option<WorkflowOn>,
-    pub jobs: HashMap<String, Job>,
+    pub jobs: IndexMap<String, Job>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub concurrency: Option<Concurrency>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub defaults: Option<Defaults>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub secrets: Option<HashMap<String, Secret>>,
+    pub secrets: Option<IndexMap<String, Secret>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub env: Option<HashMap<String, String>>,
+    pub env: Option<IndexMap<String, String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub timeout_minutes: Option<u32>,
 }
@@ -71,9 +74,12 @@ pub struct Workflow {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case", untagged)]
 pub enum WorkflowOn {
+    // TODO: use type-safe enum instead of string
     Single(String),
+    // TODO: use type-safe enum instead of string
     Multiple(Vec<String>),
-    Map(HashMap<String, Vec<String>>),
+    // TODO: use type-safe enum instead of string
+    Map(IndexMap<String, IndexMap<String, Vec<String>>>),
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
@@ -167,7 +173,7 @@ pub struct Job {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub environment: Option<Environment>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub outputs: Option<HashMap<String, String>>,
+    pub outputs: Option<IndexMap<String, String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub concurrency: Option<Concurrency>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -175,13 +181,13 @@ pub struct Job {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub if_condition: Option<Expression>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub services: Option<HashMap<String, Container>>,
+    pub services: Option<IndexMap<String, Container>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub secrets: Option<HashMap<String, Secret>>,
+    pub secrets: Option<IndexMap<String, Secret>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub defaults: Option<Defaults>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub env: Option<HashMap<String, String>>,
+    pub env: Option<IndexMap<String, String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub continue_on_error: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -196,7 +202,7 @@ pub struct Job {
 pub enum JobRunsOn {
     Single(String),
     Multiple(Vec<String>),
-    KeyValue(HashMap<String, String>),
+    KeyValue(IndexMap<String, String>),
 }
 
 #[derive(Debug, Setters, Serialize, Deserialize, Clone, PartialEq, Eq, Default)]
@@ -210,11 +216,11 @@ pub struct Step {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub uses: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub with: Option<HashMap<String, String>>,
+    pub with: Option<IndexMap<String, Value>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub run: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub env: Option<HashMap<String, String>>,
+    pub env: Option<IndexMap<String, String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub if_condition: Option<Expression>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -253,7 +259,7 @@ pub struct Container {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub credentials: Option<Credentials>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub env: Option<HashMap<String, String>>,
+    pub env: Option<IndexMap<String, String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub ports: Option<Vec<Port>>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -337,7 +343,7 @@ pub struct Permissions {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub id_token: Option<PermissionLevel>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub event_specific: Option<HashMap<Event, PermissionLevel>>,
+    pub event_specific: Option<IndexMap<Event, PermissionLevel>>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, Default)]
@@ -353,23 +359,12 @@ pub enum PermissionLevel {
 #[serde(rename_all = "kebab-case")]
 #[setters(strip_option)]
 pub struct Strategy {
-    pub matrix: Matrix,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub matrix: Option<IndexMap<String, Vec<String>>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub fail_fast: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub max_parallel: Option<u32>,
-}
-
-#[derive(Debug, Setters, Serialize, Deserialize, Clone, PartialEq, Eq, Default)]
-#[serde(rename_all = "kebab-case")]
-#[setters(strip_option)]
-pub struct Matrix {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub include: Option<Vec<HashMap<String, String>>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub exclude: Option<Vec<HashMap<String, String>>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub dynamic: Option<HashMap<String, Vec<String>>>,
 }
 
 #[derive(Debug, Setters, Serialize, Deserialize, Clone, PartialEq, Eq, Default)]
@@ -499,6 +494,7 @@ mod tests {
         assert_eq!(actual, expected);
     }
 
+    #[test]
     fn test_workflow_rust() {
         let workflow = include_str!("./fixtures/workflow-rust.yml");
         let parsed = Workflow::parse(workflow).unwrap();
