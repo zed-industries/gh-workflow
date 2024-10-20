@@ -161,6 +161,9 @@ pub struct Job {
     pub name: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub runs_on: Option<JobRunsOn>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub strategy: Option<Strategy>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
     pub steps: Vec<Step>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub container: Option<Container>,
@@ -168,8 +171,6 @@ pub struct Job {
     pub needs: Option<Vec<String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub permissions: Option<Permissions>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub strategy: Option<Strategy>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub environment: Option<Environment>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -469,37 +470,36 @@ mod tests {
 
     use super::*;
 
-    fn test_workflow_bench() {
-        let workflow = include_str!("./fixtures/workflow-bench.yml");
-        let parsed = Workflow::parse(workflow).unwrap();
+    fn split(content: &str) -> (String, String) {
+        let parsed = Workflow::parse(content).unwrap();
         let actual = parsed.to_string().unwrap();
-        let expected = workflow;
+        let expected =
+            serde_yaml::to_string(&serde_yaml::from_str::<Value>(content).unwrap()).unwrap();
+
+        (actual, expected)
+    }
+
+    #[test]
+    fn test_workflow_bench() {
+        let (actual, expected) = split(include_str!("./fixtures/workflow-bench.yml"));
         assert_eq!(actual, expected);
     }
 
+    #[test]
     fn test_workflow_ci() {
-        let workflow = include_str!("./fixtures/workflow-ci.yml");
-        let parsed = Workflow::parse(workflow).unwrap();
-        let actual = parsed.to_string().unwrap();
-        let expected = workflow;
+        let (actual, expected) = split(include_str!("./fixtures/workflow-ci.yml"));
         assert_eq!(actual, expected);
     }
 
     #[test]
     fn test_workflow_demo() {
-        let workflow = include_str!("./fixtures/workflow-demo.yml");
-        let parsed = Workflow::parse(workflow).unwrap();
-        let actual = parsed.to_string().unwrap();
-        let expected = workflow;
+        let (actual, expected) = split(include_str!("./fixtures/workflow-demo.yml"));
         assert_eq!(actual, expected);
     }
 
     #[test]
     fn test_workflow_rust() {
-        let workflow = include_str!("./fixtures/workflow-rust.yml");
-        let parsed = Workflow::parse(workflow).unwrap();
-        let actual = parsed.to_string().unwrap();
-        let expected = workflow;
+        let (actual, expected) = split(include_str!("./fixtures/workflow-rust.yml"));
         assert_eq!(actual, expected);
     }
 }
