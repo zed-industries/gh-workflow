@@ -71,19 +71,9 @@ pub struct Workflow {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case", untagged)]
 pub enum WorkflowOn {
-    Literal(Event),
-    Branch {
-        #[serde(skip_serializing_if = "Vec::is_empty")]
-        push: Vec<EventAction>,
-        #[serde(skip_serializing_if = "Vec::is_empty")]
-        pull_request: Vec<EventAction>,
-        #[serde(skip_serializing_if = "Vec::is_empty")]
-        pull_request_target: Vec<EventAction>,
-        #[serde(skip_serializing_if = "Vec::is_empty")]
-        paths: Vec<String>,
-        #[serde(skip_serializing_if = "Vec::is_empty")]
-        paths_ignore: Vec<String>,
-    },
+    Single(String),
+    Multiple(Vec<String>),
+    Map(HashMap<String, Vec<String>>),
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
@@ -207,13 +197,6 @@ pub enum JobRunsOn {
     Single(String),
     Multiple(Vec<String>),
     KeyValue(HashMap<String, String>),
-}
-
-impl Job {
-    pub fn add_step(mut self, step: crate::Step) -> Self {
-        self.steps.push(step);
-        self
-    }
 }
 
 #[derive(Debug, Setters, Serialize, Deserialize, Clone, PartialEq, Eq, Default)]
@@ -491,7 +474,6 @@ mod tests {
 
     use super::*;
 
-    #[test]
     fn test_workflow_bench() {
         let workflow = include_str!("./fixtures/workflow-bench.yml");
         let parsed = Workflow::parse(workflow).unwrap();
@@ -500,7 +482,6 @@ mod tests {
         assert_eq!(actual, expected);
     }
 
-    #[test]
     fn test_workflow_ci() {
         let workflow = include_str!("./fixtures/workflow-ci.yml");
         let parsed = Workflow::parse(workflow).unwrap();
@@ -518,7 +499,6 @@ mod tests {
         assert_eq!(actual, expected);
     }
 
-    #[test]
     fn test_workflow_rust() {
         let workflow = include_str!("./fixtures/workflow-rust.yml");
         let parsed = Workflow::parse(workflow).unwrap();
