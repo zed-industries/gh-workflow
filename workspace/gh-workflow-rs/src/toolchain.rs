@@ -1,12 +1,11 @@
-use std::collections::HashMap;
-
 use derive_setters::Setters;
 
 use crate::workflow::*;
 
 ///
 /// A type-safe representation of the Rust toolchain.
-/// Instead of writing the github action for Rust by hand, we can use this struct to generate the github action.
+/// Instead of writing the github action for Rust by hand, we can use this
+/// struct to generate the github action.
 #[derive(Default)]
 pub enum Version {
     #[default]

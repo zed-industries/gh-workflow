@@ -1,7 +1,9 @@
-use crate::error::{Error, Result};
+use std::collections::HashMap;
+
 use derive_setters::Setters;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+
+use crate::error::{Error, Result};
 
 #[derive(Default, Debug, Serialize, Deserialize, Clone, PartialEq, Eq, Hash)]
 #[serde(rename_all = "kebab-case")]
@@ -91,7 +93,7 @@ pub struct EventAction {
     branches: Vec<String>,
 
     #[serde(skip_serializing_if = "Vec::is_empty")]
-    branches_ignore: Vec<String>
+    branches_ignore: Vec<String>,
 }
 
 impl Workflow {
@@ -484,13 +486,10 @@ pub struct Artifact {
 
 #[cfg(test)]
 mod tests {
-    use std::{
-        io::{Read, Stdin, Write},
-        process::Stdio,
-    };
+
+    use pretty_assertions::assert_eq;
 
     use super::*;
-    use pretty_assertions::assert_eq;
 
     #[test]
     fn test_workflow_bench() {
