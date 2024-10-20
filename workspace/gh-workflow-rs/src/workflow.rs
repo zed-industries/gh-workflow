@@ -51,8 +51,8 @@ pub struct Workflow {
     pub name: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub run_name: Option<String>,
-    #[serde(skip_serializing_if = "Vec::is_empty")]
-    pub on: Vec<EventConfig>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub on: Option<WorkflowOn>,
     pub jobs: HashMap<String, Job>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub concurrency: Option<Concurrency>,
@@ -66,15 +66,39 @@ pub struct Workflow {
     pub timeout_minutes: Option<u32>,
 }
 
-impl Default for Workflow {
-    fn default() -> Self {
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+#[serde(rename_all = "kebab-case", untagged)]
+pub enum WorkflowOn {
+    Literal(Event),
+    Branch {
+        #[serde(skip_serializing_if = "Vec::is_empty")]
+        push: Vec<EventAction>,
+        #[serde(skip_serializing_if = "Vec::is_empty")]
+        pull_request: Vec<EventAction>,
+        #[serde(skip_serializing_if = "Vec::is_empty")]
+        pull_request_target: Vec<EventAction>,
+        #[serde(skip_serializing_if = "Vec::is_empty")]
+        paths: Vec<String>,
+        #[serde(skip_serializing_if = "Vec::is_empty")]
+        paths_ignore: Vec<String>,
+    },
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+#[serde(rename_all = "kebab-case")]
+pub struct EventAction {
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    branches: Vec<String>,
+
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    branches_ignore: Vec<String>
+}
+
+impl Workflow {
+    pub fn new(name: String) -> Self {
         Self {
-            name: Some("CI".to_string()),
-            on: vec![EventConfig {
-                event: Event::Push,
-                branches: Some(vec!["main".to_string()]),
-                ..Default::default()
-            }],
+            name: Some(name),
+            on: Default::default(),
             run_name: Default::default(),
             jobs: Default::default(),
             concurrency: Default::default(),
@@ -84,9 +108,6 @@ impl Default for Workflow {
             timeout_minutes: Default::default(),
         }
     }
-}
-
-impl Workflow {
     pub fn to_string(&self) -> Result<String> {
         Ok(serde_yaml::to_string(self)?)
     }
@@ -140,7 +161,8 @@ pub struct EventConfig {
 pub struct Job {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
-    pub runs_on: Vec<Runner>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub runs_on: Option<JobRunsOn>,
     pub steps: Vec<Step>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub container: Option<Container>,
@@ -175,6 +197,16 @@ pub struct Job {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub artifacts: Option<Artifacts>,
 }
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+#[serde(rename_all = "kebab-case")]
+#[serde(untagged)]
+pub enum JobRunsOn {
+    Single(String),
+    Multiple(Vec<String>),
+    KeyValue(HashMap<String, String>),
+}
+
 impl Job {
     pub fn add_step(mut self, step: crate::Step) -> Self {
         self.steps.push(step);
@@ -452,23 +484,47 @@ pub struct Artifact {
 
 #[cfg(test)]
 mod tests {
+    use std::{
+        io::{Read, Stdin, Write},
+        process::Stdio,
+    };
+
     use super::*;
     use pretty_assertions::assert_eq;
 
     #[test]
-    fn test_workflow_identity() {
-        let workflows = vec![
-            include_str!(".fixtures/workflow-bench.yml"),
-            include_str!(".fixtures/workflow-ci.yml"),
-            include_str!(".fixtures/workflow-demo.yml"),
-            include_str!(".fixtures/workflow-rust.yml"),
-        ];
+    fn test_workflow_bench() {
+        let workflow = include_str!("./fixtures/workflow-bench.yml");
+        let parsed = Workflow::parse(workflow).unwrap();
+        let actual = parsed.to_string().unwrap();
+        let expected = workflow;
+        assert_eq!(actual, expected);
+    }
 
-        for workflow in workflows {
-            let parsed = Workflow::parse(workflow).unwrap();
-            let actual = parsed.to_string().unwrap();
-            let expected = workflow;
-            assert_eq!(actual, expected);
-        }
+    #[test]
+    fn test_workflow_ci() {
+        let workflow = include_str!("./fixtures/workflow-ci.yml");
+        let parsed = Workflow::parse(workflow).unwrap();
+        let actual = parsed.to_string().unwrap();
+        let expected = workflow;
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn test_workflow_demo() {
+        let workflow = include_str!("./fixtures/workflow-demo.yml");
+        let parsed = Workflow::parse(workflow).unwrap();
+        let actual = parsed.to_string().unwrap();
+        let expected = workflow;
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn test_workflow_rust() {
+        let workflow = include_str!("./fixtures/workflow-rust.yml");
+        let parsed = Workflow::parse(workflow).unwrap();
+        let actual = parsed.to_string().unwrap();
+        let expected = workflow;
+        assert_eq!(actual, expected);
     }
 }

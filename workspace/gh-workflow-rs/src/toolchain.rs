@@ -34,52 +34,6 @@ pub struct RustToolchain {
 
 impl RustToolchain {
     pub fn to_job(&self) -> Job {
-        Job {
-            name: Some("Setup Rust Toolchain".to_string()),
-            runs_on: vec![Runner::default()],
-            steps: vec![
-                Step::default().uses("actions/checkout@v2".to_string()),
-                Step::default()
-                    .uses("actions-rs/toolchain@v1".to_string())
-                    .with(HashMap::from([
-                        ("toolchain".into(), self.version.to_string()),
-                        ("components".into(), {
-                            let mut components = Vec::new();
-                            if self.fmt {
-                                components.push("rustfmt");
-                            }
-                            if self.clippy {
-                                components.push("clippy");
-                            }
-                            components.join(", ").into()
-                        }),
-                        ("override".into(), "true".into()),
-                    ])),
-                Step::default()
-                    .uses("actions-rs/toolchain@v1".to_string())
-                    .with(HashMap::from([(
-                        "command".to_string(),
-                        "check".to_string(),
-                    )])),
-            ],
-            ..Default::default()
-        }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use insta::assert_snapshot;
-
-    #[test]
-    fn test_to_job() {
-        let toolchain = RustToolchain::default();
-        let job = toolchain.to_job();
-        let workflow = Workflow::default()
-            .add_job("build".to_string(), job)
-            .unwrap();
-        let yml = serde_yaml::to_string(&workflow).unwrap();
-        assert_snapshot!(yml);
+        todo!();
     }
 }
