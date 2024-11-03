@@ -1,6 +1,6 @@
 use derive_setters::Setters;
 
-use crate::workflow::*;
+use gh_workflow::*;
 
 ///
 /// A type-safe representation of the Rust toolchain.
