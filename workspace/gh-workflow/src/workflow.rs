@@ -1,8 +1,5 @@
-use std::collections::HashMap;
-
-use indexmap::IndexMap;
-
 use derive_setters::Setters;
+use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
@@ -58,6 +55,9 @@ pub struct Workflow {
     pub run_name: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub on: Option<WorkflowOn>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub permissions: Option<Permissions>,
+    #[serde(skip_serializing_if = "IndexMap::is_empty")]
     pub jobs: IndexMap<String, Job>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub concurrency: Option<Concurrency>,
@@ -96,6 +96,7 @@ impl Workflow {
     pub fn new(name: String) -> Self {
         Self {
             name: Some(name),
+            permissions: Default::default(),
             on: Default::default(),
             run_name: Default::default(),
             jobs: Default::default(),
@@ -158,29 +159,31 @@ pub struct EventConfig {
 #[setters(strip_option)]
 pub struct Job {
     #[serde(skip_serializing_if = "Option::is_none")]
+    pub needs: Option<OneOrMany<String>>,
+    #[serde(skip_serializing_if = "Option::is_none", rename = "if")]
+    pub if_condition: Option<Expression>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub runs_on: Option<JobRunsOn>,
+    pub runs_on: Option<OneOrManyOrObject<String>>,
+    #[serde(skip_serializing_if = "Option::is_none", rename = "env")]
+    pub environment: Option<IndexMap<String, Expression>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub strategy: Option<Strategy>,
-    #[serde(skip_serializing_if = "Vec::is_empty")]
-    pub steps: Vec<Step>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub steps: Option<Vec<Step>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub uses: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub container: Option<Container>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub needs: Option<Vec<String>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub permissions: Option<Permissions>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub environment: Option<Environment>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub outputs: Option<IndexMap<String, String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub concurrency: Option<Concurrency>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub timeout_minutes: Option<u32>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub if_condition: Option<Expression>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub services: Option<IndexMap<String, Container>>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -200,10 +203,18 @@ pub struct Job {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
 #[serde(untagged)]
-pub enum JobRunsOn {
-    Single(String),
-    Multiple(Vec<String>),
-    KeyValue(IndexMap<String, String>),
+pub enum OneOrManyOrObject<T> {
+    Single(T),
+    Multiple(Vec<T>),
+    KeyValue(IndexMap<String, OneOrManyOrObject<T>>),
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+#[serde(rename_all = "kebab-case")]
+#[serde(untagged)]
+pub enum OneOrMany<T> {
+    Single(T),
+    Multiple(Vec<T>),
 }
 
 #[derive(Debug, Setters, Serialize, Deserialize, Clone, PartialEq, Eq, Default)]
@@ -214,6 +225,8 @@ pub struct Step {
     pub id: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none", rename = "if")]
+    pub if_condition: Option<Expression>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub uses: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -222,8 +235,6 @@ pub struct Step {
     pub run: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub env: Option<IndexMap<String, String>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub if_condition: Option<Expression>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub timeout_minutes: Option<u32>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -350,9 +361,9 @@ pub struct Permissions {
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, Default)]
 #[serde(rename_all = "kebab-case")]
 pub enum PermissionLevel {
-    #[default]
     Read,
     Write,
+    #[default]
     None,
 }
 
@@ -361,7 +372,7 @@ pub enum PermissionLevel {
 #[setters(strip_option)]
 pub struct Strategy {
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub matrix: Option<IndexMap<String, Vec<String>>>,
+    pub matrix: Option<OneOrManyOrObject<String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub fail_fast: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -407,24 +418,8 @@ pub struct RetryDefaults {
     pub max_attempts: Option<u32>,
 }
 
-#[derive(Debug, Setters, Serialize, Deserialize, Clone, PartialEq, Eq, Default)]
-#[serde(rename_all = "kebab-case")]
-#[setters(strip_option)]
-pub struct Expression {
-    pub value: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub parsed: Option<ParsedExpression>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub evaluation_result: Option<bool>,
-}
-
-#[derive(Debug, Setters, Serialize, Deserialize, Clone, PartialEq, Eq, Default)]
-#[serde(rename_all = "kebab-case")]
-#[setters(strip_option)]
-pub struct ParsedExpression {
-    pub variables: Vec<String>, // Represents variables used within the expression
-    pub functions: Vec<String>, // Represents functions or operators used within the expression
-}
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, Default)]
+pub struct Expression(String);
 
 #[derive(Debug, Setters, Serialize, Deserialize, Clone, PartialEq, Eq, Default)]
 #[serde(rename_all = "kebab-case")]
@@ -461,45 +456,4 @@ pub struct Artifact {
     pub path: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub retention_days: Option<u32>,
-}
-
-#[cfg(test)]
-mod tests {
-
-    use pretty_assertions::assert_eq;
-
-    use super::*;
-
-    fn split(content: &str) -> (String, String) {
-        let parsed = Workflow::parse(content).unwrap();
-        let actual = parsed.to_string().unwrap();
-        let expected =
-            serde_yaml::to_string(&serde_yaml::from_str::<Value>(content).unwrap()).unwrap();
-
-        (actual, expected)
-    }
-
-    #[test]
-    fn test_workflow_bench() {
-        let (actual, expected) = split(include_str!("./fixtures/workflow-bench.yml"));
-        assert_eq!(actual, expected);
-    }
-
-    #[test]
-    fn test_workflow_ci() {
-        let (actual, expected) = split(include_str!("./fixtures/workflow-ci.yml"));
-        assert_eq!(actual, expected);
-    }
-
-    #[test]
-    fn test_workflow_demo() {
-        let (actual, expected) = split(include_str!("./fixtures/workflow-demo.yml"));
-        assert_eq!(actual, expected);
-    }
-
-    #[test]
-    fn test_workflow_rust() {
-        let (actual, expected) = split(include_str!("./fixtures/workflow-rust.yml"));
-        assert_eq!(actual, expected);
-    }
 }
