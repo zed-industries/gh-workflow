@@ -1,7 +1,6 @@
 #![allow(clippy::needless_update)]
 
 use std::fmt::Display;
-use std::path::Path;
 
 use derive_setters::Setters;
 use indexmap::IndexMap;
@@ -9,6 +8,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
 use crate::error::{Error, Result};
+use crate::generate::Generate;
 use crate::ToolchainStep;
 
 #[derive(Default, Debug, Serialize, Deserialize, Clone, PartialEq, Eq, Hash)]
@@ -111,18 +111,8 @@ impl Workflow {
         Ok(serde_yaml::from_str(yml)?)
     }
 
-    pub fn generate<T: AsRef<Path>>(self, path: T) -> Result<()> {
-        let path = path.as_ref();
-        path.parent()
-            .map_or(Ok(()), std::fs::create_dir_all)
-            .map_err(Error::Io)?;
-
-        std::fs::write(path, self.to_string()?).map_err(Error::Io)?;
-        println!(
-            "Generated workflow file: {}",
-            path.canonicalize()?.display()
-        );
-        Ok(())
+    pub fn generate<T: ToString>(self, path: T) -> Result<()> {
+        Generate::new(self, path).generate()
     }
 
     pub fn on<T: SetEvent>(self, a: T) -> Self {

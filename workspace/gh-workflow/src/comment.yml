@@ -14,34 +14,3 @@
 # -------------------------------------------------------------------
 # ----------------------------- END WARNING -------------------------
 # -------------------------------------------------------------------
-
-name: CI
-env:
-  RUSTFLAGS: -Dwarnings
-on:
-  push:
-    branches:
-    - main
-  pull_request:
-    types:
-    - opened
-    - synchronize
-    - reopened
-    branches:
-    - main
-permissions:
-  contents: read
-jobs:
-  build:
-    name: Build and Test
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout Code
-      uses: actions/checkout@v4
-    - uses: actions-rust-lang/setup-rust-toolchain@v1
-      with:
-        toolchain: stable, nightly
-        components: clippy, rustfmt
-    - run: cargo test --all-features --workspace
-    - run: cargo +nightly fmt --check
-    - run: cargo +nightly clippy --all-features --workspace

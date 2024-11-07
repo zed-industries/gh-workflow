@@ -1,4 +1,5 @@
 pub mod error;
+mod generate;
 mod rust_flag;
 mod toolchain;
 pub(crate) mod workflow;

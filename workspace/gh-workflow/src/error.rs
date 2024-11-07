@@ -1,6 +1,6 @@
 #[derive(Debug, derive_more::From)]
 pub enum Error {
-    Io(std::io::Error),
+    IO(std::io::Error),
     Yaml(serde_yaml::Error),
     GitHubWorkflowMismatch,
     JobIdAlreadyExists(String),
