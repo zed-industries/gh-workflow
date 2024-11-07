@@ -1,4 +1,6 @@
-use gh_workflow::{Component, Job, Permissions, RustFlags, Step, Toolchain, Workflow};
+use gh_workflow::{
+    Component, Event, Job, Permissions, PullRequest, Push, RustFlags, Step, Toolchain, Workflow,
+};
 
 fn main() {
     let rust_flags = RustFlags::deny("warnings");
@@ -21,17 +23,15 @@ fn main() {
     Workflow::new("CI")
         .env(rust_flags)
         .permissions(Permissions::read())
-        .on(vec![
-            // TODO: enums
-            ("push", vec![("branches", vec!["main"])]),
-            (
-                "pull_request",
-                vec![
-                    ("types", vec!["opened", "synchronize", "reopened"]),
-                    ("branches", vec!["main"]),
-                ],
-            ),
-        ])
+        .on(Event::default()
+            .push(Push::default().branch("main"))
+            .pull_request(
+                PullRequest::default()
+                    .open()
+                    .synchronize()
+                    .reopen()
+                    .branch("main"),
+            ))
         .add_job("build", build)
         .unwrap()
         .generate(format!(

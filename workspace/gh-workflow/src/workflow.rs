@@ -11,46 +11,6 @@ use crate::error::{Error, Result};
 use crate::generate::Generate;
 use crate::ToolchainStep;
 
-#[derive(Default, Debug, Serialize, Deserialize, Clone, PartialEq, Eq, Hash)]
-#[serde(rename_all = "kebab-case")]
-pub enum Event {
-    BranchProtectionRule,
-    CheckRun,
-    CheckSuite,
-    Create,
-    Delete,
-    Deployment,
-    DeploymentStatus,
-    Discussion,
-    DiscussionComment,
-    Fork,
-    Gollum,
-    IssueComment,
-    Issues,
-    Label,
-    MergeGroup,
-    Milestone,
-    PageBuild,
-    Project,
-    ProjectCard,
-    ProjectColumn,
-    Public,
-    PullRequest,
-    PullRequestReview,
-    PullRequestReviewComment,
-    PullRequestTarget,
-    #[default]
-    Push,
-    RegistryPackage,
-    Release,
-    Status,
-    Watch,
-    WorkflowCall,
-    WorkflowDispatch,
-    WorkflowRun,
-    RepositoryDispatch,
-}
-
 #[derive(Debug, Default, Setters, Serialize, Deserialize, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
 #[setters(strip_option)]
@@ -64,7 +24,7 @@ pub struct Workflow {
     pub run_name: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     #[setters(skip)]
-    pub on: Option<OneOrManyOrObject<String>>,
+    pub on: Option<Value>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub permissions: Option<Permissions>,
     #[serde(skip_serializing_if = "IndexMap::is_empty")]
@@ -124,57 +84,6 @@ impl Workflow {
     }
 }
 
-// TODO: inline this conversion in actual usage
-impl From<&str> for OneOrManyOrObject<String> {
-    fn from(value: &str) -> Self {
-        OneOrManyOrObject::Single(value.to_string())
-    }
-}
-
-// TODO: inline this conversion in actual usage
-impl From<Vec<&str>> for OneOrManyOrObject<String> {
-    fn from(value: Vec<&str>) -> Self {
-        OneOrManyOrObject::Multiple(value.iter().map(|s| s.to_string()).collect())
-    }
-}
-
-// TODO: inline this conversion in actual usage
-impl<V: Into<OneOrManyOrObject<String>>> From<Vec<(&str, V)>> for OneOrManyOrObject<String> {
-    fn from(value: Vec<(&str, V)>) -> Self {
-        OneOrManyOrObject::KeyValue(
-            value
-                .into_iter()
-                .map(|(s, v)| (s.to_string(), v.into()))
-                .collect(),
-        )
-    }
-}
-
-impl<S: Display, W: Into<OneOrManyOrObject<String>>> SetEvent for Vec<(S, W)> {
-    fn apply(self, mut workflow: Workflow) -> Workflow {
-        let val = self
-            .into_iter()
-            .map(|(s, w)| (s.to_string(), w.into()))
-            .collect();
-        workflow.on = Some(OneOrManyOrObject::KeyValue(val));
-        workflow
-    }
-}
-
-impl SetEvent for Vec<&str> {
-    fn apply(self, workflow: Workflow) -> Workflow {
-        let on = self.into_iter().map(|s| s.to_string()).collect();
-        Workflow { on: Some(OneOrManyOrObject::Multiple(on)), ..workflow }
-    }
-}
-
-impl SetEvent for &str {
-    fn apply(self, workflow: Workflow) -> Workflow {
-        let on = self.to_string();
-        Workflow { on: Some(OneOrManyOrObject::Single(on)), ..workflow }
-    }
-}
-
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
 pub enum ActivityType {
@@ -183,40 +92,19 @@ pub enum ActivityType {
     Deleted,
 }
 
-#[derive(Debug, Default, Setters, Serialize, Deserialize, Clone, PartialEq, Eq)]
-#[serde(rename_all = "kebab-case")]
-#[setters(strip_option)]
-pub struct EventConfig {
-    pub event: Event,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub types: Option<Vec<ActivityType>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub branches: Option<Vec<String>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub tags: Option<Vec<String>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub paths: Option<Vec<String>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub branches_ignore: Option<Vec<String>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub tags_ignore: Option<Vec<String>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub paths_ignore: Option<Vec<String>>,
-}
-
 #[derive(Debug, Setters, Serialize, Deserialize, Clone, PartialEq, Eq, Default)]
 #[serde(rename_all = "kebab-case")]
 #[setters(strip_option)]
 pub struct Job {
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub needs: Option<OneOrMany<String>>,
+    pub needs: Option<Value>,
     #[serde(skip_serializing_if = "Option::is_none", rename = "if")]
     pub if_condition: Option<Expression>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     #[setters(skip)]
-    pub runs_on: Option<OneOrManyOrObject<String>>,
+    pub runs_on: Option<Value>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub strategy: Option<Strategy>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -254,7 +142,7 @@ impl Job {
     pub fn new<T: ToString>(name: T) -> Self {
         Self {
             name: Some(name.to_string()),
-            runs_on: Some(OneOrManyOrObject::Single("ubuntu-latest".to_string())),
+            runs_on: Some(Value::from("ubuntu-latest")),
             ..Default::default()
         }
     }
@@ -272,29 +160,29 @@ impl Job {
     }
 }
 
-impl<T: ToString> SetRunner for T {
+impl<T: Into<Value>> SetRunner for T {
     fn apply(self, mut job: Job) -> Job {
-        job.runs_on = Some(OneOrManyOrObject::Single(self.to_string()));
+        job.runs_on = Some(self.into());
         job
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
-#[serde(rename_all = "kebab-case")]
-#[serde(untagged)]
-pub enum OneOrManyOrObject<T> {
-    Single(T),
-    Multiple(Vec<T>),
-    KeyValue(IndexMap<String, OneOrManyOrObject<T>>),
-}
+// #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+// #[serde(rename_all = "kebab-case")]
+// #[serde(untagged)]
+// pub enum OneOrManyOrObject<T> {
+//     Single(T),
+//     Multiple(Vec<T>),
+//     KeyValue(IndexMap<String, OneOrManyOrObject<T>>),
+// }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
-#[serde(rename_all = "kebab-case")]
-#[serde(untagged)]
-pub enum OneOrMany<T> {
-    Single(T),
-    Multiple(Vec<T>),
-}
+// #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+// #[serde(rename_all = "kebab-case")]
+// #[serde(untagged)]
+// pub enum OneOrMany<T> {
+//     Single(T),
+//     Multiple(Vec<T>),
+// }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 #[serde(untagged)]
@@ -633,8 +521,6 @@ pub struct Permissions {
     pub pages: Option<PermissionLevel>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub id_token: Option<PermissionLevel>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub event_specific: Option<IndexMap<Event, PermissionLevel>>,
 }
 
 impl Permissions {
@@ -661,7 +547,7 @@ pub enum PermissionLevel {
 #[setters(strip_option)]
 pub struct Strategy {
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub matrix: Option<OneOrManyOrObject<String>>,
+    pub matrix: Option<Value>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub fail_fast: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
