@@ -167,23 +167,6 @@ impl<T: Into<Value>> SetRunner for T {
     }
 }
 
-// #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
-// #[serde(rename_all = "kebab-case")]
-// #[serde(untagged)]
-// pub enum OneOrManyOrObject<T> {
-//     Single(T),
-//     Multiple(Vec<T>),
-//     KeyValue(IndexMap<String, OneOrManyOrObject<T>>),
-// }
-
-// #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
-// #[serde(rename_all = "kebab-case")]
-// #[serde(untagged)]
-// pub enum OneOrMany<T> {
-//     Single(T),
-//     Multiple(Vec<T>),
-// }
-
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 #[serde(untagged)]
 pub enum AnyStep {
