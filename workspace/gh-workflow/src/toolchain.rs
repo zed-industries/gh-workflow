@@ -156,6 +156,31 @@ impl ToolchainStep {
         self.toolchain.push(version);
         self
     }
+
+    pub fn add_component(mut self, component: Component) -> Self {
+        self.components.push(component);
+        self
+    }
+
+    pub fn toolchain_stable(mut self) -> Self {
+        self.toolchain.push(Toolchain::Stable);
+        self
+    }
+
+    pub fn toolchain_nightly(mut self) -> Self {
+        self.toolchain.push(Toolchain::Nightly);
+        self
+    }
+
+    pub fn component_clippy(mut self) -> Self {
+        self.components.push(Component::Clippy);
+        self
+    }
+
+    pub fn component_rustfmt(mut self) -> Self {
+        self.components.push(Component::Rustfmt);
+        self
+    }
 }
 
 impl AddStep for ToolchainStep {

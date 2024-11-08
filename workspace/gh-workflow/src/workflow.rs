@@ -9,7 +9,7 @@ use serde_json::Value;
 
 use crate::error::{Error, Result};
 use crate::generate::Generate;
-use crate::ToolchainStep;
+use crate::{EventValue, ToolchainStep};
 
 #[derive(Debug, Default, Setters, Serialize, Deserialize, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
@@ -24,7 +24,7 @@ pub struct Workflow {
     pub run_name: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     #[setters(skip)]
-    pub on: Option<Value>,
+    pub on: Option<EventValue>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub permissions: Option<Permissions>,
     #[serde(skip_serializing_if = "IndexMap::is_empty")]
