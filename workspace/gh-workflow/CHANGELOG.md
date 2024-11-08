@@ -5,6 +5,40 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.1.2 (2024-11-08)
+
+### Chore
+
+ - <csr-id-9230d1f1dc00b87038ec17f39deca77c9be6ffa6/> lint fixes
+
+### New Features
+
+ - <csr-id-5a3f18477a2bddc662d3f100e7dd6cbf002cdd2f/> add `Workflow::setup_rust()` helper
+
+### Bug Fixes
+
+ - <csr-id-f74da3df992ee7c10564679c10b695e5b96a85c6/> add wasm to possible targets
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 3 commits contributed to the release.
+ - 3 commits were understood as [conventional](https://www.conventionalcommits.org).
+ - 0 issues like '(#ID)' were seen in commit messages
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **Uncategorized**
+    - Lint fixes ([`9230d1f`](https://github.com/tailcallhq/rust-gh-workflows/commit/9230d1f1dc00b87038ec17f39deca77c9be6ffa6))
+    - Add `Workflow::setup_rust()` helper ([`5a3f184`](https://github.com/tailcallhq/rust-gh-workflows/commit/5a3f18477a2bddc662d3f100e7dd6cbf002cdd2f))
+    - Add wasm to possible targets ([`f74da3d`](https://github.com/tailcallhq/rust-gh-workflows/commit/f74da3df992ee7c10564679c10b695e5b96a85c6))
+</details>
+
 ## v0.1.1 (2024-11-08)
 
 ### Bug Fixes
@@ -15,7 +49,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 3 commits contributed to the release.
+ - 4 commits contributed to the release.
  - 1 commit was understood as [conventional](https://www.conventionalcommits.org).
  - 0 issues like '(#ID)' were seen in commit messages
 
@@ -26,6 +60,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <details><summary>view details</summary>
 
  * **Uncategorized**
+    - Release gh-workflow v0.1.1 ([`4dfbd11`](https://github.com/tailcallhq/rust-gh-workflows/commit/4dfbd11bb17f22245601c7a1d36d701328e8e646))
     - Release gh-workflow v0.1.1 ([`c58445e`](https://github.com/tailcallhq/rust-gh-workflows/commit/c58445effa55bca60e2283205feba758365efe51))
     - Release gh-workflow v0.1.1 ([`677a89e`](https://github.com/tailcallhq/rust-gh-workflows/commit/677a89e38a74410db14c7546499a1ce818befd96))
     - Add readme file ([`55d81b0`](https://github.com/tailcallhq/rust-gh-workflows/commit/55d81b06bf673774e9559915cbe1cb49ccf0a6c5))
