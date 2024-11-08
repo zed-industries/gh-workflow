@@ -13,11 +13,10 @@
 
 **Rust GitHub Workflows** is a library that allows developers to write GitHub Actions in Rust. It empowers you to automate, manage, and improve your CI/CD pipelines in a type-safe manner.
 
-GitHub Actions is powerful, but writing workflows can sometimes feel repetitive or tricky. That's where **Rust GitHub Workflows** steps in! 🦾
+GitHub Actions is powerful, but writing workflows can sometimes feel repetitive, tricky and frustrating with no strict type-checking. That's where **Rust GitHub Workflows** steps in! 🦾
 
 - 🔥 **Rust-Powered**: Leverage the type-safety of Rust for writing workflows.
-- 🧩 **Modular & Reusable**: Build workflows in a reusable, maintainable way.
-- 📦 **Crate-friendly**: Seamless integration with your existing Rust projects or publish them as crates.
+- 📦 **Crate-friendly**: Build reusable workflows and publish them as crates.
 
 ## 📦 Installation
 
