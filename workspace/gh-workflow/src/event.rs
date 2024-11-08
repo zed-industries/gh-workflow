@@ -31,6 +31,12 @@ impl Event<PullRequest> {
     }
 }
 
+impl Event<PullRequestTarget> {
+    pub fn pull_request_target() -> Self {
+        Event(PullRequestTarget::default())
+    }
+}
+
 impl<A: Into<EventValue>> SetEvent for Event<A> {
     fn apply(self, mut workflow: crate::Workflow) -> crate::Workflow {
         let mut on: EventValue = self.0.into();
