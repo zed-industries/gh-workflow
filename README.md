@@ -1,4 +1,4 @@
-# 🦀 [WIP] Rust GitHub Actions Workflows 🚀
+# 🦀 Rust GitHub Actions Workflows 🚀
 
 [![Rust](https://img.shields.io/badge/Language-Rust-blue?style=flat-square)](https://www.rust-lang.org)
 [![Build Status](https://github.com/tailcallhq/rust-gh-workflows/actions/workflows/ci.yml/badge.svg?style=flat-square)](https://github.com/tailcallhq/rust-gh-workflows/actions)
@@ -9,60 +9,65 @@
 [![Stars](https://img.shields.io/github/stars/tailcallhq/rust-gh-workflows?style=flat-square)](https://github.com/tailcallhq/rust-gh-workflows/stargazers)
 [![Issues](https://img.shields.io/github/issues/tailcallhq/rust-gh-workflows?style=flat-square)](https://github.com/tailcallhq/rust-gh-workflows/issues)
 
-
 ## 🧑‍💻 What is Rust GitHub Workflows?
 
-**Rust GitHub Workflows** is a library that allows developers to write GitHub Actions in Rust, empowering you to automate, manage, and improve your CI/CD pipelines in a type-safe manner.
+**Rust GitHub Workflows** is a library that allows developers to write GitHub Actions in Rust. It empowers you to automate, manage, and improve your CI/CD pipelines in a type-safe manner.
 
 GitHub Actions is powerful, but writing workflows can sometimes feel repetitive or tricky. That's where **Rust GitHub Workflows** steps in! 🦾
 
-- 🔥 **Rust-Powered**: Leverage the performance and memory safety of Rust for writing workflows.
+- 🔥 **Rust-Powered**: Leverage the type-safety of Rust for writing workflows.
 - 🧩 **Modular & Reusable**: Build workflows in a reusable, maintainable way.
-- 📦 **Crate-friendly**: Seamless integration with your existing Rust projects.
-- 🌍 **Cross-platform**: Target multiple operating systems and environments.
-
-## 🚀 Features
-
-- **Rust-based GitHub Actions**: Create workflows and custom actions in Rust.
-- **Strong typing**: Eliminate YAML errors with Rust's type safety.
-- **Easy setup**: Get started quickly with minimal setup required.
-- **Expandability**: Create your own actions in rust and use them as a cargo dependency.
+- 📦 **Crate-friendly**: Seamless integration with your existing Rust projects or publish them as crates.
 
 ## 📦 Installation
 
 To use **Rust GitHub Workflows** in your project, add it to your `Cargo.toml`:
 
 ```toml
-[dev-dependencies]
+[build-dependencies]
 rust-gh-workflows = "1"
 ```
 
-Then you can start creating GitHub Actions in your `build.rs` with Rust like this:
+Then you can start creating GitHub Actions in your [build.rs](https://github.com/tailcallhq/rust-gh-workflows/blob/main/workspace/gh-workflow-gen/build.rs).
 
-```rust
-use rust_gh_workflows::{Workflow, Job};
+## 👷 Usage
 
-fn main() {
-    let workflow = Workflow::new("CI")
-        .job(
-            Job::new("build")
-                .runs_on("ubuntu-latest")
-                .steps(vec![
-                    "checkout",
-                    "setup-rust",
-                    "cargo build --release"
-                ]),
-        );
+- Simply add a `build.rs` file to your project's root directory.
+- Add the following code to generate the GitHub Actions workflow:
 
-    let yml = std:: workflow.generate();
-    std::fs::write(".github/workflows/ci.yml", yml).expect("Unable to write file");
-```
+  ```rust
+  use rust_gh_workflows::*;
+
+  fn main() {
+      Workflow::new("CI")
+          .permissions(Permissions::read())
+          .on(Event::default().push(Push::default().branch("main"))
+          .add_job(
+              "build",
+              Job::new("Build and Test")
+                  .add_step(Step::checkout())
+                  .add_step(Step::setup_rust().add_toolchain(Toolchain::Stable))
+                  .add_step(Step::cargo("test", vec!["--all-features", "--workspace"]))
+          )
+          .unwrap()
+          .generate()
+          .unwrap();
+  }
+  ```
+
+  To view a fully functional example, check out the [build.rs](https://github.com/tailcallhq/rust-gh-workflows/blob/main/workspace/gh-workflow-gen/build.rs) of this project.
+
+- Run `cargo build` to generate the GitHub Actions workflow.
+
+**Workspace**
+
+- The `workspace` directory contains the `gh-workflow-gen` crate, which generates the workflow.
 
 ## 🛠️ Roadmap
 
-- [ ] Github Actions Type System and Operators
-- [ ] Custom action library support
-- [ ] Documentation improvements
+- [ ] Support for Automated Cargo Releases
+- [ ] Improve Type Safety of Nightly Builds
+- [ ] Add Rust Docs for the API
 
 ## 💡 Why Rust?
 
