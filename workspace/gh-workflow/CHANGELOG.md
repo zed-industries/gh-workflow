@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v0.1.1 (2024-11-08)
+
+### Bug Fixes
+
+ - <csr-id-55d81b06bf673774e9559915cbe1cb49ccf0a6c5/> add readme file
+
+### Commit Statistics
+
+<csr-read-only-do-not-edit/>
+
+ - 1 commit contributed to the release.
+ - 1 commit was understood as [conventional](https://www.conventionalcommits.org).
+ - 0 issues like '(#ID)' were seen in commit messages
+
+### Commit Details
+
+<csr-read-only-do-not-edit/>
+
+<details><summary>view details</summary>
+
+ * **Uncategorized**
+    - Add readme file ([`55d81b0`](https://github.com/tailcallhq/rust-gh-workflows/commit/55d81b06bf673774e9559915cbe1cb49ccf0a6c5))
+</details>
+
 ## v0.1.0 (2024-11-08)
 
 <csr-id-7f8b45f3f2065fc953da5fd4447183d0bcb94e38/>
@@ -15,6 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <csr-id-dccdb3612602559e3c39e83ae3894086e06c5a5d/>
 <csr-id-5e43aa120b9f37227bc0d1e9d2c3c840a652319e/>
 <csr-id-cbf51abc82da429539cff463aebb83f941b62922/>
+<csr-id-17a92e4d66226b5b22feadce6b2b79326be328d1/>
 
 ### Chore
 
@@ -63,7 +88,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 17 commits contributed to the release.
+ - 18 commits contributed to the release.
  - 12 commits were understood as [conventional](https://www.conventionalcommits.org).
  - 4 unique issues were worked on: [#13](https://github.com/tailcallhq/rust-gh-workflows/issues/13), [#14](https://github.com/tailcallhq/rust-gh-workflows/issues/14), [#19](https://github.com/tailcallhq/rust-gh-workflows/issues/19), [#21](https://github.com/tailcallhq/rust-gh-workflows/issues/21)
 
@@ -82,6 +107,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  * **[#21](https://github.com/tailcallhq/rust-gh-workflows/issues/21)**
     - Validate on CI ([`8f3615d`](https://github.com/tailcallhq/rust-gh-workflows/commit/8f3615d7d3e6b71946b09c68a4ec8dc7cb3418a7))
  * **Uncategorized**
+    - Release gh-workflow v0.1.0 ([`374d65c`](https://github.com/tailcallhq/rust-gh-workflows/commit/374d65c8c638b50efe5724d44f2bc1b409ab5a56))
     - Update license ([`17a92e4`](https://github.com/tailcallhq/rust-gh-workflows/commit/17a92e4d66226b5b22feadce6b2b79326be328d1))
     - Release gh-workflow v0.1.0 ([`3d5543b`](https://github.com/tailcallhq/rust-gh-workflows/commit/3d5543b427685752770a75ce3d078f7b38f7a5f2))
     - Release gh-workflow v0.1.0 ([`4602f22`](https://github.com/tailcallhq/rust-gh-workflows/commit/4602f22c2437cad2467ee083402b0eb7f29ab045))
