@@ -52,6 +52,7 @@ pub enum Arch {
     X86_64,
     Aarch64,
     Arm,
+    Wasm32,
 }
 
 impl Display for Arch {
@@ -60,6 +61,7 @@ impl Display for Arch {
             Arch::X86_64 => "x86_64",
             Arch::Aarch64 => "aarch64",
             Arch::Arm => "arm",
+            Arch::Wasm32 => "wasm32",
         };
         write!(f, "{}", val)
     }
@@ -125,10 +127,10 @@ impl Display for Abi {
 
 #[derive(Clone, Setters)]
 pub struct Target {
-    arch: Arch,
-    vendor: Vendor,
-    system: System,
-    abi: Option<Abi>,
+    pub arch: Arch,
+    pub vendor: Vendor,
+    pub system: System,
+    pub abi: Option<Abi>,
 }
 
 /// A Rust representation for the inputs of the setup-rust action.
@@ -139,6 +141,7 @@ pub struct Target {
 #[setters(strip_option)]
 pub struct ToolchainStep {
     pub toolchain: Vec<Toolchain>,
+    #[setters(skip)]
     pub target: Option<Target>,
     pub components: Vec<Component>,
     pub cache: Option<bool>,
@@ -179,6 +182,11 @@ impl ToolchainStep {
 
     pub fn component_rustfmt(mut self) -> Self {
         self.components.push(Component::Rustfmt);
+        self
+    }
+
+    pub fn target(mut self, arch: Arch, vendor: Vendor, system: System, abi: Option<Abi>) -> Self {
+        self.target = Some(Target { arch, vendor, system, abi });
         self
     }
 }

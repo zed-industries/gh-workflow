@@ -7,7 +7,7 @@ use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-use crate::error::{Error, Result};
+use crate::error::Result;
 use crate::generate::Generate;
 use crate::{EventValue, ToolchainStep};
 
@@ -57,14 +57,11 @@ impl Workflow {
         Ok(serde_yaml::to_string(self)?)
     }
 
-    pub fn add_job<T: ToString, J: Into<Job>>(mut self, id: T, job: J) -> Result<Self> {
+    pub fn add_job<T: ToString, J: Into<Job>>(mut self, id: T, job: J) -> Self {
         let key = id.to_string();
-        if self.jobs.contains_key(&key) {
-            return Err(Error::JobIdAlreadyExists(key.as_str().to_string()));
-        }
 
         self.jobs.insert(key, job.into());
-        Ok(self)
+        self
     }
 
     pub fn parse(yml: &str) -> Result<Self> {

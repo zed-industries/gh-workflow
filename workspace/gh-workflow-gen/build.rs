@@ -34,7 +34,6 @@ fn main() {
         .on(on_push)
         .on(on_pull_request)
         .add_job("build", job_build)
-        .unwrap()
         .generate()
         .unwrap();
 }
