@@ -165,22 +165,22 @@ impl ToolchainStep {
         self
     }
 
-    pub fn toolchain_stable(mut self) -> Self {
+    pub fn with_stable_toolchain(mut self) -> Self {
         self.toolchain.push(Toolchain::Stable);
         self
     }
 
-    pub fn toolchain_nightly(mut self) -> Self {
+    pub fn with_nightly_toolchain(mut self) -> Self {
         self.toolchain.push(Toolchain::Nightly);
         self
     }
 
-    pub fn component_clippy(mut self) -> Self {
+    pub fn with_clippy(mut self) -> Self {
         self.components.push(Component::Clippy);
         self
     }
 
-    pub fn component_rustfmt(mut self) -> Self {
+    pub fn with_fmt(mut self) -> Self {
         self.components.push(Component::Rustfmt);
         self
     }

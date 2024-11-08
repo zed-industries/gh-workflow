@@ -38,7 +38,8 @@ Then you can start creating GitHub Actions in your [build.rs](https://github.com
   use rust_gh_workflows::*;
 
   fn main() {
-      Workflow::new("CI")
+      // Create a workflow
+      let workflow = Workflow::new("CI")
           .permissions(Permissions::read())
           .on(Event::default().push(Push::default().branch("main"))
           .add_job(
@@ -48,9 +49,10 @@ Then you can start creating GitHub Actions in your [build.rs](https://github.com
                   .add_step(Step::setup_rust().add_toolchain(Toolchain::Stable))
                   .add_step(Step::cargo("test", vec!["--all-features", "--workspace"]))
           )
-          .unwrap()
-          .generate()
           .unwrap();
+
+      // Generate the ci.yml
+      workflow.generate().unwrap();
   }
   ```
 

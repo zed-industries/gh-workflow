@@ -9,7 +9,7 @@ use serde_json::Value;
 
 use crate::error::Result;
 use crate::generate::Generate;
-use crate::{EventValue, ToolchainStep};
+use crate::{Arch, Event, EventValue, RustFlags, ToolchainStep, Vendor};
 
 #[derive(Debug, Default, Setters, Serialize, Deserialize, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
@@ -78,6 +78,43 @@ impl Workflow {
 
     pub fn env<T: SetEnv<Self>>(self, env: T) -> Self {
         env.apply(self)
+    }
+
+    pub fn setup_rust() -> Self {
+        let build_job = Job::new("Build and Test")
+            .add_step(Step::checkout())
+            .add_step(
+                Step::setup_rust()
+                    .with_stable_toolchain()
+                    .with_nightly_toolchain()
+                    .with_clippy()
+                    .with_fmt(),
+            )
+
+            // TODO: make it type-safe
+            .add_step(Step::cargo("test", vec!["--all-features", "--workspace"]))
+            .add_step(Step::cargo_nightly("fmt", vec!["--check"]))
+            .add_step(Step::cargo_nightly(
+                "clippy",
+                vec!["--all-features", "--workspace", "--", "-D warnings"],
+            ));
+
+        let push_event = Event::push().branch("main");
+
+        let pr_event = Event::pull_request_target()
+            .open()
+            .synchronize()
+            .reopen()
+            .branch("main");
+
+        let rust_flags = RustFlags::deny("warnings");
+
+        Workflow::new("Build and Test")
+            .env(rust_flags)
+            .permissions(Permissions::read())
+            .on(push_event)
+            .on(pr_event)
+            .add_job("build", build_job)
     }
 }
 
