@@ -9,7 +9,7 @@ use serde_json::Value;
 
 use crate::error::Result;
 use crate::generate::Generate;
-use crate::{Arch, Event, EventValue, RustFlags, ToolchainStep, Vendor};
+use crate::{Event, EventValue, RustFlags, ToolchainStep};
 
 #[derive(Debug, Default, Setters, Serialize, Deserialize, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
@@ -90,7 +90,6 @@ impl Workflow {
                     .with_clippy()
                     .with_fmt(),
             )
-
             // TODO: make it type-safe
             .add_step(Step::cargo("test", vec!["--all-features", "--workspace"]))
             .add_step(Step::cargo_nightly("fmt", vec!["--check"]))
