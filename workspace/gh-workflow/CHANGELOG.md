@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 2 commits contributed to the release.
+ - 3 commits contributed to the release.
  - 1 commit was understood as [conventional](https://www.conventionalcommits.org).
  - 0 issues like '(#ID)' were seen in commit messages
 
@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <details><summary>view details</summary>
 
  * **Uncategorized**
+    - Release gh-workflow v0.1.1 ([`c58445e`](https://github.com/tailcallhq/rust-gh-workflows/commit/c58445effa55bca60e2283205feba758365efe51))
     - Release gh-workflow v0.1.1 ([`677a89e`](https://github.com/tailcallhq/rust-gh-workflows/commit/677a89e38a74410db14c7546499a1ce818befd96))
     - Add readme file ([`55d81b0`](https://github.com/tailcallhq/rust-gh-workflows/commit/55d81b06bf673774e9559915cbe1cb49ccf0a6c5))
 </details>
