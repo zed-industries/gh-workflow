@@ -1,6 +1,4 @@
-use gh_workflow::{
-    Component, Event, Job, Permissions, PullRequest, Push, RustFlags, Step, Toolchain, Workflow,
-};
+use gh_workflow::*;
 
 fn main() {
     let rust_flags = RustFlags::deny("warnings");
