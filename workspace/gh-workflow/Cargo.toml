@@ -3,6 +3,13 @@ name = "gh-workflow"
 version = "0.1.0"
 edition = "2021"
 
+description = "A type-safe GitHub Actions workflow generator"
+license = "Apache 2.0"
+license-file = "LICENSE.md"
+documentation = "https://github.com/tailcallhq/rust-gh-workflows"
+homepage = "https://github.com/tailcallhq/rust-gh-workflows"
+repository = "https://github.com/tailcallhq/rust-gh-workflows"
+
 [dependencies]
 async-trait = "0.1.83"
 derive_more = { version = "1.0.0", features = ["from"] }
