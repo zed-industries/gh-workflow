@@ -5,7 +5,6 @@ edition = "2021"
 
 description = "A type-safe GitHub Actions workflow generator"
 license = "Apache 2.0"
-license-file = "LICENSE"
 documentation = "https://github.com/tailcallhq/rust-gh-workflows"
 homepage = "https://github.com/tailcallhq/rust-gh-workflows"
 repository = "https://github.com/tailcallhq/rust-gh-workflows"
