@@ -193,7 +193,8 @@ impl ToolchainStep {
 
 impl AddStep for ToolchainStep {
     fn apply(self, job: Job) -> Job {
-        let mut step = Step::uses("actions-rust-lang", "setup-rust-toolchain", 1);
+        let mut step =
+            Step::uses("actions-rust-lang", "setup-rust-toolchain", 1).name("Setup Rust Toolchain");
 
         let toolchain = self
             .toolchain

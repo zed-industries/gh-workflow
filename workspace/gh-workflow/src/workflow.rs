@@ -91,12 +91,15 @@ impl Workflow {
                     .with_fmt(),
             )
             // TODO: make it type-safe
-            .add_step(Step::cargo("test", vec!["--all-features", "--workspace"]))
-            .add_step(Step::cargo_nightly("fmt", vec!["--check"]))
-            .add_step(Step::cargo_nightly(
-                "clippy",
-                vec!["--all-features", "--workspace", "--", "-D warnings"],
-            ));
+            .add_step(Step::cargo("test", vec!["--all-features", "--workspace"]).name("Cargo Test"))
+            .add_step(Step::cargo_nightly("fmt", vec!["--check"]).name("Cargo Fmt"))
+            .add_step(
+                Step::cargo_nightly(
+                    "clippy",
+                    vec!["--all-features", "--workspace", "--", "-D warnings"],
+                )
+                .name("Cargo Clippy"),
+            );
 
         let push_event = Event::push().branch("main");
 
