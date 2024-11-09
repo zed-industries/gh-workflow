@@ -17,10 +17,10 @@ enum Operator {
 }
 
 #[derive(Debug, PartialEq)]
-pub struct Condition<'a> {
-    left: &'a str,
+pub struct Condition {
+    left: String,
     operator: Operator,
-    right: &'a str,
+    right: String,
 }
 
 #[derive(Debug, PartialEq)]
@@ -30,12 +30,12 @@ pub enum LogicalOperator {
 }
 
 #[derive(Debug, PartialEq)]
-pub enum ComplexCondition<'a> {
-    Single(Condition<'a>),
+pub enum ComplexCondition {
+    Single(Condition),
     Compound(
-        Box<ComplexCondition<'a>>,
+        Box<ComplexCondition>,
         LogicalOperator,
-        Box<ComplexCondition<'a>>,
+        Box<ComplexCondition>,
     ),
 }
 
@@ -68,7 +68,10 @@ fn parse_operand(input: &str) -> IResult<&str, &str> {
 fn parse_condition(input: &str) -> IResult<&str, Condition> {
     let (input, (left, _, operator, _, right)) =
         (parse_operand, space0, parse_operator, space0, parse_operand).parse(input)?;
-    Ok((input, Condition { left, operator, right }))
+    Ok((
+        input,
+        Condition { left: left.to_string(), operator, right: right.to_string() },
+    ))
 }
 
 fn parse_logical_operator(input: &str) -> IResult<&str, LogicalOperator> {
@@ -105,9 +108,9 @@ mod tests {
     fn parse_simple_condition() {
         let input = "github.event_name == 'push'";
         let expected = Condition {
-            left: "github.event_name",
+            left: "github.event_name".to_string(),
             operator: Operator::Eq,
-            right: "'push'",
+            right: "'push'".to_string(),
         };
         assert_eq!(parse_condition(input).unwrap().1, expected);
     }
@@ -117,15 +120,15 @@ mod tests {
         let input = "github.event_name == 'push' && github.ref == 'refs/heads/main' ";
         let expected = ComplexCondition::Compound(
             Box::from(ComplexCondition::Single(Condition {
-                left: "github.event_name",
+                left: "github.event_name".to_string(),
                 operator: Operator::Eq,
-                right: "'push'",
+                right: "'push'".to_string(),
             })),
             LogicalOperator::And,
             Box::new(ComplexCondition::Single(Condition {
-                left: "github.ref",
+                left: "github.ref".to_string(),
                 operator: Operator::Eq,
-                right: "'refs/heads/main'",
+                right: "'refs/heads/main'".to_string(),
             })),
         );
 

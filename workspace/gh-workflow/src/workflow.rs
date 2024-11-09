@@ -135,6 +135,7 @@ pub struct Job {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub needs: Option<Value>,
     #[serde(skip_serializing_if = "Option::is_none", rename = "if")]
+    #[setters(skip)]
     pub if_condition: Option<Expression>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
@@ -194,6 +195,13 @@ impl Job {
     pub fn env<T: SetEnv<Self>>(self, env: T) -> Self {
         env.apply(self)
     }
+    pub fn if_condition(mut self, if_condition: Expression) -> Self {
+        let _condition = crate::mustache::parse_if_condition(if_condition.0.as_str());
+        // TODO: use this condition
+        self.if_condition = Some(if_condition);
+
+        self
+    }
 }
 
 impl<T: Into<Value>> SetRunner for T {
@@ -238,6 +246,7 @@ pub struct Step<T> {
     #[setters(skip)]
     pub name: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none", rename = "if")]
+    #[setters(skip)]
     pub if_condition: Option<Expression>,
     #[serde(skip_serializing_if = "Option::is_none")]
     #[setters(skip)]
@@ -278,6 +287,13 @@ impl<T> Step<T> {
     }
     pub fn working_directory<S: ToString>(mut self, working_directory: S) -> Self {
         self.working_directory = Some(working_directory.to_string());
+        self
+    }
+    pub fn if_condition(mut self, if_condition: Expression) -> Self {
+        let _condition = crate::mustache::parse_if_condition(if_condition.0.as_str());
+        // TODO: use this condition
+        self.if_condition = Some(if_condition);
+
         self
     }
 }
