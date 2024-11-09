@@ -3,7 +3,7 @@ use gh_workflow::*;
 
 fn main() {
     Generate::new(Workflow::setup_rust())
-        .name("ci")
+        .name("ci.yml")
         .generate()
         .unwrap();
 }
