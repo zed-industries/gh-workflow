@@ -1,5 +1,9 @@
+use gh_workflow::generate::Generate;
 use gh_workflow::*;
 
 fn main() {
-    Workflow::setup_rust().generate().unwrap();
+    Generate::new(Workflow::setup_rust())
+        .name("ci")
+        .generate()
+        .unwrap();
 }
