@@ -15,7 +15,7 @@ pub struct Event {
     // TODO: add all more events
 }
 
-#[derive(Debug, Default, Serialize, Deserialize, Clone, PartialEq, Eq)]
+#[derive(Debug, Setters, Default, Serialize, Deserialize, Clone, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub struct Push {
     branches: Vec<String>,
@@ -34,7 +34,7 @@ impl From<Push> for Event {
     }
 }
 
-#[derive(Debug, Default, Serialize, Deserialize, Clone, PartialEq, Eq)]
+#[derive(Debug, Setters, Default, Serialize, Deserialize, Clone, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub struct PullRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
