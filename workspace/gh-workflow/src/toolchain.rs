@@ -4,28 +4,28 @@ use std::fmt::{Display, Formatter};
 
 use derive_setters::Setters;
 
-use crate::{AddStep, Job, RustFlags, Step};
+use crate::{Input, RustFlags, StepValue};
 
 #[derive(Clone)]
-pub enum Toolchain {
+pub enum Version {
     Stable,
     Nightly,
     Custom((u64, u64, u64)),
 }
 
-impl Display for Toolchain {
+impl Display for Version {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
         match self {
-            Toolchain::Stable => write!(f, "stable"),
-            Toolchain::Nightly => write!(f, "nightly"),
-            Toolchain::Custom(s) => write!(f, "{}.{}.{}", s.0, s.1, s.2),
+            Version::Stable => write!(f, "stable"),
+            Version::Nightly => write!(f, "nightly"),
+            Version::Custom(s) => write!(f, "{}.{}.{}", s.0, s.1, s.2),
         }
     }
 }
 
-impl Toolchain {
+impl Version {
     pub fn new(major: u64, minor: u64, patch: u64) -> Self {
-        Toolchain::Custom((major, minor, patch))
+        Version::Custom((major, minor, patch))
     }
 }
 
@@ -138,9 +138,9 @@ pub struct Target {
 /// NOTE: The public API should be close to the original action as much as
 /// possible.
 #[derive(Default, Clone, Setters)]
-#[setters(strip_option)]
-pub struct ToolchainStep {
-    pub toolchain: Vec<Toolchain>,
+#[setters(strip_option, into)]
+pub struct Toolchain {
+    pub toolchain: Vec<Version>,
     #[setters(skip)]
     pub target: Option<Target>,
     pub components: Vec<Component>,
@@ -154,8 +154,8 @@ pub struct ToolchainStep {
     pub override_default: Option<bool>,
 }
 
-impl ToolchainStep {
-    pub fn add_toolchain(mut self, version: Toolchain) -> Self {
+impl Toolchain {
+    pub fn add_version(mut self, version: Version) -> Self {
         self.toolchain.push(version);
         self
     }
@@ -165,22 +165,22 @@ impl ToolchainStep {
         self
     }
 
-    pub fn with_stable_toolchain(mut self) -> Self {
-        self.toolchain.push(Toolchain::Stable);
+    pub fn add_stable(mut self) -> Self {
+        self.toolchain.push(Version::Stable);
         self
     }
 
-    pub fn with_nightly_toolchain(mut self) -> Self {
-        self.toolchain.push(Toolchain::Nightly);
+    pub fn add_nightly(mut self) -> Self {
+        self.toolchain.push(Version::Nightly);
         self
     }
 
-    pub fn with_clippy(mut self) -> Self {
+    pub fn add_clippy(mut self) -> Self {
         self.components.push(Component::Clippy);
         self
     }
 
-    pub fn with_fmt(mut self) -> Self {
+    pub fn add_fmt(mut self) -> Self {
         self.components.push(Component::Rustfmt);
         self
     }
@@ -191,28 +191,30 @@ impl ToolchainStep {
     }
 }
 
-impl AddStep for ToolchainStep {
-    fn apply(self, job: Job) -> Job {
-        let mut step =
-            Step::uses("actions-rust-lang", "setup-rust-toolchain", 1).name("Setup Rust Toolchain");
+impl From<Toolchain> for StepValue {
+    fn from(value: Toolchain) -> Self {
+        let mut step = StepValue::uses("actions-rust-lang", "setup-rust-toolchain", 1)
+            .name("Setup Rust Toolchain");
 
-        let toolchain = self
+        let toolchain = value
             .toolchain
             .iter()
             .map(|t| match t {
-                Toolchain::Stable => "stable".to_string(),
-                Toolchain::Nightly => "nightly".to_string(),
-                Toolchain::Custom((major, minor, patch)) => {
+                Version::Stable => "stable".to_string(),
+                Version::Nightly => "nightly".to_string(),
+                Version::Custom((major, minor, patch)) => {
                     format!("{}.{}.{}", major, minor, patch)
                 }
             })
             .reduce(|acc, a| format!("{}, {}", acc, a));
 
+        let mut input = Input::default();
+
         if let Some(toolchain) = toolchain {
-            step = step.with(("toolchain", toolchain));
+            input = input.add("toolchain", toolchain);
         }
 
-        if let Some(target) = self.target {
+        if let Some(target) = value.target {
             let target = format!(
                 "{}-{}-{}{}",
                 target.arch,
@@ -221,62 +223,64 @@ impl AddStep for ToolchainStep {
                 target.abi.map(|v| v.to_string()).unwrap_or_default(),
             );
 
-            step = step.with(("target", target));
+            input = input.add("target", target);
         }
 
-        if !self.components.is_empty() {
-            let components = self
+        if !value.components.is_empty() {
+            let components = value
                 .components
                 .iter()
                 .map(|c| c.to_string())
                 .reduce(|acc, a| format!("{}, {}", acc, a))
                 .unwrap_or_default();
 
-            step = step.with(("components", components));
+            input = input.add("components", components);
         }
 
-        if let Some(cache) = self.cache {
-            step = step.with(("cache", cache));
+        if let Some(cache) = value.cache {
+            input = input.add("cache", cache);
         }
 
-        if !self.cache_directories.is_empty() {
-            let cache_directories = self
+        if !value.cache_directories.is_empty() {
+            let cache_directories = value
                 .cache_directories
                 .iter()
                 .fold("".to_string(), |acc, a| format!("{}\n{}", acc, a));
 
-            step = step.with(("cache-directories", cache_directories));
+            input = input.add("cache-directories", cache_directories);
         }
 
-        if !self.cache_workspaces.is_empty() {
-            let cache_workspaces = self
+        if !value.cache_workspaces.is_empty() {
+            let cache_workspaces = value
                 .cache_workspaces
                 .iter()
                 .fold("".to_string(), |acc, a| format!("{}\n{}", acc, a));
 
-            step = step.with(("cache-workspaces", cache_workspaces));
+            input = input.add("cache-workspaces", cache_workspaces);
         }
 
-        if let Some(cache_on_failure) = self.cache_on_failure {
-            step = step.with(("cache-on-failure", cache_on_failure));
+        if let Some(cache_on_failure) = value.cache_on_failure {
+            input = input.add("cache-on-failure", cache_on_failure);
         }
 
-        if let Some(cache_key) = self.cache_key {
-            step = step.with(("cache-key", cache_key));
+        if let Some(cache_key) = value.cache_key {
+            input = input.add("cache-key", cache_key);
         }
 
-        if let Some(matcher) = self.matcher {
-            step = step.with(("matcher", matcher));
+        if let Some(matcher) = value.matcher {
+            input = input.add("matcher", matcher);
         }
 
-        if let Some(rust_flags) = self.rust_flags {
-            step = step.with(("rust-flags", rust_flags.to_string()));
+        if let Some(rust_flags) = value.rust_flags {
+            input = input.add("rust-flags", rust_flags.to_string());
         }
 
-        if let Some(override_default) = self.override_default {
-            step = step.with(("override", override_default));
+        if let Some(override_default) = value.override_default {
+            input = input.add("override", override_default);
         }
 
-        job.add_step(step)
+        step = step.with(input);
+
+        step
     }
 }
