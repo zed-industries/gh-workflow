@@ -220,10 +220,16 @@ impl From<IndexMap<String, Value>> for Env {
 
 #[derive(Debug, Default, Serialize, Deserialize, Clone, PartialEq, Eq)]
 #[serde(transparent)]
-pub struct Input(IndexMap<String, Value>);
+pub struct Input(#[serde(skip_serializing_if = "IndexMap::is_empty")] IndexMap<String, Value>);
 impl From<IndexMap<String, Value>> for Input {
     fn from(value: IndexMap<String, Value>) -> Self {
         Input(value)
+    }
+}
+
+impl Merge for Input {
+    fn merge(&mut self, other: Self) {
+        self.0.extend(other.0);
     }
 }
 
@@ -231,6 +237,10 @@ impl Input {
     pub fn add<S: ToString, V: Into<Value>>(mut self, key: S, value: V) -> Self {
         self.0.insert(key.to_string(), value.into());
         self
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.0.is_empty()
     }
 }
 #[allow(clippy::duplicated_attributes)]
@@ -286,6 +296,18 @@ impl StepValue {
             )),
             ..Default::default()
         }
+    }
+
+    pub fn add_with<I: Into<Input>>(mut self, new_with: I) -> Self {
+        let mut with = self.with.unwrap_or_default();
+        with.merge(new_with.into());
+        if with.0.is_empty() {
+            self.with = None;
+        } else {
+            self.with = Some(with);
+        }
+
+        self
     }
 }
 

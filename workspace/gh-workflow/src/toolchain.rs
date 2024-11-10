@@ -279,8 +279,9 @@ impl From<Toolchain> for StepValue {
             input = input.add("override", override_default);
         }
 
-        step = step.with(input);
-
+        if !input.is_empty() {
+            step = step.with(input);
+        }
         step
     }
 }
