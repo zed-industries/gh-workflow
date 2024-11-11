@@ -5,7 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## v0.2.0 (2024-11-10)
+## v0.2.0 (2024-11-11)
+
+<csr-id-d058f85eed4f6904cda24330f2f4e1c95a926257/>
+<csr-id-d5a2987bb6aadbf0430b7a712f9f63d6552acf3e/>
+<csr-id-96be2435d64d679b267ceeac4918b2b8bc07a77d/>
 
 ### Chore
 
@@ -22,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
  - <csr-id-c5b83cb65e16e0b2d0d8ab2a1b5b519db4693d82/> `Job::runs_on`
  - <csr-id-8027f4f3a6a95ae02044f5ac83386c2b0c53ec27/> add names to default Rust workflow
+ - <csr-id-790765acf303891b491a37ee7d07413debd90f67/> Improve type-safety for Step
 
 ### Refactor
 
@@ -31,10 +36,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <csr-read-only-do-not-edit/>
 
- - 9 commits contributed to the release.
- - 2 days passed between releases.
- - 8 commits were understood as [conventional](https://www.conventionalcommits.org).
- - 3 unique issues were worked on: [#22](https://github.com/tailcallhq/rust-gh-workflows/issues/22), [#29](https://github.com/tailcallhq/rust-gh-workflows/issues/29), [#33](https://github.com/tailcallhq/rust-gh-workflows/issues/33)
+ - 1 commit contributed to the release.
+ - 1 commit was understood as [conventional](https://www.conventionalcommits.org).
+ - 0 issues like '(#ID)' were seen in commit messages
 
 ### Commit Details
 
@@ -42,19 +46,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <details><summary>view details</summary>
 
- * **[#22](https://github.com/tailcallhq/rust-gh-workflows/issues/22)**
-    - Many many changes ([`96be243`](https://github.com/tailcallhq/rust-gh-workflows/commit/96be2435d64d679b267ceeac4918b2b8bc07a77d))
- * **[#29](https://github.com/tailcallhq/rust-gh-workflows/issues/29)**
-    - Impl `Step::working_directory` ([`d5a2987`](https://github.com/tailcallhq/rust-gh-workflows/commit/d5a2987bb6aadbf0430b7a712f9f63d6552acf3e))
- * **[#33](https://github.com/tailcallhq/rust-gh-workflows/issues/33)**
-    - `Job::runs_on` ([`c5b83cb`](https://github.com/tailcallhq/rust-gh-workflows/commit/c5b83cb65e16e0b2d0d8ab2a1b5b519db4693d82))
  * **Uncategorized**
-    - Add `add_with` operator` on StepValue ([`f244199`](https://github.com/tailcallhq/rust-gh-workflows/commit/f2441994724242e1ea761bf6cadd023f346b383e))
-    - Add Setters for Event ([`9a4b40a`](https://github.com/tailcallhq/rust-gh-workflows/commit/9a4b40af898fa766ce3b65c23dfe4c775839b785))
-    - Update build.rs using `Generate` and custom name ([`d058f85`](https://github.com/tailcallhq/rust-gh-workflows/commit/d058f85eed4f6904cda24330f2f4e1c95a926257))
-    - Make generate public fixes #26 ([`375862b`](https://github.com/tailcallhq/rust-gh-workflows/commit/375862bc427518f715165c97442ab172ae379b8f))
-    - Add names to default Rust workflow ([`8027f4f`](https://github.com/tailcallhq/rust-gh-workflows/commit/8027f4f3a6a95ae02044f5ac83386c2b0c53ec27))
-    - Add names to workflows ([`a49ab27`](https://github.com/tailcallhq/rust-gh-workflows/commit/a49ab27d595e2df75171249e3f0cc780ec4c47da))
+    - Improve type-safety for Step ([`790765a`](https://github.com/tailcallhq/rust-gh-workflows/commit/790765acf303891b491a37ee7d07413debd90f67))
 </details>
 
 ## v0.1.2 (2024-11-08)
