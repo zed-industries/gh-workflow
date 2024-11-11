@@ -46,8 +46,9 @@ fn main() {
         .needs("build")
         .permissions(
             Permissions::default()
-                .pull_requests(PermissionLevel::Write)
-                .packages(PermissionLevel::Write),
+                .pull_requests(Level::Write)
+                .packages(Level::Write)
+                .contents(Level::Write),
         )
         .add_env(Env::github())
         .add_step(Step::checkout())

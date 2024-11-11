@@ -496,30 +496,30 @@ pub struct Concurrency {
 #[setters(strip_option, into)]
 pub struct Permissions {
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub actions: Option<PermissionLevel>,
+    pub actions: Option<Level>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub contents: Option<PermissionLevel>,
+    pub contents: Option<Level>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub issues: Option<PermissionLevel>,
+    pub issues: Option<Level>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub pull_requests: Option<PermissionLevel>,
+    pub pull_requests: Option<Level>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub deployments: Option<PermissionLevel>,
+    pub deployments: Option<Level>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub checks: Option<PermissionLevel>,
+    pub checks: Option<Level>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub statuses: Option<PermissionLevel>,
+    pub statuses: Option<Level>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub packages: Option<PermissionLevel>,
+    pub packages: Option<Level>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub pages: Option<PermissionLevel>,
+    pub pages: Option<Level>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub id_token: Option<PermissionLevel>,
+    pub id_token: Option<Level>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, Default)]
 #[serde(rename_all = "kebab-case")]
-pub enum PermissionLevel {
+pub enum Level {
     Read,
     Write,
     #[default]
