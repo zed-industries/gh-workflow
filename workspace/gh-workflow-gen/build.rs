@@ -1,5 +1,5 @@
 use gh_workflow::*;
-use gh_workflow_release_plz::ReleasePlz;
+use gh_workflow_release_plz::{Command, ReleasePlz};
 use toolchain::Toolchain;
 
 fn main() {
@@ -43,7 +43,7 @@ fn main() {
         );
 
     let release = Job::new("Release")
-        .add_step(ReleasePlz::default())
+        .add_step(ReleasePlz::default().command(Command::ReleasePR))
         .needs("build");
 
     Workflow::new("Build and Test")
