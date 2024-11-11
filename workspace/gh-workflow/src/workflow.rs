@@ -240,7 +240,7 @@ impl StepType for Use {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, Default)]
+#[derive(Default, Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 #[serde(transparent)]
 pub struct Env(IndexMap<String, Value>);
 impl From<IndexMap<String, Value>> for Env {
@@ -259,6 +259,16 @@ impl Env {
             Value::from("${{ secrets.GITHUB_TOKEN }}"),
         );
         Env(map)
+    }
+
+    pub fn new<K: ToString, V: Into<Value>>(key: K, value: V) -> Self {
+        Env::default().add(key, value)
+    }
+
+    /// Adds the provided value as an environment variable to the Env.
+    pub fn add<T1: ToString, T2: Into<Value>>(mut self, key: T1, value: T2) -> Self {
+        self.0.insert(key.to_string(), value.into());
+        self
     }
 }
 

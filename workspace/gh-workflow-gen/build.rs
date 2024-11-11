@@ -44,9 +44,8 @@ fn main() {
 
     let release = Job::new("Release")
         .needs("build")
-        .add_env(Env::github())
+        .add_env(("GITHUB_TOKEN", "${{ secrets.GH_TOKEN }}"))
         .add_step(Step::checkout())
-        .add_step(ReleasePlz::default().command(Command::ReleasePR))
         .add_step(ReleasePlz::default().command(Command::ReleasePR));
 
     Workflow::new("Build and Test")
