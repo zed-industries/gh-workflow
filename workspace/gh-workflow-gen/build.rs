@@ -32,7 +32,8 @@ fn main() {
                 .name("Cargo Clippy"),
         )
         .add_step(Step::run("find . -name Cargo.toml"))
-        .add_step(ReleasePlz::default().command(Command::ReleasePR));
+        .add_step(ReleasePlz::default().command(Command::ReleasePR))
+        .add_github_token();
 
     let event = Event::default()
         .push(Push::default().add_branch("main"))
