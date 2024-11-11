@@ -60,5 +60,7 @@ jobs:
       uses: MarcoIeni/release-plz-action@v0.5
       with:
         command: release-pr
+    permissions:
+      contents: write
     env:
-      GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

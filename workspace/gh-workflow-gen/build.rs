@@ -44,7 +44,8 @@ fn main() {
 
     let release = Job::new("Release")
         .needs("build")
-        .add_env(("GITHUB_TOKEN", "${{ secrets.GH_TOKEN }}"))
+        .permissions(Permissions::write())
+        .add_env(Env::github())
         .add_step(Step::checkout())
         .add_step(ReleasePlz::default().command(Command::ReleasePR));
 
