@@ -51,7 +51,7 @@ fn main() {
         .needs("build")
         .permissions(permissions)
         .add_step(Step::checkout())
-        .add_step(ReleasePlz::default().command(Command::Release));
+        .add_step(ReleasePlz::default());
 
     Workflow::new("Build and Test")
         .add_env(flags)
