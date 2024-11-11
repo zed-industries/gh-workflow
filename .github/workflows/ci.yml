@@ -54,6 +54,7 @@ jobs:
     name: Release
     runs-on: ubuntu-latest
     steps:
+    - run: find . -name Cargo.toml
     - name: Release Plz
       uses: MarcoIeni/release-plz-action@v0.5
       with:
