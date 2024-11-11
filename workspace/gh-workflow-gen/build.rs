@@ -42,20 +42,21 @@ fn main() {
                 .add_branch("main"),
         );
 
+    let permissions = Permissions::default()
+        .pull_requests(Level::Write)
+        .packages(Level::Write)
+        .contents(Level::Write);
+
     let release = Job::new("Release")
         .needs("build")
-        .permissions(
-            Permissions::default()
-                .pull_requests(Level::Write)
-                .packages(Level::Write)
-                .contents(Level::Write),
-        )
+        .permissions(permissions.clone())
         .add_env(Env::github())
         .add_step(Step::checkout())
         .add_step(ReleasePlz::default().command(Command::ReleasePR));
 
     Workflow::new("Build and Test")
         .add_env(flags)
+        .permissions(permissions)
         .on(event)
         .add_job("build", build)
         .add_job("release", release)

@@ -491,6 +491,8 @@ pub struct Concurrency {
     pub limit: Option<u32>,
 }
 
+/// Sets the permissions for `GITHUB_TOKEN`
+/// See: <https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/controlling-permissions-for-github_token>
 #[derive(Debug, Setters, Serialize, Deserialize, Clone, PartialEq, Eq, Default)]
 #[serde(rename_all = "kebab-case")]
 #[setters(strip_option, into)]

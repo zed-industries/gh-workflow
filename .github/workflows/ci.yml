@@ -29,6 +29,10 @@ on:
     - reopened
     branches:
     - main
+permissions:
+  contents: write
+  pull-requests: write
+  packages: write
 jobs:
   build:
     name: Build and Test
