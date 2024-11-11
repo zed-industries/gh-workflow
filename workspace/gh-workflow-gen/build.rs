@@ -57,6 +57,10 @@ fn main() {
     Workflow::new("Build and Test")
         .add_env(flags)
         .add_env(Env::github())
+        .add_env(Env::new(
+            "CARGO_REGISTRY_TOKEN",
+            "${{ secrets.CARGO_REGISTRY_TOKEN }}",
+        ))
         .on(event)
         .add_job("build", build)
         .add_job("release", release)

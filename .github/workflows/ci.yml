@@ -19,6 +19,7 @@ name: Build and Test
 env:
   RUSTFLAGS: -Dwarnings
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
 on:
   push:
     branches:
