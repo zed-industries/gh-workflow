@@ -30,10 +30,6 @@ on:
     - reopened
     branches:
     - main
-permissions:
-  contents: write
-  pull-requests: write
-  packages: write
 jobs:
   build:
     name: Build and Test
@@ -61,3 +57,7 @@ jobs:
       uses: actions/checkout@v4
     - name: Release Plz
       uses: MarcoIeni/release-plz-action@v0.5
+    permissions:
+      contents: write
+      pull-requests: write
+      packages: write
