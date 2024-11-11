@@ -1,5 +1,5 @@
 use gh_workflow::*;
-use gh_workflow_release_plz::{Command, ReleasePlz};
+use gh_workflow_release_plz::ReleasePlz;
 use toolchain::Toolchain;
 
 fn main() {
