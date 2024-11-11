@@ -11,4 +11,4 @@ repository = "https://github.com/tailcallhq/rust-gh-workflow"
 
 [dependencies]
 derive_setters = "0.1.6"
-gh-workflow = { path = "../gh-workflow", version = "0.2.1" }
+gh-workflow = { path = "../gh-workflow" }
