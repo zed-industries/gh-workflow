@@ -44,14 +44,17 @@ fn main() {
 
     let release = Job::new("Release")
         .needs("build")
-        .permissions(Permissions::write())
+        .permissions(
+            Permissions::default()
+                .pull_requests(PermissionLevel::Write)
+                .packages(PermissionLevel::Write),
+        )
         .add_env(Env::github())
         .add_step(Step::checkout())
         .add_step(ReleasePlz::default().command(Command::ReleasePR));
 
     Workflow::new("Build and Test")
         .add_env(flags)
-        .permissions(Permissions::read())
         .on(event)
         .add_job("build", build)
         .add_job("release", release)

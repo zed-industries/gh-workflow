@@ -517,16 +517,6 @@ pub struct Permissions {
     pub id_token: Option<PermissionLevel>,
 }
 
-impl Permissions {
-    pub fn read() -> Self {
-        Self { contents: Some(PermissionLevel::Read), ..Default::default() }
-    }
-
-    pub fn write() -> Self {
-        Self { contents: Some(PermissionLevel::Write), ..Default::default() }
-    }
-}
-
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, Default)]
 #[serde(rename_all = "kebab-case")]
 pub enum PermissionLevel {
