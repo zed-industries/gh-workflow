@@ -50,12 +50,12 @@ fn main() {
     let release = Job::new("Release")
         .needs("build")
         .permissions(permissions.clone())
-        .add_env(Env::github())
         .add_step(Step::checkout())
         .add_step(ReleasePlz::default().command(Command::ReleasePR));
 
     Workflow::new("Build and Test")
         .add_env(flags)
+        .add_env(Env::github())
         .permissions(permissions)
         .on(event)
         .add_job("build", build)

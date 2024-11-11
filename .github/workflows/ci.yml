@@ -18,6 +18,7 @@
 name: Build and Test
 env:
   RUSTFLAGS: -Dwarnings
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 on:
   push:
     branches:
@@ -66,5 +67,3 @@ jobs:
       contents: write
       pull-requests: write
       packages: write
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
