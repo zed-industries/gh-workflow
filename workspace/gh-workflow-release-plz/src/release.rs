@@ -70,7 +70,7 @@ impl std::fmt::Display for Backend {
 
 impl From<ReleasePlz> for Step<Use> {
     fn from(value: ReleasePlz) -> Self {
-        let mut step = Step::uses("MarcoIeni", "release-plz-action", 0.5).name("Release Plz");
+        let mut step = Step::uses("MarcoIeni", "release-plz-action", "0.5").name("Release Plz");
 
         if let Some(command) = value.command {
             step = step.add_with(("command", command.to_string()));
