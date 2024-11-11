@@ -1,13 +1,13 @@
 # 🦀 Rust GitHub Actions Workflow 🚀
 
 [![Rust](https://img.shields.io/badge/Language-Rust-blue?style=flat-square)](https://www.rust-lang.org)
-[![Build Status](https://github.com/tailcallhq/rust-gh-workflows/actions/workflows/ci.yml/badge.svg?style=flat-square)](https://github.com/tailcallhq/rust-gh-workflows/actions)
+[![Build Status](https://github.com/tailcallhq/rust-gh-workflow/actions/workflows/ci.yml/badge.svg?style=flat-square)](https://github.com/tailcallhq/rust-gh-workflow/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green?style=flat-square)](https://opensource.org/licenses/MIT)
 [![Crates.io](https://img.shields.io/crates/v/gh-workflow?style=flat-square)](https://crates.io/crates/gh-workflow)
-[![Contributors](https://img.shields.io/github/contributors/tailcallhq/rust-gh-workflows?style=flat-square)](https://github.com/tailcallhq/rust-gh-workflows/graphs/contributors)
-[![GitHub forks](https://img.shields.io/github/forks/tailcallhq/rust-gh-workflows?style=flat-square)](https://github.com/tailcallhq/rust-gh-workflows/network/members)
-[![Stars](https://img.shields.io/github/stars/tailcallhq/rust-gh-workflows?style=flat-square)](https://github.com/tailcallhq/rust-gh-workflows/stargazers)
-[![Issues](https://img.shields.io/github/issues/tailcallhq/rust-gh-workflows?style=flat-square)](https://github.com/tailcallhq/rust-gh-workflows/issues)
+[![Contributors](https://img.shields.io/github/contributors/tailcallhq/rust-gh-workflow?style=flat-square)](https://github.com/tailcallhq/rust-gh-workflow/graphs/contributors)
+[![GitHub forks](https://img.shields.io/github/forks/tailcallhq/rust-gh-workflow?style=flat-square)](https://github.com/tailcallhq/rust-gh-workflow/network/members)
+[![Stars](https://img.shields.io/github/stars/tailcallhq/rust-gh-workflow?style=flat-square)](https://github.com/tailcallhq/rust-gh-workflow/stargazers)
+[![Issues](https://img.shields.io/github/issues/tailcallhq/rust-gh-workflow?style=flat-square)](https://github.com/tailcallhq/rust-gh-workflow/issues)
 
 ## 🧑‍💻 What is Rust GitHub Workflows?
 
@@ -33,7 +33,7 @@ or via CLI
 cargo add --build gh-workflow
 ```
 
-Then you can start creating GitHub Actions in your [build.rs](https://github.com/tailcallhq/rust-gh-workflows/blob/main/workspace/gh-workflow-gen/build.rs).
+Then you can start creating GitHub Actions in your [build.rs](https://github.com/tailcallhq/rust-gh-workflow/blob/main/workspace/gh-workflow-gen/build.rs).
 
 ## 💡 Why Rust?
 
@@ -47,11 +47,11 @@ This project is licensed under the Apache 2.0 License - see the [LICENSE](LICENS
 
 A big thank you to all the contributors who helped make this project a success! 🙏
 
-[![Contributors](https://contrib.rocks/image?repo=tailcallhq/rust-gh-workflows)](https://github.com/tailcallhq/rust-gh-workflows/graphs/contributors)
+[![Contributors](https://contrib.rocks/image?repo=tailcallhq/rust-gh-workflow)](https://github.com/tailcallhq/rust-gh-workflow/graphs/contributors)
 
 ## 🌟 Show Your Support
 
-If you like this project, please consider giving it a ⭐ on [GitHub](https://github.com/tailcallhq/rust-gh-workflows) and share it with the community!
+If you like this project, please consider giving it a ⭐ on [GitHub](https://github.com/tailcallhq/rust-gh-workflow) and share it with the community!
 
 ## 🔗 Inspiration
 
