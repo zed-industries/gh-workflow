@@ -44,6 +44,7 @@ fn main() {
 
     let release = Job::new("Release")
         .add_step(Step::run("ls -la"))
+        .add_step(Step::run("pwd"))
         .add_step(
             ReleasePlz::default()
                 .command(Command::ReleasePR)

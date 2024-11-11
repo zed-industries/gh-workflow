@@ -55,6 +55,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - run: ls -la
+    - run: pwd
     - name: Release Plz
       uses: MarcoIeni/release-plz-action@v0.5
       with:
