@@ -3,6 +3,8 @@ use gh_workflow_release_plz::ReleasePlz;
 use toolchain::Toolchain;
 
 fn main() {
+    let flags = RustFlags::deny("warnings");
+
     let job = Job::new("Build and Test")
         .add_step(Step::checkout())
         .add_step(
@@ -28,8 +30,7 @@ fn main() {
                 .nightly()
                 .args("--all-features --workspace -- -D warnings")
                 .name("Cargo Clippy"),
-        )
-        .add_step(ReleasePlz::default());
+        );
 
     let event = Event::default()
         .push(Push::default().add_branch("main"))
@@ -41,13 +42,17 @@ fn main() {
                 .add_branch("main"),
         );
 
-    let flags = RustFlags::deny("warnings");
+    let release = Job::new("Release")
+        .add_step(ReleasePlz::default())
+        .needs("build");
 
     Workflow::new("Build and Test")
-        .env(flags)
+        .add_env(flags)
+        .add_env(("GITHUB_TOKEN", "${{ secrets.GH_TOKEN }}"))
         .permissions(Permissions::read())
         .on(event)
         .add_job("build", job)
+        .add_job("release", release)
         .generate()
         .unwrap();
 }
