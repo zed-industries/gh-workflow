@@ -1,5 +1,5 @@
 use gh_workflow::*;
-use gh_workflow_release_plz::ReleasePlz;
+use release_plz::Release;
 use toolchain::Toolchain;
 
 fn main() {
@@ -51,7 +51,7 @@ fn main() {
         .needs("build")
         .permissions(permissions)
         .add_step(Step::checkout())
-        .add_step(ReleasePlz::default());
+        .add_step(Release::default());
 
     Workflow::new("Build and Test")
         .add_env(flags)
