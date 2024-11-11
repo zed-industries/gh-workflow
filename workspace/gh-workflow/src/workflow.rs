@@ -100,8 +100,8 @@ impl Workflow {
         self
     }
 
-    /// Add the default token created by GitHub to authenticate on behalf of GitHub Actions.
-    /// See: <https://docs.github.com/en/actions/security-for-github-actions/security-guides/automatic-token-authentication>
+    /// Add the default token created by GitHub to authenticate on behalf of
+    /// GitHub Actions. See: <https://docs.github.com/en/actions/security-for-github-actions/security-guides/automatic-token-authentication>
     pub fn add_github_token(self) -> Self {
         self.add_env(("GITHUB_TOKEN", "${{ secrets.GITHUB_TOKEN }}"))
     }
@@ -198,8 +198,8 @@ impl Job {
         self
     }
 
-    /// Add the default token created by GitHub to authenticate on behalf of GitHub Actions.
-    /// See: <https://docs.github.com/en/actions/security-for-github-actions/security-guides/automatic-token-authentication>
+    /// Add the default token created by GitHub to authenticate on behalf of
+    /// GitHub Actions. See: <https://docs.github.com/en/actions/security-for-github-actions/security-guides/automatic-token-authentication>
     pub fn add_github_token(self) -> Self {
         self.add_env(("GITHUB_TOKEN", "${{ secrets.GITHUB_TOKEN }}"))
     }
