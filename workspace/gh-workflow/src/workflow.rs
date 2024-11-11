@@ -250,8 +250,8 @@ impl From<IndexMap<String, Value>> for Env {
 }
 
 impl Env {
-    /// Sets the `GITHUB_TOKEN` env variable with the default token created by GitHub to authenticate on behalf of the actions.
-    /// See: <https://docs.github.com/en/actions/security-for-github-actions/security-guides/automatic-token-authentication>
+    /// Sets the `GITHUB_TOKEN` env variable with the default token created by
+    /// GitHub to authenticate on behalf of the actions. See: <https://docs.github.com/en/actions/security-for-github-actions/security-guides/automatic-token-authentication>
     pub fn github() -> Self {
         let mut map = IndexMap::new();
         map.insert(
