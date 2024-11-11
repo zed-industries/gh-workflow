@@ -43,12 +43,11 @@ fn main() {
         );
 
     let release = Job::new("Release")
-        .add_step(Step::run("ls -la"))
-        .add_step(Step::run("pwd"))
+        .add_github_token()
         .add_step(
             ReleasePlz::default()
                 .command(Command::ReleasePR)
-                .manifest_path("Cargo.toml"),
+                .manifest_path("./Cargo.toml"),
         )
         .needs("build");
 
@@ -57,7 +56,7 @@ fn main() {
         .permissions(Permissions::read())
         .on(event)
         .add_job("build", job)
-        .add_job("release", release.add_github_token())
+        .add_job("release", release)
         .generate()
         .unwrap();
 }

@@ -54,12 +54,10 @@ jobs:
     name: Release
     runs-on: ubuntu-latest
     steps:
-    - run: ls -la
-    - run: pwd
     - name: Release Plz
       uses: MarcoIeni/release-plz-action@v0.5
       with:
         command: release-pr
-        manifest_path: Cargo.toml
+        manifest_path: ./Cargo.toml
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
