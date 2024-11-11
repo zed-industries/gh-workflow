@@ -43,7 +43,11 @@ fn main() {
         );
 
     let release = Job::new("Release")
-        .add_step(ReleasePlz::default().command(Command::ReleasePR))
+        .add_step(
+            ReleasePlz::default()
+                .command(Command::ReleasePR)
+                .manifest_path("Cargo.toml"),
+        )
         .needs("build");
 
     Workflow::new("Build and Test")

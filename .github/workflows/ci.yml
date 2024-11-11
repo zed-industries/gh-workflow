@@ -58,5 +58,6 @@ jobs:
       uses: MarcoIeni/release-plz-action@v0.5
       with:
         command: release-pr
+        manifest_path: Cargo.toml
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
