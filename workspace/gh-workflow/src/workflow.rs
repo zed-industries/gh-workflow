@@ -308,7 +308,7 @@ impl StepValue {
         StepValue { run: Some(cmd.to_string()), ..Default::default() }
     }
 
-    pub fn uses<Owner: ToString, Repo: ToString>(owner: Owner, repo: Repo, version: u64) -> Self {
+    pub fn uses<Owner: ToString, Repo: ToString>(owner: Owner, repo: Repo, version: f64) -> Self {
         StepValue {
             uses: Some(format!(
                 "{}/{}@v{}",
@@ -328,7 +328,7 @@ impl Step<Run> {
 }
 
 impl Step<Use> {
-    pub fn uses<Owner: ToString, Repo: ToString>(owner: Owner, repo: Repo, version: u64) -> Self {
+    pub fn uses<Owner: ToString, Repo: ToString>(owner: Owner, repo: Repo, version: f64) -> Self {
         Step {
             value: StepValue::uses(owner, repo, version),
             marker: Default::default(),
@@ -338,7 +338,7 @@ impl Step<Use> {
     /// Creates a step pointing to the default Github's Checkout Action
     /// See: <https://github.com/actions/checkout>
     pub fn checkout() -> Step<Use> {
-        Step::uses("actions", "checkout", 4).name("Checkout Code")
+        Step::uses("actions", "checkout", 4.0).name("Checkout Code")
     }
 
     /// Add a new input to the step.

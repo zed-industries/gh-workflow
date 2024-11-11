@@ -1,0 +1,8 @@
+[package]
+name = "gh-workflow-release-plz"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+gh-workflow = { path = "../gh-workflow" }
+

@@ -193,8 +193,8 @@ impl Toolchain {
 
 impl From<Toolchain> for Step<Use> {
     fn from(value: Toolchain) -> Self {
-        let mut step =
-            Step::uses("actions-rust-lang", "setup-rust-toolchain", 1).name("Setup Rust Toolchain");
+        let mut step = Step::uses("actions-rust-lang", "setup-rust-toolchain", 1.0)
+            .name("Setup Rust Toolchain");
 
         let toolchain = value
             .toolchain

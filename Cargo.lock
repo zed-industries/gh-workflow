@@ -144,6 +144,14 @@ name = "gh-workflow-gen"
 version = "0.1.0"
 dependencies = [
  "gh-workflow",
+ "gh-workflow-release-plz",
+]
+
+[[package]]
+name = "gh-workflow-release-plz"
+version = "0.1.0"
+dependencies = [
+ "gh-workflow",
 ]
 
 [[package]]

@@ -49,3 +49,5 @@ jobs:
       run: cargo +nightly fmt --check
     - name: Cargo Clippy
       run: cargo +nightly clippy --all-features --workspace -- -D warnings
+    - name: Release Plz
+      uses: MarcoIeni/release-plz-action@v0.5
