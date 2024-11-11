@@ -54,6 +54,7 @@ jobs:
     name: Release
     runs-on: ubuntu-latest
     steps:
+    - run: ls -la
     - name: Release Plz
       uses: MarcoIeni/release-plz-action@v0.5
       with:
