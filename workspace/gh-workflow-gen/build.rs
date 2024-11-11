@@ -44,11 +44,7 @@ fn main() {
 
     let release = Job::new("Release")
         .add_github_token()
-        .add_step(
-            ReleasePlz::default()
-                .command(Command::ReleasePR)
-                .manifest_path("./Cargo.toml"),
-        )
+        .add_step(ReleasePlz::default().command(Command::ReleasePR))
         .needs("build");
 
     Workflow::new("Build and Test")
