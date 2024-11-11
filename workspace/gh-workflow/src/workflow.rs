@@ -340,13 +340,17 @@ impl StepValue {
         StepValue { run: Some(cmd.to_string()), ..Default::default() }
     }
 
-    pub fn uses<Owner: ToString, Repo: ToString>(owner: Owner, repo: Repo, version: f64) -> Self {
+    pub fn uses<Owner: ToString, Repo: ToString, Version: ToString>(
+        owner: Owner,
+        repo: Repo,
+        version: Version,
+    ) -> Self {
         StepValue {
             uses: Some(format!(
                 "{}/{}@v{}",
                 owner.to_string(),
                 repo.to_string(),
-                version
+                version.to_string()
             )),
             ..Default::default()
         }
@@ -371,7 +375,11 @@ impl Step<Run> {
 }
 
 impl Step<Use> {
-    pub fn uses<Owner: ToString, Repo: ToString>(owner: Owner, repo: Repo, version: f64) -> Self {
+    pub fn uses<Owner: ToString, Repo: ToString, Version: ToString>(
+        owner: Owner,
+        repo: Repo,
+        version: Version,
+    ) -> Self {
         Step {
             value: StepValue::uses(owner, repo, version),
             marker: Default::default(),

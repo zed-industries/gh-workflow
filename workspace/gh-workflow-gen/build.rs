@@ -48,8 +48,7 @@ fn main() {
         .contents(Level::Write);
 
     let release = Job::new("Release")
-        // TODO: enable this once it starts working
-        // .needs("build")
+        .needs("build")
         .permissions(permissions)
         .add_step(Step::checkout())
         .add_step(ReleasePlz::default().command(Command::Release));
