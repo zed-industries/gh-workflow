@@ -5,7 +5,7 @@ use toolchain::Toolchain;
 fn main() {
     let flags = RustFlags::deny("warnings");
 
-    let job = Job::new("Build and Test")
+    let build = Job::new("Build and Test")
         .add_step(Step::checkout())
         .add_step(
             Toolchain::default()
@@ -30,10 +30,7 @@ fn main() {
                 .nightly()
                 .args("--all-features --workspace -- -D warnings")
                 .name("Cargo Clippy"),
-        )
-        .add_step(Step::run("find . -name Cargo.toml"))
-        .add_step(ReleasePlz::default().command(Command::ReleasePR))
-        .add_github_token();
+        );
 
     let event = Event::default()
         .push(Push::default().add_branch("main"))
@@ -45,11 +42,19 @@ fn main() {
                 .add_branch("main"),
         );
 
+    let release = Job::new("Release")
+        .needs("build")
+        .add_env(Env::github())
+        .add_step(Step::checkout())
+        .add_step(ReleasePlz::default().command(Command::ReleasePR))
+        .add_step(ReleasePlz::default().command(Command::ReleasePR));
+
     Workflow::new("Build and Test")
         .add_env(flags)
         .permissions(Permissions::read())
         .on(event)
-        .add_job("build", job)
+        .add_job("build", build)
+        .add_job("release", release)
         .generate()
         .unwrap();
 }

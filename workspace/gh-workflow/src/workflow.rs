@@ -100,12 +100,6 @@ impl Workflow {
         self.env = Some(env);
         self
     }
-
-    /// Add the default token created by GitHub to authenticate on behalf of
-    /// GitHub Actions. See: <https://docs.github.com/en/actions/security-for-github-actions/security-guides/automatic-token-authentication>
-    pub fn add_github_token(self) -> Self {
-        self.add_env(("GITHUB_TOKEN", "${{ secrets.GITHUB_TOKEN }}"))
-    }
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
@@ -198,12 +192,6 @@ impl Job {
         self.env = Some(env);
         self
     }
-
-    /// Add the default token created by GitHub to authenticate on behalf of
-    /// GitHub Actions. See: <https://docs.github.com/en/actions/security-for-github-actions/security-guides/automatic-token-authentication>
-    pub fn add_github_token(self) -> Self {
-        self.add_env(("GITHUB_TOKEN", "${{ secrets.GITHUB_TOKEN }}"))
-    }
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
@@ -258,6 +246,19 @@ pub struct Env(IndexMap<String, Value>);
 impl From<IndexMap<String, Value>> for Env {
     fn from(value: IndexMap<String, Value>) -> Self {
         Env(value)
+    }
+}
+
+impl Env {
+    /// Sets the `GITHUB_TOKEN` env variable with the default token created by GitHub to authenticate on behalf of the actions.
+    /// See: <https://docs.github.com/en/actions/security-for-github-actions/security-guides/automatic-token-authentication>
+    pub fn github() -> Self {
+        let mut map = IndexMap::new();
+        map.insert(
+            "GITHUB_TOKEN".to_string(),
+            Value::from("${{ secrets.GITHUB_TOKEN }}"),
+        );
+        Env(map)
     }
 }
 
@@ -350,12 +351,6 @@ impl<T> Step<T> {
         env.0.extend(new_env.into().0);
         self.value.env = Some(env);
         self
-    }
-
-    /// Add the default token created by GitHub to authenticate on behalf of
-    /// GitHub Actions. See: <https://docs.github.com/en/actions/security-for-github-actions/security-guides/automatic-token-authentication>
-    pub fn add_github_token(self) -> Self {
-        self.add_env(("GITHUB_TOKEN", "${{ secrets.GITHUB_TOKEN }}"))
     }
 }
 

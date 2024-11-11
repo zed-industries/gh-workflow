@@ -49,7 +49,17 @@ jobs:
       run: cargo +nightly fmt --check
     - name: Cargo Clippy
       run: cargo +nightly clippy --all-features --workspace -- -D warnings
-    - run: find . -name Cargo.toml
+  release:
+    needs: build
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+    - name: Release Plz
+      uses: MarcoIeni/release-plz-action@v0.5
+      with:
+        command: release-pr
     - name: Release Plz
       uses: MarcoIeni/release-plz-action@v0.5
       with:
