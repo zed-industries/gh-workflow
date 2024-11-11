@@ -48,11 +48,13 @@ fn main() {
 
     Workflow::new("Build and Test")
         .add_env(flags)
-        .add_env(("GITHUB_TOKEN", "${{ secrets.GH_TOKEN }}"))
         .permissions(Permissions::read())
         .on(event)
         .add_job("build", job)
-        .add_job("release", release)
+        .add_job(
+            "release",
+            release.add_env(("GITHUB_TOKEN", "${{ secrets.GH_TOKEN }}")),
+        )
         .generate()
         .unwrap();
 }

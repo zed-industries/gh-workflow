@@ -18,7 +18,6 @@
 name: Build and Test
 env:
   RUSTFLAGS: -Dwarnings
-  GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 on:
   push:
     branches:
@@ -57,3 +56,5 @@ jobs:
     steps:
     - name: Release Plz
       uses: MarcoIeni/release-plz-action@v0.5
+    env:
+      GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}

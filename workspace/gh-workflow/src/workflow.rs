@@ -183,6 +183,14 @@ impl Job {
         self.steps = Some(steps);
         self
     }
+
+    pub fn add_env<T: Into<Env>>(mut self, new_env: T) -> Self {
+        let mut env = self.env.unwrap_or_default();
+
+        env.0.extend(new_env.into().0);
+        self.env = Some(env);
+        self
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
