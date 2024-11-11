@@ -49,6 +49,7 @@ jobs:
       run: cargo +nightly clippy --all-features --workspace -- -D warnings
   release:
     needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     name: Release
     runs-on: ubuntu-latest
     permissions:

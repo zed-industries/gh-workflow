@@ -130,7 +130,7 @@ pub struct Job {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub needs: Option<Value>,
     #[serde(skip_serializing_if = "Option::is_none", rename = "if")]
-    pub if_condition: Option<Expression>,
+    pub cond: Option<Expression>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]

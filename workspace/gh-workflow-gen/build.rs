@@ -49,6 +49,9 @@ fn main() {
 
     let release = Job::new("Release")
         .needs("build")
+        .cond(Expression::new(
+            "github.event_name == 'push' && github.ref == 'refs/heads/main'",
+        ))
         .add_env(Env::github())
         .add_env(Env::new(
             "CARGO_REGISTRY_TOKEN",
