@@ -15,7 +15,7 @@ pub struct Event {
     // TODO: add all more events
 }
 
-#[derive(Debug, Setters, Default, Serialize, Deserialize, Clone, PartialEq, Eq)]
+#[derive(Debug, Default, Serialize, Deserialize, Clone, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub struct Push {
     branches: Vec<String>,
@@ -25,6 +25,10 @@ impl Push {
     pub fn add_branch<S: ToString>(mut self, branch: S) -> Self {
         self.branches.push(branch.to_string());
         self
+    }
+
+    pub fn branches(self, branches: Vec<String>) -> Self {
+        Push { branches }
     }
 }
 

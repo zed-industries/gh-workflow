@@ -1,7 +1,7 @@
 use derive_setters::Setters;
 
 use crate::toolchain::Version;
-use crate::StepValue;
+use crate::{Run, Step};
 
 #[derive(Setters)]
 #[setters(strip_option, into)]
@@ -39,7 +39,7 @@ impl Cargo {
     }
 }
 
-impl From<Cargo> for StepValue {
+impl From<Cargo> for Step<Run> {
     fn from(value: Cargo) -> Self {
         let mut command = vec!["cargo".to_string()];
 
@@ -55,7 +55,7 @@ impl From<Cargo> for StepValue {
             }
         }
 
-        let mut step = StepValue::run(command.join(" "));
+        let mut step = Step::run(command.join(" "));
 
         if let Some(id) = value.id {
             step = step.id(id);

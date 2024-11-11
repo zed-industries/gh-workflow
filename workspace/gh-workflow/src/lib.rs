@@ -10,3 +10,7 @@ pub use cargo::*;
 pub use event::*;
 pub use rust_flag::*;
 pub use workflow::*;
+
+mod private {
+    pub trait Sealed {}
+}

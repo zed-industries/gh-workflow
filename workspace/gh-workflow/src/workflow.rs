@@ -11,7 +11,7 @@ use serde_json::Value;
 
 use crate::error::Result;
 use crate::generate::Generate;
-use crate::Event;
+use crate::{private, Event};
 
 #[derive(Debug, Default, Serialize, Deserialize, Clone, PartialEq, Eq)]
 #[serde(transparent)]
@@ -175,15 +175,17 @@ impl Job {
         }
     }
 
-    pub fn add_step<S: Into<StepValue>>(mut self, step: S) -> Self {
+    pub fn add_step<S: Into<Step<T>>, T: StepType>(mut self, step: S) -> Self {
         let mut steps = self.steps.unwrap_or_default();
-        steps.push(step.into());
+        let step: Step<T> = step.into();
+        let step: StepValue = T::to_value(step);
+        steps.push(step);
         self.steps = Some(steps);
         self
     }
 }
 
-#[derive(Debug, Setters, Serialize, Deserialize, Clone, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 #[serde(transparent)]
 pub struct Step<A> {
     value: StepValue,
@@ -208,6 +210,26 @@ pub struct Use;
 
 #[derive(Debug, Default, Serialize, Deserialize, Clone, PartialEq, Eq)]
 pub struct Run;
+
+/// A trait to convert Step<Run> and Step<Use> to StepValue.
+pub trait StepType: Sized + private::Sealed {
+    fn to_value(s: Step<Self>) -> StepValue;
+}
+
+impl private::Sealed for Run {}
+impl private::Sealed for Use {}
+
+impl StepType for Run {
+    fn to_value(s: Step<Self>) -> StepValue {
+        s.into()
+    }
+}
+
+impl StepType for Use {
+    fn to_value(s: Step<Self>) -> StepValue {
+        s.into()
+    }
+}
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, Default)]
 #[serde(transparent)]
@@ -297,18 +319,6 @@ impl StepValue {
             ..Default::default()
         }
     }
-
-    pub fn add_with<I: Into<Input>>(mut self, new_with: I) -> Self {
-        let mut with = self.with.unwrap_or_default();
-        with.merge(new_with.into());
-        if with.0.is_empty() {
-            self.with = None;
-        } else {
-            self.with = Some(with);
-        }
-
-        self
-    }
 }
 
 impl Step<Run> {
@@ -325,8 +335,23 @@ impl Step<Use> {
         }
     }
 
+    /// Creates a step pointing to the default Github's Checkout Action
+    /// See: <https://github.com/actions/checkout>
     pub fn checkout() -> Step<Use> {
         Step::uses("actions", "checkout", 4).name("Checkout Code")
+    }
+
+    /// Add a new input to the step.
+    pub fn add_with<I: Into<Input>>(mut self, new_with: I) -> Self {
+        let mut with = self.value.with.unwrap_or_default();
+        with.merge(new_with.into());
+        if with.0.is_empty() {
+            self.value.with = None;
+        } else {
+            self.value.with = Some(with);
+        }
+
+        self
     }
 }
 
