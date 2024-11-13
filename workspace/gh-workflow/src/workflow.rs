@@ -23,16 +23,16 @@ impl Jobs {
 }
 
 /// Represents the configuration for a GitHub workflow.
-/// 
-/// A workflow is a configurable automated process made up of one or more jobs. 
-/// This struct defines the properties that can be set in a workflow YAML file 
-/// for GitHub Actions, including the name, environment variables, permissions, 
+///
+/// A workflow is a configurable automated process made up of one or more jobs.
+/// This struct defines the properties that can be set in a workflow YAML file
+/// for GitHub Actions, including the name, environment variables, permissions,
 /// jobs, concurrency settings, and more.
 #[derive(Debug, Default, Setters, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "kebab-case")]
 #[setters(strip_option, into)]
 pub struct Workflow {
-    /// The name of the workflow. GitHub displays the names of your workflows 
+    /// The name of the workflow. GitHub displays the names of your workflows
     /// under your repository's "Actions" tab.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
@@ -41,12 +41,12 @@ pub struct Workflow {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub env: Option<Env>,
 
-    /// The name for workflow runs generated from the workflow. 
+    /// The name for workflow runs generated from the workflow.
     /// GitHub displays the workflow run name in the list of workflow runs.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub run_name: Option<String>,
 
-    /// The event that triggers the workflow. This can include events like 
+    /// The event that triggers the workflow. This can include events like
     /// `push`, `pull_request`, etc.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub on: Option<Event>,
@@ -59,7 +59,7 @@ pub struct Workflow {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub jobs: Option<Jobs>,
 
-    /// Concurrency settings for the workflow, allowing control over 
+    /// Concurrency settings for the workflow, allowing control over
     /// how jobs are executed.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub concurrency: Option<Concurrency>,
