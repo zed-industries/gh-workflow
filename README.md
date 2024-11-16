@@ -23,14 +23,14 @@ GitHub Actions is powerful, but writing workflows can sometimes feel repetitive,
 To use **Rust GitHub Workflows** in your project, add it to your `Cargo.toml`:
 
 ```toml
-[build-dependencies]
-gh-workflow = "0.1"
+[dev-dependencies]
+gh-workflow = "*0.1*"
 ```
 
 or via CLI
 
 ```bash
-cargo add --build gh-workflow
+cargo add --dev gh-workflow
 ```
 
 Then you can start creating GitHub Actions in your [build.rs](https://github.com/tailcallhq/rust-gh-workflow/blob/main/workspace/gh-workflow-gen/build.rs).

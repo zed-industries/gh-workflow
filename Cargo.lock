@@ -140,13 +140,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "gh-workflow-gen"
-version = "0.1.0"
-dependencies = [
- "gh-workflow",
-]
-
-[[package]]
 name = "hashbrown"
 version = "0.15.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
