@@ -23,17 +23,43 @@ GitHub Actions is powerful, but writing workflows can sometimes feel repetitive,
 To use **Rust GitHub Workflows** in your project, add it to your `Cargo.toml`:
 
 ```toml
-[dev-dependencies]
-gh-workflow = "*0.1*"
+[build-dependencies]
+gh-workflow = "1"
 ```
 
-or via CLI
+Then you can start creating GitHub Actions in your [ci.rs](https://github.com/tailcallhq/rust-gh-workflow/blob/main/tests/ci.rs).
 
-```bash
-cargo add --dev gh-workflow
-```
+## 👷 Usage
 
-Then you can start creating GitHub Actions in your [build.rs](https://github.com/tailcallhq/rust-gh-workflow/blob/main/workspace/gh-workflow-gen/build.rs).
+- Simply add a `ci.rs` file to your project's tests directory.
+- Add the following code to generate the GitHub Actions workflow:
+
+  ```rust
+  use rust_gh_workflows::*;
+
+  #[test]
+  fn main() {
+      // Create a basic workflow
+      let workflow = Workflow::setup_rust();
+
+      // Generate the ci.yml
+      workflow.generate().unwrap();
+  }
+  ```
+
+  To view a fully functional example, check out the [ci.rs](https://github.com/tailcallhq/rust-gh-workflow/blob/main/src/tests/ci.rs) of this project.
+
+- Run `cargo test` to generate the GitHub Actions workflow.
+
+**Workspace**
+
+- The `workspace` directory contains the `gh-workflow-gen` crate, which generates the workflow.
+
+## 🛠️ Roadmap
+
+- [x] Support for Automated Cargo Releases
+- [ ] Improve Type Safety of Nightly Builds
+- [x] Updates Rust Docs using Github's official documentation for the API
 
 ## 💡 Why Rust?
 
