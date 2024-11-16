@@ -24,14 +24,14 @@ To use **Rust GitHub Workflows** in your project, add it to your `Cargo.toml`:
 
 ```toml
 [build-dependencies]
-gh-workflow = "1"
+gh-workflow = "*" # Add the latest version
 ```
 
-Then you can start creating GitHub Actions in your [ci.rs](https://github.com/tailcallhq/rust-gh-workflow/blob/main/tests/ci.rs).
+Then you can start creating GitHub Actions in your [tests/ci.rs](https://github.com/tailcallhq/rust-gh-workflow/blob/main/tests/ci.rs).
 
 ## 👷 Usage
 
-- Simply add a `ci.rs` file to your project's tests directory.
+- Simply add a `tests/ci.rs` file to your project's tests directory.
 - Add the following code to generate the GitHub Actions workflow:
 
   ```rust
@@ -47,13 +47,9 @@ Then you can start creating GitHub Actions in your [ci.rs](https://github.com/ta
   }
   ```
 
-  To view a fully functional example, check out the [ci.rs](https://github.com/tailcallhq/rust-gh-workflow/blob/main/src/tests/ci.rs) of this project.
+  To view a fully functional example, check out the [tests/ci.rs](https://github.com/tailcallhq/rust-gh-workflow/blob/main/src/tests/ci.rs) of this project.
 
 - Run `cargo test` to generate the GitHub Actions workflow.
-
-**Workspace**
-
-- The `workspace` directory contains the `gh-workflow-gen` crate, which generates the workflow.
 
 ## 🛠️ Roadmap
 
