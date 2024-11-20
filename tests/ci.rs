@@ -33,14 +33,14 @@ fn generate() {
         )
         .add_step(
             Cargo::new("fmt")
-                .if_condition("!contains(steps.Check_PR_Labels.outputs.labels, 'ci: lintfix')")
+                .if_condition("github.event_name == 'pull_request' && !contains(steps.Check_PR_Labels.outputs.labels, 'ci: lintfix')")
                 .nightly()
                 .args("--check")
                 .name("Cargo Fmt"),
         )
         .add_step(
             Cargo::new("fmt")
-                .if_condition("contains(steps.Check_PR_Labels.outputs.labels, 'ci: lintfix')")
+                .if_condition("github.event_name == 'pull_request' && contains(steps.Check_PR_Labels.outputs.labels, 'ci: lintfix')")
                 .nightly()
                 .args("--all")
                 .name("Cargo Fmt"),
@@ -48,14 +48,14 @@ fn generate() {
         .add_step(
             Cargo::new("clippy")
                 .nightly()
-                .if_condition("!contains(steps.Check_PR_Labels.outputs.labels, 'ci: lintfix')")
+                .if_condition("github.event_name == 'pull_request' && !contains(steps.Check_PR_Labels.outputs.labels, 'ci: lintfix')")
                 .args("--all-features --workspace -- -D warnings")
                 .name("Cargo Clippy"),
         )
         .add_step(
             Cargo::new("clippy")
                 .nightly()
-                .if_condition("contains(steps.Check_PR_Labels.outputs.labels, 'ci: lintfix')")
+                .if_condition("github.event_name == 'pull_request' && contains(steps.Check_PR_Labels.outputs.labels, 'ci: lintfix')")
                 .args("--fix --allow-dirty")
                 .name("Cargo Clippy"),
         )
@@ -67,7 +67,7 @@ fn generate() {
                      git commit -m 'Apply lint fixes (fmt + clippy)' && \
                      git push origin HEAD:${{ github.event.pull_request.head.ref }}",
             )
-            .if_condition(Expression::new("contains(steps.Check_PR_Labels.outputs.labels, 'ci: lintfix')"))
+            .if_condition(Expression::new("github.event_name == 'pull_request' && !contains(steps.Check_PR_Labels.outputs.labels, 'ci: lintfix')"))
             .name("Commit and Push Fixes"),
         );
 
