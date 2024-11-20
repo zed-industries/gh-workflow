@@ -16,6 +16,7 @@ fn autofix() {
         .permissions(permissions)
         .add_env(("LINT_MODE", format!("${{{lint_mode_condition}}}")))
         .add_step(Step::checkout())
+        .add_step(Step::run("echo $LINT_MODE").add_env(("LINT_MODE", "${{ env.LINT_MODE }}")))
         .add_step(
             Toolchain::default()
                 .add_stable()
