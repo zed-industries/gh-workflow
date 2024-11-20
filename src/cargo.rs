@@ -20,7 +20,7 @@ pub struct Cargo {
 
     /// Arguments to be passed to the cargo command.
     pub args: Option<String>,
-    
+
     pub if_condition: Option<Expression>,
 }
 
@@ -67,7 +67,7 @@ impl From<Cargo> for Step<Run> {
         if let Some(name) = value.name {
             step = step.name(name);
         }
-        
+
         if let Some(condition) = value.if_condition {
             step = step.if_condition(condition);
         }

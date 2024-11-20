@@ -1,4 +1,5 @@
 use gh_workflow::generate::Generate;
+use gh_workflow::toolchain::Toolchain;
 use gh_workflow::*;
 
 #[test]
@@ -15,6 +16,13 @@ fn autofix() {
         .permissions(permissions)
         .add_env(("LINT_MODE", format!("${{{lint_mode_condition}}}")))
         .add_step(Step::checkout())
+        .add_step(
+            Toolchain::default()
+                .add_stable()
+                .add_nightly()
+                .add_clippy()
+                .add_fmt(),
+        )
         .add_step(
             Cargo::new("clippy")
                 .nightly()
