@@ -14,15 +14,33 @@ fn autofix() {
     let lint_job = Job::new("Run Formatter and Lint Check")
         .runs_on("ubuntu-latest")
         .permissions(permissions)
-        .add_env(("LINT_MODE", format!("${{{{ {} }}}}", lint_mode_condition)))
+        .add_env(("LINT_MODE", format!("${{{{{}}}}}", lint_mode_condition)))
         .add_step(Step::checkout())
-        .add_step(Step::run("echo $LINT_MODE").add_env(("LINT_MODE", "${{ env.LINT_MODE }}")).name("Print $LINT_MODE"))
+        .add_step(
+            Step::run("echo $LINT_MODE")
+                .add_env(("LINT_MODE", "${{ env.LINT_MODE }}"))
+                .name("Print $LINT_MODE"),
+        )
         .add_step(
             Toolchain::default()
                 .add_stable()
                 .add_nightly()
                 .add_clippy()
                 .add_fmt(),
+        )
+        .add_step(
+            Cargo::new("clippy")
+                .nightly()
+                .args("--all --all-targets --all-features --fix --allow-staged --allow-dirty")
+                .if_condition("env.LINT_MODE == 'fix'")
+                .name("Cargo Clippy Fix"),
+        )
+        .add_step(
+            Cargo::new("fmt")
+                .nightly()
+                .args("--all")
+                .if_condition("env.LINT_MODE == 'fix'")
+                .name("Cargo Fmt fix"),
         )
         .add_step(
             Step::uses(

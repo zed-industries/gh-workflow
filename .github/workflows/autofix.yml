@@ -41,7 +41,7 @@ jobs:
       pull-requests: write
       packages: write
     env:
-      LINT_MODE: '${{ contains(github.event.pull_request.labels.*.name, ''ci: lintfix'') && ''fix'' || ''check'' }}'
+      LINT_MODE: '${{contains(github.event.pull_request.labels.*.name, ''ci: lintfix'') && ''fix'' || ''check''}}'
     steps:
     - name: Checkout Code
       uses: actions/checkout@v4
@@ -54,6 +54,12 @@ jobs:
       with:
         toolchain: stable, nightly
         components: clippy, rustfmt
+    - name: Cargo Clippy Fix
+      if: env.LINT_MODE == 'fix'
+      run: cargo +nightly clippy --all --all-targets --all-features --fix --allow-staged --allow-dirty
+    - name: Cargo Fmt fix
+      if: env.LINT_MODE == 'fix'
+      run: cargo +nightly fmt --all
     - name: Commit and push if changed
       if: env.LINT_MODE == 'fix'
       uses: autofix-ci/action@ff86a557419858bb967097bfc916833f5647fa8c
