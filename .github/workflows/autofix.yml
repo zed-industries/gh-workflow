@@ -41,7 +41,7 @@ jobs:
       pull-requests: write
       packages: write
     env:
-      LINT_MODE: '${contains(github.event.pull_request.labels.*.name, ''ci: lintfix'') && ''fix'' || ''check''}'
+      LINT_MODE: '${{contains(github.event.pull_request.labels.*.name, ''ci: lintfix'') && ''fix'' || ''check''}}'
     steps:
     - name: Checkout Code
       uses: actions/checkout@v4
