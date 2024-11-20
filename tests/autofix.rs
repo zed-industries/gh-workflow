@@ -27,21 +27,23 @@ fn autofix() {
             Cargo::new("clippy")
                 .nightly()
                 .args("--all --all-targets --all-features --fix --allow-staged --allow-dirty")
-                .if_condition("github.event_name == 'pull_request' && contains(steps.check-labels.outputs.labels, 'ci: lintfix')")
+                .if_condition("env.LINT_MODE == 'fix'")
                 .name("Cargo Clippy Fix"),
-        ).add_step(
+        )
+        .add_step(
+            Cargo::new("fmt")
+                .nightly()
+                .args("--all")
+                .if_condition("env.LINT_MODE == 'fix'")
+                .name("Cargo Fmt fix")
+        )
+        .add_step(
         Cargo::new("clippy")
             .nightly()
             .args("--all --all-targets --all-features")
             .name("Cargo Clippy Check"),
     )
         .add_step(
-            Cargo::new("fmt")
-                .nightly()
-                .args("--all")
-                .if_condition("github.event_name == 'pull_request' && contains(steps.check-labels.outputs.labels, 'ci: lintfix')")
-                .name("Cargo Fmt fix")
-        ).add_step(
             Cargo::new("fmt")
                 .nightly()
                 .args("--check")
