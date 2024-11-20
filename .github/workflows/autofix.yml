@@ -41,10 +41,14 @@ jobs:
       pull-requests: write
       packages: write
     env:
-      LINT_MODE: '${contains(github.event.pull_request.labels.*.name, ''ci: lint'') && ''fix'' || ''check''}'
+      LINT_MODE: '${contains(github.event.pull_request.labels.*.name, ''ci: lintfix'') && ''fix'' || ''check''}'
     steps:
     - name: Checkout Code
       uses: actions/checkout@v4
+    - name: Print $LINT_MODE
+      run: echo $LINT_MODE
+      env:
+        LINT_MODE: ${{ env.LINT_MODE }}
     - name: Setup Rust Toolchain
       uses: actions-rust-lang/setup-rust-toolchain@v1
       with:
