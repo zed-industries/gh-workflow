@@ -5,7 +5,7 @@ use gh_workflow::*;
 #[test]
 fn autofix() {
     let lint_mode_condition =
-        "contains(github.event.pull_request.labels.*.name, 'ci: lint') && 'fix' || 'check'";
+        "contains(github.event.pull_request.labels.*.name, 'ci: lintfix') && 'fix' || 'check'";
     let permissions = Permissions::default()
         .pull_requests(Level::Write)
         .packages(Level::Write)
