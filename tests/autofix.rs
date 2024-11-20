@@ -16,7 +16,11 @@ fn autofix() {
         .permissions(permissions)
         .add_env(("LINT_MODE", format!("${{{{{}}}}}", lint_mode_condition)))
         .add_step(Step::checkout())
-        .add_step(Step::run("echo $LINT_MODE").add_env(("LINT_MODE", "${{ env.LINT_MODE }}")).name("Print $LINT_MODE"))
+        .add_step(
+            Step::run("echo $LINT_MODE")
+                .add_env(("LINT_MODE", "${{ env.LINT_MODE }}"))
+                .name("Print $LINT_MODE"),
+        )
         .add_step(
             Toolchain::default()
                 .add_stable()
@@ -36,19 +40,19 @@ fn autofix() {
                 .nightly()
                 .args("--all")
                 .if_condition("env.LINT_MODE == 'fix'")
-                .name("Cargo Fmt fix")
+                .name("Cargo Fmt fix"),
         )
         .add_step(
-        Cargo::new("clippy")
-            .nightly()
-            .args("--all --all-targets --all-features")
-            .name("Cargo Clippy Check"),
-    )
+            Cargo::new("clippy")
+                .nightly()
+                .args("--all --all-targets --all-features")
+                .name("Cargo Clippy Check"),
+        )
         .add_step(
             Cargo::new("fmt")
                 .nightly()
                 .args("--check")
-                .name("Cargo Fmt Check")
+                .name("Cargo Fmt Check"),
         )
         .add_step(
             Step::uses(
