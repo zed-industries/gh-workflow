@@ -15,51 +15,49 @@
 # ----------------------------- END WARNING -------------------------
 # -------------------------------------------------------------------
 
-name: Build and Test
-env:
-  RUSTFLAGS: -Dwarnings
+name: autofix.ci
 on:
-  pull_request_target:
+  pull_request:
     types:
     - opened
-    - synchronize
     - reopened
+    - synchronize
+    - labeled
     branches:
     - main
   push:
     branches:
     - main
+permissions:
+  contents: read
+  pull-requests: read
+  packages: read
 jobs:
-  build:
-    name: Build and Test
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout Code
-      uses: actions/checkout@v4
-    - name: Setup Rust Toolchain
-      uses: actions-rust-lang/setup-rust-toolchain@v1
-      with:
-        toolchain: stable, nightly
-        components: clippy, rustfmt
-    - name: Cargo Test
-      run: cargo test --all-features --workspace
-    - name: Cargo Fmt
-      run: cargo +nightly fmt --check
-    - name: Cargo Clippy
-      run: cargo +nightly clippy --all-features --workspace -- -D warnings
-  release:
-    needs: build
-    name: Release
+  lint:
+    name: Run Formatter and Lint Check
     runs-on: ubuntu-latest
     permissions:
       contents: write
       pull-requests: write
       packages: write
     env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+      LINT_MODE: '${contains(github.event.pull_request.labels.*.name, ''ci: lint'') && ''fix'' || ''check''}'
     steps:
     - name: Checkout Code
       uses: actions/checkout@v4
-    - name: Release Plz
-      uses: MarcoIeni/release-plz-action@0.5
+    - name: Cargo Clippy Fix
+      if: 'github.event_name == ''pull_request'' && contains(steps.check-labels.outputs.labels, ''ci: lintfix'')'
+      run: cargo +nightly clippy --all --all-targets --all-features --fix --allow-staged --allow-dirty
+    - name: Cargo Clippy Check
+      run: cargo +nightly clippy --all --all-targets --all-features
+    - name: Cargo Fmt fix
+      if: 'github.event_name == ''pull_request'' && contains(steps.check-labels.outputs.labels, ''ci: lintfix'')'
+      run: cargo +nightly fmt --all
+    - name: Cargo Fmt Check
+      run: cargo +nightly fmt --check
+    - name: Commit and push if changed
+      if: env.LINT_MODE == 'fix'
+      uses: autofix-ci/action@ff86a557419858bb967097bfc916833f5647fa8c
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
