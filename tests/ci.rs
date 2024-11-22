@@ -47,11 +47,12 @@ fn generate() {
 
     let event = Event::default()
         .push(Push::default().add_branch("main"))
-        .pull_request(
-            PullRequest::default()
+        .pull_request_target(
+            PullRequestTarget::default()
                 .add_type(PullRequestType::Opened)
                 .add_type(PullRequestType::Synchronize)
                 .add_type(PullRequestType::Reopened)
+                .add_type(PullRequestType::Labeled)
                 .add_branch("main"),
         );
 
