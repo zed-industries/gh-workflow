@@ -33,6 +33,8 @@ jobs:
   build:
     name: Build and Test
     runs-on: ubuntu-latest
+    env:
+      LINT_MODE: '${{contains(github.event.pull_request.labels.*.name, ''ci: lintfix'') && ''fix'' || ''check''}}'
     steps:
     - name: Checkout Code
       uses: actions/checkout@v4
@@ -47,6 +49,9 @@ jobs:
       run: cargo +nightly fmt --check
     - name: Cargo Clippy
       run: cargo +nightly clippy --all-features --workspace -- -D warnings
+    - name: Commit and push if changed
+      if: env.LINT_MODE == 'fix'
+      uses: autofix-ci/action@ff86a557419858bb967097bfc916833f5647fa8c
   release:
     needs: build
     name: Release

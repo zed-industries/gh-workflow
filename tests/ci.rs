@@ -4,9 +4,13 @@ use toolchain::Toolchain;
 
 #[test]
 fn generate() {
+    let lint_mode_condition =
+        "contains(github.event.pull_request.labels.*.name, 'ci: lintfix') && 'fix' || 'check'";
+
     let flags = RustFlags::deny("warnings");
 
     let build = Job::new("Build and Test")
+        .add_env(("LINT_MODE", format!("${{{{{}}}}}", lint_mode_condition)))
         .add_step(Step::checkout())
         .add_step(
             Toolchain::default()
@@ -31,7 +35,15 @@ fn generate() {
                 .nightly()
                 .args("--all-features --workspace -- -D warnings")
                 .name("Cargo Clippy"),
-        );
+        ).add_step(
+        Step::uses(
+            "autofix-ci",
+            "action",
+            "ff86a557419858bb967097bfc916833f5647fa8c",
+        )
+            .if_condition(Expression::new("env.LINT_MODE == 'fix'"))
+            .name("Commit and push if changed"),
+    );
 
     let event = Event::default()
         .push(Push::default().add_branch("main"))
