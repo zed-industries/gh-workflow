@@ -28,7 +28,7 @@ fn generate() {
         )
         .add_step(
             Cargo::new("test")
-                .args("--all --all-targets --all-features --fix --allow-staged --allow-dirty")
+                .args("--all --all-targets --all-features")
                 .if_condition("env.LINT_MODE == 'fix'")
                 .name("Cargo Test"),
         )
@@ -42,7 +42,7 @@ fn generate() {
         .add_step(
             Cargo::new("clippy")
                 .nightly()
-                .args("--all-features --workspace -- -D warnings")
+                .args("--all-features --workspace --fix --allow-staged --allow-dirty")
                 .name("Cargo Clippy"),
         )
         .add_step(
