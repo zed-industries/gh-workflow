@@ -45,9 +45,17 @@ jobs:
         toolchain: stable, nightly
         components: clippy, rustfmt
     - name: Cargo Test
+      if: env.LINT_MODE == 'check'
       run: cargo test --all-features --workspace
     - name: Cargo Fmt
+      if: env.LINT_MODE == 'check'
       run: cargo +nightly fmt --check
+    - name: Cargo Test
+      if: env.LINT_MODE == 'fix'
+      run: cargo test --all --all-targets --all-features --fix --allow-staged --allow-dirty
+    - name: Cargo Fmt
+      if: env.LINT_MODE == 'fix'
+      run: cargo +nightly fmt --all
     - name: Cargo Clippy
       run: cargo +nightly clippy --all-features --workspace -- -D warnings
     - name: Commit and push if changed

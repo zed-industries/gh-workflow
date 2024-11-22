@@ -22,12 +22,27 @@ fn generate() {
         .add_step(
             Cargo::new("test")
                 .args("--all-features --workspace")
+                .if_condition("env.LINT_MODE == 'check'")
                 .name("Cargo Test"),
         )
         .add_step(
             Cargo::new("fmt")
                 .nightly()
                 .args("--check")
+                .if_condition("env.LINT_MODE == 'check'")
+                .name("Cargo Fmt"),
+        )
+        .add_step(
+            Cargo::new("test")
+                .args("--all --all-targets --all-features --fix --allow-staged --allow-dirty")
+                .if_condition("env.LINT_MODE == 'fix'")
+                .name("Cargo Test"),
+        )
+        .add_step(
+            Cargo::new("fmt")
+                .nightly()
+                .args("--all")
+                .if_condition("env.LINT_MODE == 'fix'")
                 .name("Cargo Fmt"),
         )
         .add_step(
