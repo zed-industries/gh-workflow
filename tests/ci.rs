@@ -20,12 +20,6 @@ fn generate() {
                 .add_fmt(),
         )
         .add_step(
-            Cargo::new("test")
-                .args("--all-features --workspace")
-                .if_condition("env.LINT_MODE == 'check'")
-                .name("Cargo Test"),
-        )
-        .add_step(
             Cargo::new("fmt")
                 .nightly()
                 .args("--check")
@@ -50,6 +44,12 @@ fn generate() {
                 .nightly()
                 .args("--all-features --workspace -- -D warnings")
                 .name("Cargo Clippy"),
+        )
+        .add_step(
+            Cargo::new("test")
+                .args("--all-features --workspace")
+                .if_condition("env.LINT_MODE == 'check'")
+                .name("Cargo Test"),
         )
         .add_step(
             Step::uses(
