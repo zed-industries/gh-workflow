@@ -81,12 +81,12 @@ impl Generate {
 
 /// Organizes job dependencies within a given `Workflow`.
 ///
-/// This function iterates over all jobs in the provided `Workflow` and ensures that
-/// each job's dependencies are correctly set up. If a job has dependencies specified
-/// in `tmp_needs`, it checks if those dependencies are already defined in the workflow.
-/// If not, it creates new job IDs for the missing dependencies and inserts them into
-/// the workflow. The function then updates the `needs` field of each job with the
-/// appropriate job IDs.
+/// This function iterates over all jobs in the provided `Workflow` and ensures
+/// that each job's dependencies are correctly set up. If a job has dependencies
+/// specified in `tmp_needs`, it checks if those dependencies are already
+/// defined in the workflow. If not, it creates new job IDs for the missing
+/// dependencies and inserts them into the workflow. The function then updates
+/// the `needs` field of each job with the appropriate job IDs.
 fn organize_job_dependency(mut workflow: Workflow) -> Workflow {
     let mut job_id = 0;
     let mut new_jobs = IndexMap::<String, Job>::new();
@@ -97,9 +97,9 @@ fn organize_job_dependency(mut workflow: Workflow) -> Workflow {
         if let Some(dep_jobs) = &job.tmp_needs {
             // Prepare the job_ids
             let mut job_ids = Vec::<String>::new();
-            for dep_job in dep_jobs.into_iter() {
+            for dep_job in dep_jobs.iter() {
                 // If the job is already defined in the workflow
-                if let Some(id) = workflow.get_id(&dep_job) {
+                if let Some(id) = workflow.get_id(dep_job) {
                     job_ids.push(id.to_string());
                 } else {
                     // Create a job-id for the job
