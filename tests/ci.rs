@@ -7,7 +7,7 @@ use toolchain::Toolchain;
 fn generate() {
     let flags = RustFlags::deny("warnings");
 
-    let build = Job::new("Build and Test")
+    let build = Job::new("CI")
         .permissions(Permissions::default().contents(Level::Read))
         .add_step(Step::checkout())
         .add_step(
