@@ -15,7 +15,7 @@
 # ----------------------------- END WARNING -------------------------
 # -------------------------------------------------------------------
 
-name: Build and Test
+name: CI
 env:
   RUSTFLAGS: -Dwarnings
 on:
@@ -31,7 +31,7 @@ on:
     - main
 jobs:
   build:
-    name: CI
+    name: Build and Test
     runs-on: ubuntu-latest
     permissions:
       contents: read

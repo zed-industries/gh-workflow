@@ -7,7 +7,7 @@ use toolchain::Toolchain;
 fn generate() {
     let flags = RustFlags::deny("warnings");
 
-    let build = Job::new("CI")
+    let build = Job::new("Build and Test")
         .permissions(Permissions::default().contents(Level::Read))
         .add_step(Step::checkout())
         .add_step(
@@ -67,7 +67,7 @@ fn generate() {
         .add_step(Step::checkout())
         .add_step(Release::default());
 
-    Workflow::new("Build and Test")
+    Workflow::new("CI")
         .add_env(flags)
         .on(event)
         .add_job("build", build)
