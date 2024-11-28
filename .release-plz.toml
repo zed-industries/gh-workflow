@@ -3,5 +3,5 @@ dependencies_update = true
 release_always = true
 
 [[package]]
-name = "gh-workflow-macros"
+name = "macros"
 release = false
