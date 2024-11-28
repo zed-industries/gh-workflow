@@ -3,9 +3,10 @@ use std::path::PathBuf;
 use std::process::Command;
 
 use derive_setters::Setters;
+use indexmap::IndexMap;
 
 use crate::error::{Error, Result};
-use crate::Workflow;
+use crate::{Job, Jobs, Workflow};
 
 #[derive(Setters, Clone)]
 #[setters(into)]
@@ -16,6 +17,7 @@ pub struct Generate {
 
 impl Generate {
     pub fn new(workflow: Workflow) -> Self {
+        let workflow = organize_job_dependency(workflow);
         Self { workflow, name: "ci.yml".to_string() }
     }
 
@@ -46,8 +48,6 @@ impl Generate {
             .join("workflows")
             .join(self.name.as_str());
 
-        let path = path.canonicalize()?;
-
         let content = format!("{}\n{}", comment, self.workflow.to_string()?);
 
         let result = self.check_file(&path, &content);
@@ -77,4 +77,49 @@ impl Generate {
             }
         }
     }
+}
+
+/// Organizes job dependencies within a given `Workflow`.
+///
+/// This function iterates over all jobs in the provided `Workflow` and ensures
+/// that each job's dependencies are correctly set up. If a job has dependencies
+/// specified in `tmp_needs`, it checks if those dependencies are already
+/// defined in the workflow. If not, it creates new job IDs for the missing
+/// dependencies and inserts them into the workflow. The function then updates
+/// the `needs` field of each job with the appropriate job IDs.
+fn organize_job_dependency(mut workflow: Workflow) -> Workflow {
+    let mut job_id = 0;
+    let mut new_jobs = IndexMap::<String, Job>::new();
+
+    // Iterate over all jobs
+    for (id, mut job) in workflow.jobs.clone().unwrap_or_default().0.into_iter() {
+        // If job has dependencies
+        if let Some(dep_jobs) = &job.tmp_needs {
+            // Prepare the job_ids
+            let mut job_ids = Vec::<String>::new();
+            for dep_job in dep_jobs.iter() {
+                // If the job is already defined in the workflow
+                if let Some(id) = workflow.get_id(dep_job) {
+                    job_ids.push(id.to_string());
+                } else {
+                    // Create a job-id for the job
+                    let id = format!("job-{}", job_id);
+                    job_id += 1;
+
+                    // Add job id as the dependency
+                    job_ids.push(id.clone());
+
+                    // Insert the missing job into the new_jobs
+                    new_jobs.insert(format!("job-{}", job_id), dep_job.clone());
+                }
+            }
+            job.needs = Some(job_ids);
+        }
+
+        new_jobs.insert(id.clone(), job.clone());
+    }
+
+    workflow.jobs = Some(Jobs(new_jobs));
+
+    workflow
 }

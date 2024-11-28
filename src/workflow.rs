@@ -15,7 +15,7 @@ use crate::{private, Event};
 
 #[derive(Debug, Default, Serialize, Deserialize, Clone)]
 #[serde(transparent)]
-pub struct Jobs(IndexMap<String, Job>);
+pub struct Jobs(pub(crate) IndexMap<String, Job>);
 impl Jobs {
     pub fn insert(&mut self, key: String, value: Job) {
         self.0.insert(key, value);
@@ -78,7 +78,7 @@ pub struct Workflow {
 }
 
 /// Represents an action that can be triggered by an event in the workflow.
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
 pub struct EventAction {
     /// A list of branches that trigger the action.
@@ -141,10 +141,20 @@ impl Workflow {
         self.env = Some(env);
         self
     }
+
+    /// Performs a reverse lookup to get the ID of a job.
+    pub fn get_id(&self, job: &Job) -> Option<&str> {
+        self.jobs
+            .as_ref()?
+            .0
+            .iter()
+            .find(|(_, j)| *j == job)
+            .map(|(id, _)| id.as_str())
+    }
 }
 
 /// Represents the type of activity in the workflow.
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
 pub enum ActivityType {
     Created,
@@ -153,7 +163,7 @@ pub enum ActivityType {
 }
 
 /// Represents the environment in which a job runs.
-#[derive(Debug, Serialize, Deserialize, Clone, Default)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default, PartialEq, Eq)]
 #[serde(transparent)]
 pub struct RunsOn(Value);
 
@@ -168,12 +178,17 @@ where
 }
 
 /// Represents a job in the workflow.
-#[derive(Debug, Setters, Serialize, Deserialize, Clone, Default)]
+#[derive(Debug, Setters, Serialize, Deserialize, Clone, Default, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
 #[setters(strip_option, into)]
 pub struct Job {
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub needs: Option<Value>,
+    #[setters(skip)]
+    pub(crate) needs: Option<Vec<String>>,
+
+    #[serde(skip)]
+    pub(crate) tmp_needs: Option<Vec<Job>>,
+
     #[serde(skip_serializing_if = "Option::is_none", rename = "if")]
     pub cond: Option<Expression>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -240,10 +255,18 @@ impl Job {
         self.env = Some(env);
         self
     }
+
+    pub fn add_needs<J: Into<Job>>(mut self, needs: J) -> Self {
+        let job: Job = needs.into();
+        let mut needs = self.tmp_needs.unwrap_or_default();
+        needs.push(job);
+        self.tmp_needs = Some(needs);
+        self
+    }
 }
 
 /// Represents a step in the workflow.
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 #[serde(transparent)]
 pub struct Step<A> {
     /// The value of the step.
@@ -267,11 +290,11 @@ impl From<Step<Use>> for StepValue {
 }
 
 /// Represents a step that uses an action.
-#[derive(Debug, Default, Serialize, Deserialize, Clone)]
+#[derive(Debug, Default, Serialize, Deserialize, Clone, PartialEq, Eq)]
 pub struct Use;
 
 /// Represents a step that runs a command.
-#[derive(Debug, Default, Serialize, Deserialize, Clone)]
+#[derive(Debug, Default, Serialize, Deserialize, Clone, PartialEq, Eq)]
 pub struct Run;
 
 /// A trait to convert `Step<Run>` and `Step<Use>` to `StepValue`.
@@ -298,7 +321,7 @@ impl StepType for Use {
 }
 
 /// Represents environment variables in the workflow.
-#[derive(Default, Debug, Serialize, Deserialize, Clone)]
+#[derive(Default, Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 #[serde(transparent)]
 pub struct Env(IndexMap<String, Value>);
 
@@ -333,7 +356,7 @@ impl Env {
 }
 
 /// Represents input parameters for a step.
-#[derive(Debug, Default, Serialize, Deserialize, Clone)]
+#[derive(Debug, Default, Serialize, Deserialize, Clone, PartialEq, Eq)]
 #[serde(transparent)]
 pub struct Input(#[serde(skip_serializing_if = "IndexMap::is_empty")] IndexMap<String, Value>);
 
@@ -366,7 +389,7 @@ impl Input {
 
 /// Represents a step value in the workflow.
 #[allow(clippy::duplicated_attributes)]
-#[derive(Debug, Setters, Serialize, Deserialize, Clone, Default)]
+#[derive(Debug, Setters, Serialize, Deserialize, Clone, Default, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
 #[setters(
     strip_option,
@@ -539,7 +562,7 @@ impl<S1: Display, S2: Display> From<(S1, S2)> for Env {
 }
 
 /// Represents the runner environment for jobs.
-#[derive(Debug, Serialize, Deserialize, Clone, Default)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
 pub enum Runner {
     #[default]
@@ -550,7 +573,7 @@ pub enum Runner {
 }
 
 /// Represents a container configuration for jobs.
-#[derive(Debug, Setters, Serialize, Deserialize, Clone, Default)]
+#[derive(Debug, Setters, Serialize, Deserialize, Clone, Default, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
 #[setters(strip_option, into)]
 pub struct Container {
@@ -583,7 +606,7 @@ pub struct Container {
 }
 
 /// Represents credentials for accessing a container.
-#[derive(Debug, Setters, Serialize, Deserialize, Clone, Default)]
+#[derive(Debug, Setters, Serialize, Deserialize, Clone, Default, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
 #[setters(strip_option, into)]
 pub struct Credentials {
@@ -595,7 +618,7 @@ pub struct Credentials {
 }
 
 /// Represents a network port.
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
 pub enum Port {
     /// A port specified by its number.
@@ -606,7 +629,7 @@ pub enum Port {
 }
 
 /// Represents a volume configuration for containers.
-#[derive(Debug, Setters, Serialize, Deserialize, Clone, Default)]
+#[derive(Debug, Setters, Serialize, Deserialize, Clone, Default, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
 #[setters(strip_option, into)]
 pub struct Volume {
@@ -633,7 +656,7 @@ impl Volume {
 }
 
 /// Represents concurrency settings for workflows.
-#[derive(Debug, Setters, Serialize, Deserialize, Clone, Default)]
+#[derive(Debug, Setters, Serialize, Deserialize, Clone, Default, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
 #[setters(strip_option, into)]
 pub struct Concurrency {
@@ -650,7 +673,7 @@ pub struct Concurrency {
 }
 
 /// Represents permissions for the `GITHUB_TOKEN`.
-#[derive(Debug, Setters, Serialize, Deserialize, Clone, Default)]
+#[derive(Debug, Setters, Serialize, Deserialize, Clone, Default, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
 #[setters(strip_option, into)]
 pub struct Permissions {
@@ -696,7 +719,7 @@ pub struct Permissions {
 }
 
 /// Represents the level of permissions.
-#[derive(Debug, Serialize, Deserialize, Clone, Default)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
 pub enum Level {
     Read,
@@ -706,7 +729,7 @@ pub enum Level {
 }
 
 /// Represents the strategy for running jobs.
-#[derive(Debug, Setters, Serialize, Deserialize, Clone, Default)]
+#[derive(Debug, Setters, Serialize, Deserialize, Clone, Default, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
 #[setters(strip_option, into)]
 pub struct Strategy {
@@ -724,7 +747,7 @@ pub struct Strategy {
 }
 
 /// Represents an environment for jobs.
-#[derive(Debug, Setters, Serialize, Deserialize, Clone, Default)]
+#[derive(Debug, Setters, Serialize, Deserialize, Clone, Default, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
 #[setters(strip_option, into)]
 pub struct Environment {
@@ -737,7 +760,7 @@ pub struct Environment {
 }
 
 /// Represents default settings for jobs.
-#[derive(Debug, Setters, Serialize, Deserialize, Clone, Default)]
+#[derive(Debug, Setters, Serialize, Deserialize, Clone, Default, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
 #[setters(strip_option, into)]
 pub struct Defaults {
@@ -755,7 +778,7 @@ pub struct Defaults {
 }
 
 /// Represents default settings for running commands.
-#[derive(Debug, Setters, Serialize, Deserialize, Clone, Default)]
+#[derive(Debug, Setters, Serialize, Deserialize, Clone, Default, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
 #[setters(strip_option, into)]
 pub struct RunDefaults {
@@ -769,7 +792,7 @@ pub struct RunDefaults {
 }
 
 /// Represents default settings for retries.
-#[derive(Debug, Serialize, Deserialize, Clone, Default)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
 pub struct RetryDefaults {
     /// The maximum number of retry attempts.
@@ -778,7 +801,7 @@ pub struct RetryDefaults {
 }
 
 /// Represents an expression used in conditions.
-#[derive(Debug, Serialize, Deserialize, Clone, Default)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default, PartialEq, Eq)]
 pub struct Expression(String);
 
 impl<T: ToString> From<T> for Expression {
@@ -795,7 +818,7 @@ impl Expression {
 }
 
 /// Represents a secret required for the workflow.
-#[derive(Debug, Setters, Serialize, Deserialize, Clone, Default)]
+#[derive(Debug, Setters, Serialize, Deserialize, Clone, Default, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
 #[setters(strip_option, into)]
 pub struct Secret {
@@ -808,7 +831,7 @@ pub struct Secret {
 }
 
 /// Represents a strategy for retrying jobs.
-#[derive(Debug, Serialize, Deserialize, Clone, Default)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
 pub struct RetryStrategy {
     /// The maximum number of retry attempts.
@@ -817,7 +840,7 @@ pub struct RetryStrategy {
 }
 
 /// Represents artifacts produced by jobs.
-#[derive(Debug, Setters, Serialize, Deserialize, Clone, Default)]
+#[derive(Debug, Setters, Serialize, Deserialize, Clone, Default, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
 #[setters(strip_option, into)]
 pub struct Artifacts {
@@ -831,7 +854,7 @@ pub struct Artifacts {
 }
 
 /// Represents an artifact produced by a job.
-#[derive(Debug, Setters, Serialize, Deserialize, Clone, Default)]
+#[derive(Debug, Setters, Serialize, Deserialize, Clone, Default, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
 #[setters(strip_option, into)]
 pub struct Artifact {
