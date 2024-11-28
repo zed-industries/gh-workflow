@@ -4,9 +4,7 @@ mod cargo;
 pub mod error;
 mod event;
 
-// TODO: expose this publicly eventually
-#[allow(dead_code)]
-mod expr;
+pub mod ctx;
 pub mod generate;
 pub mod release_plz;
 mod rust_flag;
