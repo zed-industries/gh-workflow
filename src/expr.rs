@@ -1,8 +1,10 @@
-use std::fmt::Display;
+use std::fmt;
 use std::marker::PhantomData;
 use std::rc::Rc;
 
 use gh_workflow_macros::Expr;
+
+use crate::Expression;
 
 pub struct Expr<A> {
     marker: PhantomData<A>,
@@ -17,12 +19,19 @@ enum Step {
         name: Rc<String>,
         object: Box<Step>,
     },
-}
-
-impl Step {
-    fn select(name: impl Into<String>) -> Step {
-        Step::Select { name: Rc::new(name.into()), object: Box::new(Step::Root) }
-    }
+    Eq {
+        left: Box<Step>,
+        right: Box<Step>,
+    },
+    And {
+        left: Box<Step>,
+        right: Box<Step>,
+    },
+    Or {
+        left: Box<Step>,
+        right: Box<Step>,
+    },
+    Literal(String),
 }
 
 impl<A> Expr<A> {
@@ -39,37 +48,39 @@ impl<A> Expr<A> {
             },
         }
     }
-}
 
-impl<A> Display for Expr<A> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let mut stack: Vec<Step> = vec![self.step.clone()];
-
-        write!(f, "{{{{ ")?;
-
-        loop {
-            match stack.pop() {
-                None => break,
-                Some(step) => match step {
-                    Step::Root => break,
-                    Step::Select { name, object } => {
-                        if matches!(*object, Step::Root) {
-                            write!(f, "{}", name.replace('"', ""))?;
-                        } else {
-                            stack.push(Step::select(name.as_str()));
-                            // TODO: this is a hack to insert a `.` between the two steps
-                            stack.push(Step::select("."));
-                            stack.push(*object);
-                        }
-                    }
-                },
-            }
+    pub fn eq(&self, other: Expr<A>) -> Expr<bool> {
+        Expr {
+            marker: Default::default(),
+            step: Step::Eq {
+                left: Box::new(self.step.clone()),
+                right: Box::new(other.step.clone()),
+            },
         }
+    }
 
-        write!(f, " }}}}")
+    pub fn and(&self, other: Expr<A>) -> Expr<bool> {
+        Expr {
+            marker: Default::default(),
+            step: Step::And {
+                left: Box::new(self.step.clone()),
+                right: Box::new(other.step.clone()),
+            },
+        }
+    }
+
+    pub fn or(&self, other: Expr<A>) -> Expr<bool> {
+        Expr {
+            marker: Default::default(),
+            step: Step::Or {
+                left: Box::new(self.step.clone()),
+                right: Box::new(other.step.clone()),
+            },
+        }
     }
 }
 
+#[allow(unused)]
 #[derive(Expr)]
 pub struct Github {
     /// The name of the action currently running, or the id of a step.
@@ -166,8 +177,56 @@ impl Expr<Github> {
     }
 }
 
-#[derive(Expr)]
+impl fmt::Display for Step {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Step::Root => write!(f, ""),
+            Step::Select { name, object } => {
+                if matches!(**object, Step::Root) {
+                    write!(f, "{}", name)
+                } else {
+                    write!(f, "{}.{}", object, name)
+                }
+            }
+            Step::Eq { left, right } => {
+                write!(f, "{} == {}", left, right)
+            }
+            Step::And { left, right } => {
+                write!(f, "{} && {}", left, right)
+            }
+            Step::Or { left, right } => {
+                write!(f, "{} || {}", left, right)
+            }
+            Step::Literal(value) => {
+                write!(f, "'{}'", value)
+            }
+        }
+    }
+}
 
+impl<A> fmt::Display for Expr<A> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "${{{{ {} }}}}", self.step.to_string().replace('"', ""))
+    }
+}
+
+impl<A> From<Expr<A>> for Expression {
+    fn from(value: Expr<A>) -> Self {
+        Expression::new(value.to_string())
+    }
+}
+
+impl<T: Into<String>> From<T> for Expr<String> {
+    fn from(value: T) -> Self {
+        Expr {
+            marker: Default::default(),
+            step: Step::Literal(value.into()),
+        }
+    }
+}
+
+#[allow(unused)]
+#[derive(Expr)]
 /// The job context contains information about the currently running job.
 pub struct Job {
     /// A unique number for each container in a job. This property is only
@@ -194,7 +253,7 @@ pub enum JobStatus {
 }
 
 #[derive(Expr)]
-
+#[allow(unused)]
 /// Container information for a job. This is only available if the job runs in a
 /// container.
 pub struct Container {
@@ -220,12 +279,53 @@ mod test {
     fn test_expr() {
         let github = Expr::github(); // Expr<Github>
 
-        assert_eq!(github.to_string(), "{{ github }}");
+        assert_eq!(github.to_string(), "${{ github }}");
 
         let action = github.action(); // Expr<String>
-        assert_eq!(action.to_string(), "{{ github.action }}");
+        assert_eq!(action.to_string(), "${{ github.action }}");
 
         let action_path = github.action_path(); // Expr<String>
-        assert_eq!(action_path.to_string(), "{{ github.action_path }}");
+        assert_eq!(action_path.to_string(), "${{ github.action_path }}");
+    }
+
+    #[test]
+    fn test_expr_eq() {
+        let github = Expr::github();
+        let action = github.action();
+        let action_path = github.action_path();
+
+        let expr = action.eq(action_path);
+
+        assert_eq!(
+            expr.to_string(),
+            "${{ github.action == github.action_path }}"
+        );
+    }
+
+    #[test]
+    fn test_expr_and() {
+        let push = Expr::github().event_name().eq("push".into());
+        let main = Expr::github().ref_().eq("ref/heads/main".into());
+        let expr = push.and(main);
+
+        assert_eq!(
+            expr.to_string(),
+            "${{ github.event_name == 'push' && github.ref == 'ref/heads/main' }}"
+        )
+    }
+
+    #[test]
+    fn test_expr_or() {
+        let github = Expr::github();
+        let action = github.action();
+        let action_path = github.action_path();
+        let action_ref = github.action_ref();
+
+        let expr = action.eq(action_path).or(action.eq(action_ref));
+
+        assert_eq!(
+            expr.to_string(),
+            "${{ github.action == github.action_path || github.action == github.action_ref }}"
+        );
     }
 }

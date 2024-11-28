@@ -1,3 +1,4 @@
+use expr::Expr;
 use gh_workflow::*;
 use release_plz::Release;
 use toolchain::Toolchain;
@@ -50,6 +51,12 @@ fn generate() {
         .contents(Level::Write);
 
     let release = Job::new("Release")
+        .cond(
+            Expr::github()
+                .event_name()
+                .eq("push".into())
+                .and(Expr::github().ref_().eq("ref/heads/main".into())),
+        )
         .add_needs(build.clone())
         .add_env(Env::github())
         .add_env(Env::new(
