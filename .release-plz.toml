@@ -5,3 +5,8 @@ release_always = true
 [[package]]
 name = "gh-workflow-macros"
 release = false
+version_group = "core"
+
+[[package]]
+name = "gh-workflow"
+version_group = "core"
