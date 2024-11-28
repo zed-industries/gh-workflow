@@ -1,6 +1,5 @@
-use ctx::Context;
 use gh_workflow::*;
-use release_plz::Release;
+use release_plz::{Command, Release};
 use toolchain::Toolchain;
 
 #[test]
@@ -51,12 +50,16 @@ fn generate() {
         .contents(Level::Write);
 
     let release = Job::new("Release")
-        .cond(
-            Context::github()
-                .event_name()
-                .eq("push".into())
-                .and(Context::github().ref_().eq("refs/heads/main".into())),
-        )
+        .add_env(Env::github())
+        .add_env(Env::new(
+            "CARGO_REGISTRY_TOKEN",
+            "${{ secrets.CARGO_REGISTRY_TOKEN }}",
+        ))
+        .permissions(permissions.clone())
+        .add_step(Step::checkout())
+        .add_step(Release::default().command(Command::Release));
+
+    let release_pr = Job::new("Release PR")
         .add_needs(build.clone())
         .add_env(Env::github())
         .add_env(Env::new(
@@ -65,13 +68,14 @@ fn generate() {
         ))
         .permissions(permissions)
         .add_step(Step::checkout())
-        .add_step(Release::default());
+        .add_step(Release::default().command(Command::ReleasePR));
 
     Workflow::new("CI")
         .add_env(flags)
         .on(event)
         .add_job("build", build)
         .add_job("release", release)
+        .add_job("release-pr", release_pr)
         .generate()
         .unwrap();
 }
