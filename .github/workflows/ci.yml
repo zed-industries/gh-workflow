@@ -85,3 +85,6 @@ jobs:
       uses: MarcoIeni/release-plz-action@v0.5
       with:
         command: release-pr
+    concurrency:
+      group: release-${{github.ref}}
+      cancel-in-progress: false

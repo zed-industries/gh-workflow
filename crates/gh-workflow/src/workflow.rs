@@ -657,6 +657,13 @@ pub struct Concurrency {
     pub limit: Option<u32>,
 }
 
+impl Concurrency {
+    pub fn new(group: impl Into<Expression>) -> Self {
+        let expr: Expression = group.into();
+        Self { group: expr.0, ..Default::default() }
+    }
+}
+
 /// Represents permissions for the `GITHUB_TOKEN`.
 #[derive(Debug, Setters, Serialize, Deserialize, Clone, Default, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]

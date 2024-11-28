@@ -35,6 +35,10 @@ enum Step {
         right: Box<Step>,
     },
     Literal(String),
+    Concat {
+        left: Box<Step>,
+        right: Box<Step>,
+    },
 }
 
 impl<A> Context<A> {
@@ -78,6 +82,18 @@ impl<A> Context<A> {
             step: Step::Or {
                 left: Box::new(self.step.clone()),
                 right: Box::new(other.step.clone()),
+            },
+        }
+    }
+}
+
+impl Context<String> {
+    pub fn concat(&self, other: Context<String>) -> Context<String> {
+        Context {
+            marker: Default::default(),
+            step: Step::Concat {
+                left: Box::new(self.step.clone()),
+                right: Box::new(other.step),
             },
         }
     }
@@ -202,6 +218,9 @@ impl fmt::Display for Step {
             }
             Step::Literal(value) => {
                 write!(f, "'{}'", value)
+            }
+            Step::Concat { left, right } => {
+                write!(f, "{}{}", left, right)
             }
         }
     }

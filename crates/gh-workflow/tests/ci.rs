@@ -60,6 +60,9 @@ fn generate() {
         .add_step(Release::default().command(Command::Release));
 
     let release_pr = Job::new("Release PR")
+        .concurrency(
+            Concurrency::new(Expression::new("release-${{github.ref}}")).cancel_in_progress(false),
+        )
         .add_needs(build.clone())
         .add_env(Env::github())
         .add_env(Env::new(
