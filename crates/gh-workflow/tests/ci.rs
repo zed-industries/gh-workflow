@@ -50,6 +50,7 @@ fn generate() {
         .contents(Level::Write);
 
     let release = Job::new("Release")
+        .add_needs(build.clone())
         .add_env(Env::github())
         .add_env(Env::new(
             "CARGO_REGISTRY_TOKEN",
