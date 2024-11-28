@@ -55,7 +55,7 @@ fn generate() {
             Context::github()
                 .event_name()
                 .eq("push".into())
-                .and(Context::github().ref_().eq("ref/heads/main".into())),
+                .and(Context::github().ref_().eq("refs/heads/main".into())),
         )
         .add_needs(build.clone())
         .add_env(Env::github())
