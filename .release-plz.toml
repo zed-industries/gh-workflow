@@ -1,2 +1,30 @@
 [workspace]
 dependencies_update = true # update dependencies with `cargo update`
+
+[changelog]
+header = "# Changelog"
+body = "Body"
+trim = true
+protect_breaking_commits = true
+sort_commits = "newest"
+
+commit_preprocessors = [
+    # remove issue numbers from commits
+    { pattern = '\((\w+\s)?#([0-9]+)\)', replace = "" },
+]
+
+commit_parsers = [
+    { message = "^.*: add", group = "Added" },
+    { message = "^.*: feat", group = "Added" },
+    { message = "^.*: support", group = "Added" },
+    { message = "^.*: remove", group = "Removed" },
+    { message = "^.*: delete", group = "Removed" },
+    { message = "^test", group = "Fixed" },
+    { message = "^fix", group = "Fixed" },
+    { message = "^.*: fix", group = "Fixed" },
+    { message = "^.*", group = "Changed" },
+]
+
+link_parsers = [
+    { pattern = "RFC(\\d+)", text = "ietf-rfc$1", href = "https://datatracker.ietf.org/doc/html/rfc$1" },
+]
