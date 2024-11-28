@@ -3,7 +3,7 @@ use proc_macro::TokenStream;
 use quote::quote;
 use syn::{parse_macro_input, Data, DeriveInput, Fields};
 
-#[proc_macro_derive(Expr)]
+#[proc_macro_derive(Context)]
 pub fn derive_expr(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
     let struct_name = input.ident;
@@ -15,10 +15,10 @@ pub fn derive_expr(input: TokenStream) -> TokenStream {
         if let Fields::Named(fields) = data_struct.fields {
             fields
         } else {
-            panic!("#[derive(Expr)] only supports structs with named fields")
+            panic!("#[derive(Context)] only supports structs with named fields")
         }
     } else {
-        panic!("#[derive(Expr)] can only be used with structs");
+        panic!("#[derive(Context)] can only be used with structs");
     };
 
     // Generate methods for each field
@@ -27,7 +27,7 @@ pub fn derive_expr(input: TokenStream) -> TokenStream {
         let field_type = &field.ty;
         let field_name_str = field_name.as_ref().unwrap().to_string();
         quote! {
-            pub fn #field_name(&self) -> Expr<#field_type> {
+            pub fn #field_name(&self) -> Context<#field_type> {
                 self.select::<#field_type>(#field_name_str)
             }
         }
@@ -35,11 +35,11 @@ pub fn derive_expr(input: TokenStream) -> TokenStream {
 
     // Generate the output code
     let expanded = quote! {
-        impl Expr<#struct_name> {
+        impl Context<#struct_name> {
             #(#methods)*
 
             pub fn #ctor_id() -> Self {
-                Expr::<Github>::new().select(stringify!(#ctor_name))
+                Context::<Github>::new().select(stringify!(#ctor_name))
             }
         }
     };

@@ -2,11 +2,14 @@ use std::fmt;
 use std::marker::PhantomData;
 use std::rc::Rc;
 
-use gh_workflow_macros::Expr;
+use gh_workflow_macros::Context;
 
 use crate::Expression;
 
-pub struct Expr<A> {
+///
+/// A type-safe implementation of GitHub Actions context expressions.
+/// Implemented based on the documentation provided here: https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/accessing-contextual-information-about-workflow-runs
+pub struct Context<A> {
     marker: PhantomData<A>,
     step: Step,
 }
@@ -34,13 +37,13 @@ enum Step {
     Literal(String),
 }
 
-impl<A> Expr<A> {
+impl<A> Context<A> {
     fn new() -> Self {
-        Expr { marker: PhantomData, step: Step::Root }
+        Context { marker: PhantomData, step: Step::Root }
     }
 
-    fn select<B>(&self, path: impl Into<String>) -> Expr<B> {
-        Expr {
+    fn select<B>(&self, path: impl Into<String>) -> Context<B> {
+        Context {
             marker: PhantomData,
             step: Step::Select {
                 name: Rc::new(path.into()),
@@ -49,8 +52,8 @@ impl<A> Expr<A> {
         }
     }
 
-    pub fn eq(&self, other: Expr<A>) -> Expr<bool> {
-        Expr {
+    pub fn eq(&self, other: Context<A>) -> Context<bool> {
+        Context {
             marker: Default::default(),
             step: Step::Eq {
                 left: Box::new(self.step.clone()),
@@ -59,8 +62,8 @@ impl<A> Expr<A> {
         }
     }
 
-    pub fn and(&self, other: Expr<A>) -> Expr<bool> {
-        Expr {
+    pub fn and(&self, other: Context<A>) -> Context<bool> {
+        Context {
             marker: Default::default(),
             step: Step::And {
                 left: Box::new(self.step.clone()),
@@ -69,8 +72,8 @@ impl<A> Expr<A> {
         }
     }
 
-    pub fn or(&self, other: Expr<A>) -> Expr<bool> {
-        Expr {
+    pub fn or(&self, other: Context<A>) -> Context<bool> {
+        Context {
             marker: Default::default(),
             step: Step::Or {
                 left: Box::new(self.step.clone()),
@@ -81,7 +84,7 @@ impl<A> Expr<A> {
 }
 
 #[allow(unused)]
-#[derive(Expr)]
+#[derive(Context)]
 pub struct Github {
     /// The name of the action currently running, or the id of a step.
     action: String,
@@ -171,8 +174,8 @@ pub struct Github {
     workspace: String,
 }
 
-impl Expr<Github> {
-    pub fn ref_(&self) -> Expr<String> {
+impl Context<Github> {
+    pub fn ref_(&self) -> Context<String> {
         self.select("ref")
     }
 }
@@ -204,21 +207,21 @@ impl fmt::Display for Step {
     }
 }
 
-impl<A> fmt::Display for Expr<A> {
+impl<A> fmt::Display for Context<A> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "${{{{ {} }}}}", self.step.to_string().replace('"', ""))
     }
 }
 
-impl<A> From<Expr<A>> for Expression {
-    fn from(value: Expr<A>) -> Self {
+impl<A> From<Context<A>> for Expression {
+    fn from(value: Context<A>) -> Self {
         Expression::new(value.to_string())
     }
 }
 
-impl<T: Into<String>> From<T> for Expr<String> {
+impl<T: Into<String>> From<T> for Context<String> {
     fn from(value: T) -> Self {
-        Expr {
+        Context {
             marker: Default::default(),
             step: Step::Literal(value.into()),
         }
@@ -226,7 +229,7 @@ impl<T: Into<String>> From<T> for Expr<String> {
 }
 
 #[allow(unused)]
-#[derive(Expr)]
+#[derive(Context)]
 /// The job context contains information about the currently running job.
 pub struct Job {
     /// A unique number for each container in a job. This property is only
@@ -252,7 +255,7 @@ pub enum JobStatus {
     Cancelled,
 }
 
-#[derive(Expr)]
+#[derive(Context)]
 #[allow(unused)]
 /// Container information for a job. This is only available if the job runs in a
 /// container.
@@ -263,7 +266,7 @@ pub struct Container {
     network: String,
 }
 
-#[derive(Expr)]
+#[derive(Context)]
 
 /// Services configured for a job. This is only available if the job uses
 /// service containers.
@@ -277,7 +280,7 @@ mod test {
 
     #[test]
     fn test_expr() {
-        let github = Expr::github(); // Expr<Github>
+        let github = Context::github(); // Expr<Github>
 
         assert_eq!(github.to_string(), "${{ github }}");
 
@@ -290,7 +293,7 @@ mod test {
 
     #[test]
     fn test_expr_eq() {
-        let github = Expr::github();
+        let github = Context::github();
         let action = github.action();
         let action_path = github.action_path();
 
@@ -304,8 +307,8 @@ mod test {
 
     #[test]
     fn test_expr_and() {
-        let push = Expr::github().event_name().eq("push".into());
-        let main = Expr::github().ref_().eq("ref/heads/main".into());
+        let push = Context::github().event_name().eq("push".into());
+        let main = Context::github().ref_().eq("ref/heads/main".into());
         let expr = push.and(main);
 
         assert_eq!(
@@ -316,7 +319,7 @@ mod test {
 
     #[test]
     fn test_expr_or() {
-        let github = Expr::github();
+        let github = Context::github();
         let action = github.action();
         let action_path = github.action_path();
         let action_ref = github.action_ref();
