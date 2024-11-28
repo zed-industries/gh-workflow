@@ -1,14 +1,11 @@
 [workspace]
 dependencies_update = true
 release_always = true
-release = false
 
 [[package]]
 name = "gh-workflow-macros"
-release = false
 version_group = "core"
 
 [[package]]
-release = true
 name = "gh-workflow"
 version_group = "core"
