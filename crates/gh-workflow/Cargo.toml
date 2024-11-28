@@ -19,9 +19,8 @@ serde = { version = "1.0.210", features = ["derive"] }
 serde_json = { version = "1.0.128" }
 serde_yaml = "0.9.34"
 strum_macros = "0.26.4"
-
+gh-workflow-macros = { path = "../gh-workflow-macros", version = "*" }
 
 [dev-dependencies]
 insta = "1.40.0"
 pretty_assertions = "1.4.1"
-gh-workflow-macros = { path = "../gh-workflow-macros", version = "*" }
