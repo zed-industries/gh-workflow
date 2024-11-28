@@ -1,5 +1,6 @@
 [workspace]
-dependencies_update = true # update dependencies with `cargo update`
+dependencies_update = true
+release_always = true
 
 [[package]]
 name = "gh-workflow-macros"
