@@ -7,6 +7,7 @@
 
 use ctx::Context;
 use derive_setters::Setters;
+use gh_workflow::error::Result;
 use gh_workflow::{Workflow as GHWorkflow, *};
 use release_plz::{Command, Release};
 use toolchain::Toolchain;
@@ -24,7 +25,20 @@ pub struct Workflow {
 
 impl Default for Workflow {
     fn default() -> Self {
-        Self { auto_release: true, name: "CI".into() }
+        Self { auto_release: false, name: "CI".into() }
+    }
+}
+
+impl Workflow {
+    /// Generates and tests the workflow file.
+    pub fn generate(self) -> Result<()> {
+        let workflow: GHWorkflow = self.into();
+        workflow.generate()
+    }
+
+    /// Converts the workflow into a Github workflow.
+    pub fn to_github_workflow(&self) -> GHWorkflow {
+        self.clone().into()
     }
 }
 

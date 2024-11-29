@@ -12,4 +12,4 @@ pub enum Error {
     MissingWorkflowFile(std::path::PathBuf),
 }
 
-pub(crate) type Result<T> = std::result::Result<T, Error>;
+pub type Result<T> = std::result::Result<T, Error>;
