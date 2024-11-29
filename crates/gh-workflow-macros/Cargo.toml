@@ -3,6 +3,13 @@ name = "gh-workflow-macros"
 version = "0.1.0"
 edition = "2021"
 
+description = "macros for gh-workflow"
+license = "Apache-2.0"
+documentation = "https://docs.rs/gh-workflow"
+homepage = "https://github.com/tailcallhq/gh-workflow"
+repository = "https://github.com/tailcallhq/gh-workflow"
+keywords = ["github", "actions", "workflow", "generator"]
+
 [lib]
 proc-macro = true
 

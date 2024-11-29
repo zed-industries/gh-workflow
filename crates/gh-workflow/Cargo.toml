@@ -8,6 +8,7 @@ license = "Apache-2.0"
 documentation = "https://docs.rs/gh-workflow"
 homepage = "https://github.com/tailcallhq/gh-workflow"
 repository = "https://github.com/tailcallhq/gh-workflow"
+keywords = ["github", "actions", "workflow", "generator"]
 
 [dependencies]
 async-trait = "0.1.83"
