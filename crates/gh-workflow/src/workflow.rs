@@ -463,7 +463,7 @@ impl StepValue {
     ) -> Self {
         StepValue {
             uses: Some(format!(
-                "{}/{}@v{}",
+                "{}/{}@{}",
                 owner.to_string(),
                 repo.to_string(),
                 version.to_string()
@@ -509,7 +509,7 @@ impl Step<Use> {
 
     /// Creates a step pointing to the default GitHub's Checkout Action.
     pub fn checkout() -> Step<Use> {
-        Step::uses("actions", "checkout", 4.0).name("Checkout Code")
+        Step::uses("actions", "checkout", "v4").name("Checkout Code")
     }
 
     /// Adds a new input to the step.
