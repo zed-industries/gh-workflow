@@ -47,7 +47,7 @@ Then you can start creating GitHub Actions in your [tests/ci.rs](https://github.
   }
   ```
 
-  To view a fully functional example, check out the [tests/ci.rs](https://github.com/tailcallhq/rust-gh-workflow/blob/main/tests/ci.rs) of this project.
+  To view a fully functional example, check out the [tests/ci.rs](https://github.com/tailcallhq/gh-workflow/blob/main/crates/gh-workflow-tailcall/tests/ci.rs) of this project.
 
 - Run `cargo test` to generate the GitHub Actions workflow.
 
