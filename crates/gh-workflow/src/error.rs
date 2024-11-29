@@ -1,3 +1,6 @@
+//! This module defines the `Error` enum and the `Result` type alias used
+//! throughout the crate.
+
 #[derive(Debug, derive_more::From)]
 pub enum Error {
     IO(std::io::Error),

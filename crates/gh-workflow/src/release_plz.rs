@@ -1,3 +1,5 @@
+//! A typed representation of the `release-plz` action in a GitHub workflow.
+//! Docs: <https://github.com/release-plz/action>
 use derive_setters::Setters;
 
 use crate::{Step, Use};

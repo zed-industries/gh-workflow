@@ -1,4 +1,5 @@
-//! The typed version of https://github.com/actions-rust-lang/setup-rust-toolchain
+//! The typed version of the `setup-rust-toolchain` action in a GitHub workflow.
+//! Docs: <https://github.com/actions-rust-lang/setup-rust-toolchain>
 
 use std::fmt::{Display, Formatter};
 

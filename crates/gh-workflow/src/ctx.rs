@@ -1,3 +1,5 @@
+//! A type-safe implementation of workflow context: <https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/accessing-contextual-information-about-workflow-runs>
+
 use std::fmt;
 use std::marker::PhantomData;
 use std::rc::Rc;
@@ -6,9 +8,6 @@ use gh_workflow_macros::Context;
 
 use crate::Expression;
 
-///
-/// A type-safe implementation of GitHub Actions context expressions.
-/// Implemented based on the documentation provided here: <https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/accessing-contextual-information-about-workflow-runs>
 #[derive(Clone)]
 pub struct Context<A> {
     marker: PhantomData<A>,

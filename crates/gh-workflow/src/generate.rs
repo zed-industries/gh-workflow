@@ -1,3 +1,6 @@
+//! This module provides functionality to customize generation of the GitHub
+//! Actions workflow files.
+
 use std::io::ErrorKind;
 use std::path::PathBuf;
 use std::process::Command;
