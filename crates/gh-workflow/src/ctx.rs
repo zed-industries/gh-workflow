@@ -9,6 +9,7 @@ use crate::Expression;
 ///
 /// A type-safe implementation of GitHub Actions context expressions.
 /// Implemented based on the documentation provided here: <https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/accessing-contextual-information-about-workflow-runs>
+#[derive(Clone)]
 pub struct Context<A> {
     marker: PhantomData<A>,
     step: Step,

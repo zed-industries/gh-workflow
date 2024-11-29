@@ -52,6 +52,7 @@ jobs:
   release:
     needs:
     - build
+    if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
     name: Release
     runs-on: ubuntu-latest
     permissions:
@@ -65,12 +66,13 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v4
     - name: Release Plz
-      uses: MarcoIeni/release-plz-action@v0.5
+      uses: release-plz/action@v0.5
       with:
         command: release
   release-pr:
     needs:
     - build
+    if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
     name: Release PR
     runs-on: ubuntu-latest
     permissions:
@@ -84,7 +86,7 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v4
     - name: Release Plz
-      uses: MarcoIeni/release-plz-action@v0.5
+      uses: release-plz/action@v0.5
       with:
         command: release-pr
     concurrency:

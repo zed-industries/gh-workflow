@@ -1,3 +1,4 @@
+use ctx::Context;
 use gh_workflow::*;
 use release_plz::{Command, Release};
 use toolchain::Toolchain;
@@ -49,7 +50,12 @@ fn generate() {
         .packages(Level::Write)
         .contents(Level::Write);
 
+    let is_main = Context::github().ref_().eq("refs/heads/main".into());
+    let is_push = Context::github().event_name().eq("push".into());
+    let cond = is_main.and(is_push);
+
     let release = Job::new("Release")
+        .cond(cond.clone())
         .add_needs(build.clone())
         .add_env(Env::github())
         .add_env(Env::new(
@@ -61,6 +67,7 @@ fn generate() {
         .add_step(Release::default().command(Command::Release));
 
     let release_pr = Job::new("Release PR")
+        .cond(cond.clone())
         .concurrency(
             Concurrency::new(Expression::new("release-${{github.ref}}")).cancel_in_progress(false),
         )
