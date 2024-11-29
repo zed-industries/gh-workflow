@@ -1,20 +1,35 @@
-//! Workflow for all tailcall projects free and open source for everyone.
+//! Workflow is designed to be used for most Rust projects that are built at
+//! Tailcall. Though gh-workflow makes it much easier to write workflows you
+//! still need to constantly keep referring to the Github documentation to write
+//! your own workflows. This module saves all that time by using feature flags
+//! to enable or disable features that you want in your workflow. Based on the
+//! features enabled or disabled a workflow is generated.
 
 use ctx::Context;
 use derive_setters::Setters;
-use gh_workflow::*;
+use gh_workflow::{Workflow as GHWorkflow, *};
 use release_plz::{Command, Release};
 use toolchain::Toolchain;
 
-#[derive(Default, Debug, Clone, Setters)]
-pub struct TailcallWorkflow {
-    pub release: bool,
+#[derive(Debug, Clone, Setters)]
+pub struct Workflow {
+    /// When enabled, a release job is added to the workflow.
+    /// *IMPORTANT:* Ensure `secrets.CARGO_REGISTRY_TOKEN` is set for your
+    /// github action.
+    pub auto_release: bool,
+
+    /// Name of the workflow.
+    pub name: String,
 }
 
-impl TailcallWorkflow {}
+impl Default for Workflow {
+    fn default() -> Self {
+        Self { auto_release: true, name: "CI".into() }
+    }
+}
 
-impl From<TailcallWorkflow> for Workflow {
-    fn from(value: TailcallWorkflow) -> Self {
+impl From<Workflow> for GHWorkflow {
+    fn from(value: Workflow) -> Self {
         let flags = RustFlags::deny("warnings");
 
         let event = Event::default()
@@ -33,12 +48,12 @@ impl From<TailcallWorkflow> for Workflow {
 
         // Jobs
         let build = build_and_test();
-        let mut workflow = Workflow::new("CI")
+        let mut workflow = GHWorkflow::new(value.name)
             .add_env(flags)
             .on(event)
             .add_job("build", build.clone());
 
-        if value.release {
+        if value.auto_release {
             let permissions = Permissions::default()
                 .pull_requests(Level::Write)
                 .packages(Level::Write)
