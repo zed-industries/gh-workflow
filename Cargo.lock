@@ -150,6 +150,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "gh-workflow-tailcall"
+version = "0.1.0"
+dependencies = [
+ "derive_setters",
+ "gh-workflow",
+ "insta",
+ "pretty_assertions",
+]
+
+[[package]]
 name = "hashbrown"
 version = "0.15.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"

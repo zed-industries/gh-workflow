@@ -1,0 +1,20 @@
+[package]
+name = "gh-workflow-tailcall"
+version = "0.1.0"
+edition = "2021"
+
+
+description = "macros for gh-workflow"
+license = "Apache-2.0"
+documentation = "https://docs.rs/gh-workflow"
+homepage = "https://github.com/tailcallhq/gh-workflow"
+repository = "https://github.com/tailcallhq/gh-workflow"
+keywords = ["github", "actions", "workflow", "generator"]
+
+[dependencies]
+derive_setters = { version = "0.1.6" }
+gh-workflow = { path = "../gh-workflow", version = "0.5.1" }
+
+[dev-dependencies]
+insta = "1.40.0"
+pretty_assertions = "1.4.1"
