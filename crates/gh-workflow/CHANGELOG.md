@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.4](https://github.com/tailcallhq/gh-workflow/compare/gh-workflow-v0.5.3...gh-workflow-v0.5.4) - 2024-12-02
+
+### Fixed
+
+- jobs dependency id generator ([#94](https://github.com/tailcallhq/gh-workflow/pull/94))
+
 ## [0.5.3](https://github.com/tailcallhq/gh-workflow/compare/gh-workflow-v0.5.2...gh-workflow-v0.5.3) - 2024-11-29
 
 ### Fixed
