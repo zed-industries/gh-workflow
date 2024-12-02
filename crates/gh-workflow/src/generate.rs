@@ -107,13 +107,14 @@ fn organize_job_dependency(mut workflow: Workflow) -> Workflow {
                 } else {
                     // Create a job-id for the job
                     let id = format!("job-{}", job_id);
-                    job_id += 1;
 
                     // Add job id as the dependency
                     job_ids.push(id.clone());
 
                     // Insert the missing job into the new_jobs
                     new_jobs.insert(format!("job-{}", job_id), dep_job.clone());
+
+                    job_id += 1;
                 }
             }
             job.needs = Some(job_ids);
