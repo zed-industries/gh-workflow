@@ -21,11 +21,14 @@ pub struct Workflow {
 
     /// Name of the workflow.
     pub name: String,
+
+    /// When enabled, a benchmark job is added to the workflow.
+    pub benchmarks: bool,
 }
 
 impl Default for Workflow {
     fn default() -> Self {
-        Self { auto_release: false, name: "CI".into() }
+        Self { auto_release: false, name: "CI".into(), benchmarks: false }
     }
 }
 
@@ -39,6 +42,47 @@ impl Workflow {
     /// Converts the workflow into a Github workflow.
     pub fn to_github_workflow(&self) -> GHWorkflow {
         self.clone().into()
+    }
+
+    /// Creates the "Build and Test" job for the workflow.
+    pub fn build_and_test(&self) -> Job {
+        let mut job = Job::new("Build and Test")
+            .permissions(Permissions::default().contents(Level::Read))
+            .add_step(Step::checkout())
+            .add_step(
+                Toolchain::default()
+                    .add_stable()
+                    .add_nightly()
+                    .add_clippy()
+                    .add_fmt(),
+            )
+            .add_step(
+                Cargo::new("test")
+                    .args("--all-features --workspace")
+                    .name("Cargo Test"),
+            )
+            .add_step(
+                Cargo::new("fmt")
+                    .nightly()
+                    .args("--check")
+                    .name("Cargo Fmt"),
+            )
+            .add_step(
+                Cargo::new("clippy")
+                    .nightly()
+                    .args("--all-features --workspace -- -D warnings")
+                    .name("Cargo Clippy"),
+            );
+
+        if self.benchmarks {
+            job = job.add_step(
+                Cargo::new("bench")
+                    .args("--workspace")
+                    .name("Cargo Bench"),
+            );
+        }
+
+        job
     }
 }
 
@@ -61,7 +105,7 @@ impl From<Workflow> for GHWorkflow {
         let cond = is_main.and(is_push);
 
         // Jobs
-        let build = build_and_test();
+        let build = value.build_and_test();
         let mut workflow = GHWorkflow::new(value.name)
             .add_env(flags)
             .on(event)
@@ -113,34 +157,4 @@ fn release_job(cond: &Context<bool>, build: &Job, permissions: &Permissions) -> 
         .permissions(permissions.clone())
         .add_step(Step::checkout())
         .add_step(Release::default().command(Command::Release))
-}
-
-fn build_and_test() -> Job {
-    Job::new("Build and Test")
-        .permissions(Permissions::default().contents(Level::Read))
-        .add_step(Step::checkout())
-        .add_step(
-            Toolchain::default()
-                .add_stable()
-                .add_nightly()
-                .add_clippy()
-                .add_fmt(),
-        )
-        .add_step(
-            Cargo::new("test")
-                .args("--all-features --workspace")
-                .name("Cargo Test"),
-        )
-        .add_step(
-            Cargo::new("fmt")
-                .nightly()
-                .args("--check")
-                .name("Cargo Fmt"),
-        )
-        .add_step(
-            Cargo::new("clippy")
-                .nightly()
-                .args("--all-features --workspace -- -D warnings")
-                .name("Cargo Clippy"),
-        )
 }
