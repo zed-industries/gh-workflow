@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.6](https://github.com/tailcallhq/gh-workflow/compare/gh-workflow-v0.5.5...gh-workflow-v0.5.6) - 2024-12-11
+
+### Added
+
+- add support to conditionally add components (#100)
+
 ## [0.5.5](https://github.com/tailcallhq/gh-workflow/compare/gh-workflow-v0.5.4...gh-workflow-v0.5.5) - 2024-12-05
 
 ### Other
