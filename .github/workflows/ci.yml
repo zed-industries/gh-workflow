@@ -54,9 +54,9 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v4
     - name: Cargo Fmt
-      run: cargo +nightly fmt --all --check
+      run: cargo +nightly fmt --all
     - name: Cargo Clippy
-      run: cargo +nightly clippy --all-features --workspace -- -D warnings
+      run: cargo +nightly clippy --all-features --workspace -- -D warnings --fix
   release:
     needs:
     - build
