@@ -135,25 +135,8 @@ fn organize_job_dependency(mut workflow: Workflow) -> Workflow {
     workflow
 }
 
-fn find_job<'a>(
-    dep_job: &Job,
-    new_jobs: &'a IndexMap<String, Job>,
-    workflow: &'a Workflow,
-) -> Option<&'a str> {
-    let in_new_jobs: Option<&'a str> =
-        new_jobs
-            .iter()
-            .find_map(|(k, v)| if v == dep_job { Some(k.as_str()) } else { None });
-
-    let in_old_jobs: Option<&'a str> = workflow.jobs.as_ref().and_then(|jobs| {
-        jobs.0.iter().find_map(|(id, j)| {
-            if j == dep_job {
-                Some(id.as_str())
-            } else {
-                None
-            }
-        })
-    });
-
-    in_new_jobs.or(in_old_jobs)
+/// Find a job in the new_jobs or old_jobs
+fn find_value<'a, K, V: PartialEq>(job: &V, map: &'a IndexMap<K, V>) -> Option<&'a K> {
+    map.iter()
+        .find_map(|(k, v)| if v == job { Some(k) } else { None })
 }
