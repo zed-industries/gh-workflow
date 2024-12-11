@@ -93,6 +93,13 @@ impl Generate {
 fn organize_job_dependency(mut workflow: Workflow) -> Workflow {
     let mut job_id = 0;
     let mut new_jobs = IndexMap::<String, Job>::new();
+    let empty_map = IndexMap::default();
+
+    let old_jobs: &IndexMap<String, Job> = workflow
+        .jobs
+        .as_ref()
+        .map(|jobs| &jobs.0)
+        .unwrap_or(&empty_map);
 
     // Iterate over all jobs
     for (id, mut job) in workflow.jobs.clone().unwrap_or_default().0.into_iter() {
@@ -100,9 +107,9 @@ fn organize_job_dependency(mut workflow: Workflow) -> Workflow {
         if let Some(dep_jobs) = &job.tmp_needs {
             // Prepare the job_ids
             let mut job_ids = Vec::<String>::new();
-            for dep_job in dep_jobs.iter() {
+            for job in dep_jobs.iter() {
                 // If the job is already available
-                if let Some(id) = find_job(dep_job, &new_jobs, &workflow) {
+                if let Some(id) = find_value(job, &new_jobs).or(find_value(job, &old_jobs)) {
                     job_ids.push(id.to_owned());
                 } else {
                     // Create a job-id for the job
@@ -112,7 +119,7 @@ fn organize_job_dependency(mut workflow: Workflow) -> Workflow {
                     job_ids.push(id.clone());
 
                     // Insert the missing job into the new_jobs
-                    new_jobs.insert(format!("job-{}", job_id), dep_job.clone());
+                    new_jobs.insert(format!("job-{}", job_id), job.clone());
 
                     job_id += 1;
                 }
