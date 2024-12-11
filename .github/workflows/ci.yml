@@ -58,10 +58,9 @@ jobs:
         toolchain: nightly
         components: clippy, rustfmt
     - name: Cargo Fmt
-      run: cargo +nightly fmt --all
+      run: cargo +nightly fmt --all --check
     - name: Cargo Clippy
-      run: cargo +nightly clippy --fix --allow-dirty --all-features --workspace -- -D warnings
-    - uses: autofix-ci/action@ff86a557419858bb967097bfc916833f5647fa8c
+      run: cargo +nightly clippy --all-features --workspace -- -D warnings
   release:
     needs:
     - build
@@ -83,12 +82,15 @@ jobs:
       uses: release-plz/action@v0.5
       with:
         command: release
+    concurrency:
+      group: release-${{github.ref}}
+      cancel-in-progress: false
   release-pr:
     needs:
     - build
     - lint
     if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
-    name: Release PR
+    name: Release Pr
     runs-on: ubuntu-latest
     permissions:
       contents: write

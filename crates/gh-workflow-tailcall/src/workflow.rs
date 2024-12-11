@@ -7,8 +7,10 @@
 
 use ctx::Context;
 use derive_setters::Setters;
+use generate::Generate;
 use gh_workflow::error::Result;
 use gh_workflow::{Workflow as GHWorkflow, *};
+use heck::ToTitleCase;
 use release_plz::{Command, Release};
 use toolchain::Toolchain;
 
@@ -43,45 +45,50 @@ impl Default for Workflow {
 impl Workflow {
     /// Generates and tests the workflow file.
     pub fn generate(self) -> Result<()> {
-        let workflow: GHWorkflow = self.into();
-        workflow.generate()
+        self.to_ci_workflow().generate()?;
+        Generate::new(self.to_autofix_workflow())
+            .name("autofix.yml")
+            .generate()?;
+        Ok(())
     }
 
     /// Converts the workflow into a Github workflow.
-    pub fn to_github_workflow(&self) -> GHWorkflow {
+    fn to_autofix_workflow(&self) -> GHWorkflow {
+        GHWorkflow::new("autofix.ci")
+            .add_env(self.workflow_flags())
+            .on(self.workflow_event())
+            .add_job("lint", self.lint_job(true))
+    }
+
+    /// Converts the workflow into a Github workflow.
+    fn to_ci_workflow(&self) -> GHWorkflow {
         GHWorkflow::new(self.name.clone())
             .add_env(self.workflow_flags())
             .on(self.workflow_event())
+            // TODO: adding build and lint should not be required
             .add_job("build", self.test_job())
-            .add_job("lint", self.lint_job())
-            .add_job_when(self.auto_release, "release", self.release_job())
-            .add_job_when(self.auto_release, "release-pr", self.release_pr_job())
+            .add_job("lint", self.lint_job(false))
+            .add_job_when(
+                self.auto_release,
+                "release",
+                self.release_job(Command::Release),
+            )
+            .add_job_when(
+                self.auto_release,
+                "release-pr",
+                self.release_job(Command::ReleasePR),
+            )
     }
 
-    fn release_pr_job(&self) -> Job {
-        Job::new("Release PR")
-            .cond(self.workflow_cond())
+    fn release_job(&self, cmd: Command) -> Job {
+        Job::new(cmd.to_string().to_title_case())
             .concurrency(
                 Concurrency::new(Expression::new("release-${{github.ref}}"))
                     .cancel_in_progress(false),
             )
-            .add_needs(self.test_job())
-            .add_needs(self.lint_job())
-            .add_env(Env::github())
-            .add_env(Env::new(
-                "CARGO_REGISTRY_TOKEN",
-                "${{ secrets.CARGO_REGISTRY_TOKEN }}",
-            ))
-            .permissions(self.write_permissions())
-            .add_step(Step::checkout())
-            .add_step(Release::default().command(Command::ReleasePR))
-    }
-
-    fn release_job(&self) -> Job {
-        Job::new("Release")
             .cond(self.workflow_cond())
             .add_needs(self.test_job())
-            .add_needs(self.lint_job())
+            .add_needs(self.lint_job(false))
             .add_env(Env::github())
             .add_env(Env::new(
                 "CARGO_REGISTRY_TOKEN",
@@ -89,10 +96,10 @@ impl Workflow {
             ))
             .permissions(self.write_permissions())
             .add_step(Step::checkout())
-            .add_step(Release::default().command(Command::Release))
+            .add_step(Release::default().command(cmd))
     }
 
-    fn lint_job(&self) -> Job {
+    fn lint_job(&self, auto_fix: bool) -> Job {
         Job::new("Lint")
             .permissions(Permissions::default().contents(Level::Read))
             .add_step(Step::checkout())
@@ -102,18 +109,18 @@ impl Workflow {
                     .name("Cargo Fmt")
                     .nightly()
                     .add_args("--all")
-                    .add_args_when(!self.auto_fix, "--check"),
+                    .add_args_when(!auto_fix, "--check"),
             )
             .add_step(
                 Cargo::new("clippy")
                     .name("Cargo Clippy")
                     .nightly()
-                    .add_args_when(self.auto_fix, "--fix")
-                    .add_args_when(self.auto_fix, "--allow-dirty")
+                    .add_args_when(auto_fix, "--fix")
+                    .add_args_when(auto_fix, "--allow-dirty")
                     .add_args("--all-features --workspace -- -D warnings"),
             )
             .add_step_when(
-                self.auto_fix,
+                auto_fix,
                 Step::uses(
                     "autofix-ci",
                     "action",
@@ -167,11 +174,5 @@ impl Workflow {
 
     fn workflow_flags(&self) -> RustFlags {
         RustFlags::deny("warnings")
-    }
-}
-
-impl From<Workflow> for GHWorkflow {
-    fn from(value: Workflow) -> Self {
-        value.to_github_workflow()
     }
 }
