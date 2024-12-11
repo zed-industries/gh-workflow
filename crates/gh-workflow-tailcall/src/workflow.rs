@@ -49,43 +49,18 @@ impl Workflow {
 
     /// Converts the workflow into a Github workflow.
     pub fn to_github_workflow(&self) -> GHWorkflow {
-        let flags = RustFlags::deny("warnings");
+        GHWorkflow::new(self.name.clone())
+            .add_env(self.workflow_flags())
+            .on(self.workflow_event())
+            .add_job("build", self.test())
+            .add_job("lint", self.lint())
+            .add_job_when(self.auto_release, "release", self.release_job())
+            .add_job_when(self.auto_release, "release-pr", self.release_job_pr())
+    }
 
-        let event = Event::default()
-            .push(Push::default().add_branch("main"))
-            .pull_request(
-                PullRequest::default()
-                    .add_type(PullRequestType::Opened)
-                    .add_type(PullRequestType::Synchronize)
-                    .add_type(PullRequestType::Reopened)
-                    .add_branch("main"),
-            );
-
-        let is_main = Context::github().ref_().eq("refs/heads/main".into());
-        let is_push = Context::github().event_name().eq("push".into());
-        let cond = is_main.and(is_push);
-
-        // Jobs
-        let permissions = Permissions::default()
-            .pull_requests(Level::Write)
-            .packages(Level::Write)
-            .contents(Level::Write);
-
-        let release = Job::new("Release")
-            .cond(cond.clone())
-            .add_needs(self.test())
-            .add_needs(self.lint())
-            .add_env(Env::github())
-            .add_env(Env::new(
-                "CARGO_REGISTRY_TOKEN",
-                "${{ secrets.CARGO_REGISTRY_TOKEN }}",
-            ))
-            .permissions(permissions.clone())
-            .add_step(Step::checkout())
-            .add_step(Release::default().command(Command::Release));
-
-        let release_pr = Job::new("Release PR")
-            .cond(cond.clone())
+    fn release_job_pr(&self) -> Job {
+        Job::new("Release PR")
+            .cond(self.workflow_cond())
             .concurrency(
                 Concurrency::new(Expression::new("release-${{github.ref}}"))
                     .cancel_in_progress(false),
@@ -97,17 +72,24 @@ impl Workflow {
                 "CARGO_REGISTRY_TOKEN",
                 "${{ secrets.CARGO_REGISTRY_TOKEN }}",
             ))
-            .permissions(permissions)
+            .permissions(self.write_permissions())
             .add_step(Step::checkout())
-            .add_step(Release::default().command(Command::ReleasePR));
+            .add_step(Release::default().command(Command::ReleasePR))
+    }
 
-        GHWorkflow::new(self.name.clone())
-            .add_env(flags)
-            .on(event)
-            .add_job("build", self.test().clone())
-            .add_job("lint", self.lint())
-            .add_job_when(self.auto_release, "release", release)
-            .add_job_when(self.auto_release, "release-pr", release_pr)
+    fn release_job(&self) -> Job {
+        Job::new("Release")
+            .cond(self.workflow_cond())
+            .add_needs(self.test())
+            .add_needs(self.lint())
+            .add_env(Env::github())
+            .add_env(Env::new(
+                "CARGO_REGISTRY_TOKEN",
+                "${{ secrets.CARGO_REGISTRY_TOKEN }}",
+            ))
+            .permissions(self.write_permissions())
+            .add_step(Step::checkout())
+            .add_step(Release::default().command(Command::Release))
     }
 
     fn lint(&self) -> Job {
@@ -152,6 +134,36 @@ impl Workflow {
                 self.benchmarks,
                 Cargo::new("bench").args("--workspace").name("Cargo Bench"),
             )
+    }
+
+    fn write_permissions(&self) -> Permissions {
+        Permissions::default()
+            .pull_requests(Level::Write)
+            .packages(Level::Write)
+            .contents(Level::Write)
+    }
+
+    fn workflow_cond(&self) -> Context<bool> {
+        let is_main = Context::github().ref_().eq("refs/heads/main".into());
+        let is_push = Context::github().event_name().eq("push".into());
+        let cond = is_main.and(is_push);
+        cond
+    }
+
+    fn workflow_event(&self) -> Event {
+        Event::default()
+            .push(Push::default().add_branch("main"))
+            .pull_request(
+                PullRequest::default()
+                    .add_type(PullRequestType::Opened)
+                    .add_type(PullRequestType::Synchronize)
+                    .add_type(PullRequestType::Reopened)
+                    .add_branch("main"),
+            )
+    }
+
+    fn workflow_flags(&self) -> RustFlags {
+        RustFlags::deny("warnings")
     }
 }
 
