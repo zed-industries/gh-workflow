@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0](https://github.com/tailcallhq/gh-workflow/compare/gh-workflow-tailcall-v0.1.4...gh-workflow-tailcall-v0.2.0) - 2024-12-11
+
+### Other
+
+- Merge pull request [#99](https://github.com/tailcallhq/gh-workflow/pull/99) from tailcallhq/renovate/serde-monorepo
+
 ## [0.1.4](https://github.com/tailcallhq/gh-workflow/compare/gh-workflow-tailcall-v0.1.3...gh-workflow-tailcall-v0.1.4) - 2024-12-05
 
 ### Other
