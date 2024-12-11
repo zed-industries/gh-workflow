@@ -148,6 +148,6 @@ fn find_job<'a>(
         })
     });
 
-    let id = in_new_jobs.or(in_old_jobs);
-    id
+    
+    in_new_jobs.or(in_old_jobs)
 }
