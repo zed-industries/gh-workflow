@@ -109,7 +109,7 @@ fn organize_job_dependency(mut workflow: Workflow) -> Workflow {
             let mut job_ids = Vec::<String>::new();
             for job in dep_jobs.iter() {
                 // If the job is already available
-                if let Some(id) = find_value(job, &new_jobs).or(find_value(job, &old_jobs)) {
+                if let Some(id) = find_value(job, &new_jobs).or(find_value(job, old_jobs)) {
                     job_ids.push(id.to_owned());
                 } else {
                     // Create a job-id for the job
