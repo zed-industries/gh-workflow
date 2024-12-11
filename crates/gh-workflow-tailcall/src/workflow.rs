@@ -54,7 +54,8 @@ impl Workflow {
 
     /// Converts the workflow into a Github workflow.
     fn to_autofix_workflow(&self) -> GHWorkflow {
-        GHWorkflow::new("Autofix")
+        // NOTE: The workflow name needs to by `autofix.ci`
+        GHWorkflow::new("autofix.ci")
             .add_env(self.workflow_flags())
             .on(self.workflow_event())
             .add_job("lint", self.lint_job(true))
