@@ -52,21 +52,21 @@ impl Workflow {
         GHWorkflow::new(self.name.clone())
             .add_env(self.workflow_flags())
             .on(self.workflow_event())
-            .add_job("build", self.test())
-            .add_job("lint", self.lint())
+            .add_job("build", self.test_job())
+            .add_job("lint", self.lint_job())
             .add_job_when(self.auto_release, "release", self.release_job())
-            .add_job_when(self.auto_release, "release-pr", self.release_job_pr())
+            .add_job_when(self.auto_release, "release-pr", self.release_pr_job())
     }
 
-    fn release_job_pr(&self) -> Job {
+    fn release_pr_job(&self) -> Job {
         Job::new("Release PR")
             .cond(self.workflow_cond())
             .concurrency(
                 Concurrency::new(Expression::new("release-${{github.ref}}"))
                     .cancel_in_progress(false),
             )
-            .add_needs(self.test())
-            .add_needs(self.lint())
+            .add_needs(self.test_job())
+            .add_needs(self.lint_job())
             .add_env(Env::github())
             .add_env(Env::new(
                 "CARGO_REGISTRY_TOKEN",
@@ -80,8 +80,8 @@ impl Workflow {
     fn release_job(&self) -> Job {
         Job::new("Release")
             .cond(self.workflow_cond())
-            .add_needs(self.test())
-            .add_needs(self.lint())
+            .add_needs(self.test_job())
+            .add_needs(self.lint_job())
             .add_env(Env::github())
             .add_env(Env::new(
                 "CARGO_REGISTRY_TOKEN",
@@ -92,30 +92,29 @@ impl Workflow {
             .add_step(Release::default().command(Command::Release))
     }
 
-    fn lint(&self) -> Job {
-        let cargo_fmt_fix = Cargo::new("fmt").nightly().args("--all").name("Cargo Fmt");
-
-        let cargo_fmt = cargo_fmt_fix.clone().add_args("--check");
-
-        let cargo_clippy = Cargo::new("clippy")
-            .nightly()
-            .args("--all-features --workspace -- -D warnings")
-            .name("Cargo Clippy");
-
-        let cargo_clippy_fmt = cargo_clippy.clone().add_args("--fix");
-
+    fn lint_job(&self) -> Job {
         Job::new("Lint")
             .permissions(Permissions::default().contents(Level::Read))
             .add_step(Step::checkout())
             .add_step(Toolchain::default().add_nightly().add_clippy().add_fmt())
-            .add_step_when(!self.auto_fix, cargo_fmt)
-            .add_step_when(self.auto_fix, cargo_fmt_fix)
-            .add_step_when(!self.auto_fix, cargo_clippy)
-            .add_step_when(self.auto_fix, cargo_clippy_fmt)
+            .add_step(
+                Cargo::new("fmt")
+                    .name("Cargo Fmt")
+                    .nightly()
+                    .add_args("--all")
+                    .add_args_when(!self.auto_fix, "--check"),
+            )
+            .add_step(
+                Cargo::new("clippy")
+                    .name("Cargo Clippy")
+                    .nightly()
+                    .add_args_when(self.auto_fix, "--fix")
+                    .add_args("--all-features --workspace -- -D warnings"),
+            )
     }
 
     /// Creates the "Build and Test" job for the workflow.
-    fn test(&self) -> Job {
+    fn test_job(&self) -> Job {
         Job::new("Build and Test")
             .permissions(Permissions::default().contents(Level::Read))
             .add_step(Step::checkout())

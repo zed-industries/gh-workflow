@@ -60,7 +60,7 @@ jobs:
     - name: Cargo Fmt
       run: cargo +nightly fmt --all
     - name: Cargo Clippy
-      run: cargo +nightly clippy --all-features --workspace -- -D warnings --fix
+      run: cargo +nightly clippy --fix --all-features --workspace -- -D warnings
   release:
     needs:
     - build
