@@ -107,6 +107,7 @@ impl Workflow {
         Job::new("Lint")
             .permissions(Permissions::default().contents(Level::Read))
             .add_step(Step::checkout())
+            .add_step(Toolchain::default().add_nightly().add_clippy().add_fmt())
             .add_step_when(!self.auto_fix, cargo_fmt)
             .add_step_when(self.auto_fix, cargo_fmt_fix)
             .add_step_when(!self.auto_fix, cargo_clippy)
@@ -118,13 +119,7 @@ impl Workflow {
         Job::new("Build and Test")
             .permissions(Permissions::default().contents(Level::Read))
             .add_step(Step::checkout())
-            .add_step(
-                Toolchain::default()
-                    .add_stable()
-                    .add_nightly()
-                    .add_clippy()
-                    .add_fmt(),
-            )
+            .add_step(Toolchain::default().add_stable())
             .add_step(
                 Cargo::new("test")
                     .args("--all-features --workspace")
