@@ -35,7 +35,7 @@ impl Default for Workflow {
     fn default() -> Self {
         Self {
             auto_release: false,
-            name: "CI".into(),
+            name: "ci".into(),
             benchmarks: false,
             auto_fix: false,
         }
