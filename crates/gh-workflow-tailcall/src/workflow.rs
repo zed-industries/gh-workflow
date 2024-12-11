@@ -156,8 +156,8 @@ impl Workflow {
     fn workflow_cond(&self) -> Context<bool> {
         let is_main = Context::github().ref_().eq("refs/heads/main".into());
         let is_push = Context::github().event_name().eq("push".into());
-        let cond = is_main.and(is_push);
-        cond
+        
+        is_main.and(is_push)
     }
 
     fn workflow_event(&self) -> Event {
