@@ -100,8 +100,16 @@ impl Workflow {
     }
 
     fn lint_job(&self, auto_fix: bool) -> Job {
-        Job::new("Lint")
-            .permissions(Permissions::default().contents(Level::Read))
+        let job = if auto_fix {
+            Job::new("Lint Fix").concurrency(
+                Concurrency::new(Expression::new("autofix-${{github.ref}}"))
+                    .cancel_in_progress(false),
+            )
+        } else {
+            Job::new("Lint")
+        };
+
+        job.permissions(Permissions::default().contents(Level::Read))
             .add_step(Step::checkout())
             .add_step(Toolchain::default().add_nightly().add_clippy().add_fmt())
             .add_step(
