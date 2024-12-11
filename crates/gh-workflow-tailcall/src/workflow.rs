@@ -109,6 +109,7 @@ impl Workflow {
                     .name("Cargo Clippy")
                     .nightly()
                     .add_args_when(self.auto_fix, "--fix")
+                    .add_args_when(self.auto_fix, "--allow-dirty")
                     .add_args("--all-features --workspace -- -D warnings"),
             )
             .add_step_when(
