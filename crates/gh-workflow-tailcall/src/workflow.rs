@@ -66,7 +66,6 @@ impl Workflow {
         GHWorkflow::new(self.name.clone())
             .add_env(self.workflow_flags())
             .on(self.workflow_event())
-            // TODO: adding build and lint should not be required
             .add_job("build", self.test_job())
             .add_job("lint", self.lint_job(false))
             .add_job_when(

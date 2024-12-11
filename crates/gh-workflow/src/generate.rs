@@ -101,9 +101,9 @@ fn organize_job_dependency(mut workflow: Workflow) -> Workflow {
             // Prepare the job_ids
             let mut job_ids = Vec::<String>::new();
             for dep_job in dep_jobs.iter() {
-                // If the job is already defined in the workflow
-                if let Some(id) = workflow.get_id(dep_job) {
-                    job_ids.push(id.to_string());
+                // If the job is already available
+                if let Some(id) = find_job(dep_job, &new_jobs, &workflow) {
+                    job_ids.push(id.to_owned());
                 } else {
                     // Create a job-id for the job
                     let id = format!("job-{}", job_id);
@@ -126,4 +126,28 @@ fn organize_job_dependency(mut workflow: Workflow) -> Workflow {
     workflow.jobs = Some(Jobs(new_jobs));
 
     workflow
+}
+
+fn find_job<'a>(
+    dep_job: &Job,
+    new_jobs: &'a IndexMap<String, Job>,
+    workflow: &'a Workflow,
+) -> Option<&'a str> {
+    let in_new_jobs: Option<&'a str> =
+        new_jobs
+            .iter()
+            .find_map(|(k, v)| if v == dep_job { Some(k.as_str()) } else { None });
+
+    let in_old_jobs: Option<&'a str> = workflow.jobs.as_ref().and_then(|jobs| {
+        jobs.0.iter().find_map(|(id, j)| {
+            if j == dep_job {
+                Some(id.as_str())
+            } else {
+                None
+            }
+        })
+    });
+
+    let id = in_new_jobs.or(in_old_jobs);
+    id
 }
