@@ -45,13 +45,22 @@ jobs:
         components: clippy, rustfmt
     - name: Cargo Test
       run: cargo test --all-features --workspace
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
     - name: Cargo Fmt
-      run: cargo +nightly fmt --check
+      run: cargo +nightly fmt --all --check
     - name: Cargo Clippy
       run: cargo +nightly clippy --all-features --workspace -- -D warnings
   release:
     needs:
     - build
+    - lint
     if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
     name: Release
     runs-on: ubuntu-latest
@@ -72,6 +81,7 @@ jobs:
   release-pr:
     needs:
     - build
+    - lint
     if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
     name: Release PR
     runs-on: ubuntu-latest

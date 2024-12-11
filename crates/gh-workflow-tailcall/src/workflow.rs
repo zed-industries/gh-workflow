@@ -24,11 +24,19 @@ pub struct Workflow {
 
     /// When enabled, a benchmark job is added to the workflow.
     pub benchmarks: bool,
+
+    /// Auto-fixes the code after
+    pub auto_fix: bool,
 }
 
 impl Default for Workflow {
     fn default() -> Self {
-        Self { auto_release: false, name: "CI".into(), benchmarks: false }
+        Self {
+            auto_release: false,
+            name: "CI".into(),
+            benchmarks: false,
+            auto_fix: false,
+        }
     }
 }
 
@@ -58,14 +66,15 @@ impl Workflow {
         let cond = is_main.and(is_push);
 
         // Jobs
-        let build = self.build_and_test();
         let permissions = Permissions::default()
             .pull_requests(Level::Write)
             .packages(Level::Write)
             .contents(Level::Write);
+
         let release = Job::new("Release")
             .cond(cond.clone())
-            .add_needs(build.clone())
+            .add_needs(self.test())
+            .add_needs(self.lint())
             .add_env(Env::github())
             .add_env(Env::new(
                 "CARGO_REGISTRY_TOKEN",
@@ -81,7 +90,8 @@ impl Workflow {
                 Concurrency::new(Expression::new("release-${{github.ref}}"))
                     .cancel_in_progress(false),
             )
-            .add_needs(build.clone())
+            .add_needs(self.test())
+            .add_needs(self.lint())
             .add_env(Env::github())
             .add_env(Env::new(
                 "CARGO_REGISTRY_TOKEN",
@@ -94,13 +104,35 @@ impl Workflow {
         GHWorkflow::new(self.name.clone())
             .add_env(flags)
             .on(event)
-            .add_job("build", build.clone())
+            .add_job("build", self.test().clone())
+            .add_job("lint", self.lint())
             .add_job_when(self.auto_release, "release", release)
             .add_job_when(self.auto_release, "release-pr", release_pr)
     }
 
+    fn lint(&self) -> Job {
+        let cargo_fmt_fix = Cargo::new("fmt").nightly().args("--all").name("Cargo Fmt");
+
+        let cargo_fmt = cargo_fmt_fix.clone().add_args("--check");
+
+        let cargo_clippy = Cargo::new("clippy")
+            .nightly()
+            .args("--all-features --workspace -- -D warnings")
+            .name("Cargo Clippy");
+
+        let cargo_clippy_fmt = cargo_clippy.clone().add_args("--fix");
+
+        Job::new("Lint")
+            .permissions(Permissions::default().contents(Level::Read))
+            .add_step(Step::checkout())
+            .add_step_when(!self.auto_fix, cargo_fmt)
+            .add_step_when(self.auto_fix, cargo_fmt_fix)
+            .add_step_when(!self.auto_fix, cargo_clippy)
+            .add_step_when(self.auto_fix, cargo_clippy_fmt)
+    }
+
     /// Creates the "Build and Test" job for the workflow.
-    fn build_and_test(&self) -> Job {
+    fn test(&self) -> Job {
         Job::new("Build and Test")
             .permissions(Permissions::default().contents(Level::Read))
             .add_step(Step::checkout())
@@ -115,18 +147,6 @@ impl Workflow {
                 Cargo::new("test")
                     .args("--all-features --workspace")
                     .name("Cargo Test"),
-            )
-            .add_step(
-                Cargo::new("fmt")
-                    .nightly()
-                    .args("--check")
-                    .name("Cargo Fmt"),
-            )
-            .add_step(
-                Cargo::new("clippy")
-                    .nightly()
-                    .args("--all-features --workspace -- -D warnings")
-                    .name("Cargo Clippy"),
             )
             .add_step_when(
                 self.benchmarks,
