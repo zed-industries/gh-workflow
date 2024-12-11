@@ -148,6 +148,5 @@ fn find_job<'a>(
         })
     });
 
-    
     in_new_jobs.or(in_old_jobs)
 }
