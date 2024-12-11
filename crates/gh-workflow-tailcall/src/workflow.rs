@@ -111,6 +111,14 @@ impl Workflow {
                     .add_args_when(self.auto_fix, "--fix")
                     .add_args("--all-features --workspace -- -D warnings"),
             )
+            .add_step_when(
+                self.auto_fix,
+                Step::uses(
+                    "autofix-ci",
+                    "action",
+                    "ff86a557419858bb967097bfc916833f5647fa8c",
+                ),
+            )
     }
 
     /// Creates the "Build and Test" job for the workflow.
