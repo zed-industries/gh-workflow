@@ -265,7 +265,7 @@ impl Job {
     }
 
     /// Adds a step to the job when a condition is met.
-    pub fn add_step_when<S: Into<Step<Run>>>(self, cond: bool, step: S) -> Self {
+    pub fn add_step_when<S: Into<Step<T>>, T: StepType>(self, cond: bool, step: S) -> Self {
         if cond {
             self.add_step(step)
         } else {
