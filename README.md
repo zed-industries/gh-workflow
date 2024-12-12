@@ -51,12 +51,6 @@ Then you can start creating GitHub Actions in your [tests/ci.rs](https://github.
 
 - Run `cargo test` to generate the GitHub Actions workflow.
 
-## 🛠️ Roadmap
-
-- [x] Support for Automated Cargo Releases
-- [ ] Improve Type Safety of Nightly Builds
-- [x] Updates Rust Docs using Github's official documentation for the API
-
 ## 💡 Why Rust?
 
 Rust provides the perfect combination of speed, safety, and flexibility, making it an ideal choice for writing GitHub Actions. With Rust, you get strong typing, memory safety, and the ability to reuse existing code, which can make your automation scripts more robust and maintainable.
