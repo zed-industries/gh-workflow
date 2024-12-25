@@ -143,8 +143,9 @@ fn find_value<'a, K, V: PartialEq>(job: &V, map: &'a IndexMap<K, V>) -> Option<&
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use insta::assert_snapshot;
+
+    use super::*;
 
     #[test]
     fn add_needs_job() {
