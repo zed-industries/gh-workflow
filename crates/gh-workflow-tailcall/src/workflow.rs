@@ -29,6 +29,10 @@ pub struct Workflow {
 
     /// Auto-fixes the code after
     pub auto_fix: bool,
+
+    /// Steps to be executed before the checkout step
+    /// Steps to be executed before the checkout step
+    pub setup: Vec<Step<Run>>,
 }
 
 impl Default for Workflow {
@@ -38,7 +42,41 @@ impl Default for Workflow {
             name: "ci".into(),
             benchmarks: false,
             auto_fix: false,
+            setup: Vec::new(),
         }
+    }
+}
+
+impl Workflow {
+    /// Initialize a job with common configuration including:
+    /// - Permissions
+    /// - Setup steps
+    /// - Checkout step
+    ///
+    /// This reduces duplication across different job types.
+    fn init_job(&self, name: impl ToString) -> Job {
+        let mut job = Job::new(name).permissions(Permissions::default().contents(Level::Read));
+
+        // Add setup steps in reverse order to maintain the correct sequence
+        for step in self.setup.iter().rev() {
+            job = job.add_step(step.clone());
+        }
+
+        job.add_step(Step::checkout())
+    }
+
+    /// Add a setup step to be executed before the checkout step.
+    ///
+    /// # Example
+    /// ```ignore
+    /// use gh_workflow_tailcall::*;
+    /// let workflow = Workflow::default()
+    ///     .add_setup(Step::run("Configure git")
+    ///         .command("git config --global core.autocrlf false"));
+    /// ```
+    pub fn add_setup<S: Into<Step<Run>>>(mut self, step: S) -> Self {
+        self.setup.push(step.into());
+        self
     }
 }
 
@@ -81,7 +119,7 @@ impl Workflow {
     }
 
     fn release_job(&self, cmd: Command) -> Job {
-        Job::new(cmd.to_string().to_title_case())
+        self.init_job(cmd.to_string().to_title_case())
             .concurrency(
                 Concurrency::new(Expression::new("release-${{github.ref}}"))
                     .cancel_in_progress(false),
@@ -95,23 +133,22 @@ impl Workflow {
                 "${{ secrets.CARGO_REGISTRY_TOKEN }}",
             ))
             .permissions(self.write_permissions())
-            .add_step(Step::checkout())
             .add_step(Release::default().command(cmd))
     }
 
     fn lint_job(&self, auto_fix: bool) -> Job {
+        let job = self.init_job(if auto_fix { "Lint Fix" } else { "Lint" });
+
         let job = if auto_fix {
-            Job::new("Lint Fix").concurrency(
+            job.concurrency(
                 Concurrency::new(Expression::new("autofix-${{github.ref}}"))
                     .cancel_in_progress(false),
             )
         } else {
-            Job::new("Lint")
+            job
         };
 
-        job.permissions(Permissions::default().contents(Level::Read))
-            .add_step(Step::checkout())
-            .add_step(Toolchain::default().add_nightly().add_clippy().add_fmt())
+        job.add_step(Toolchain::default().add_nightly().add_clippy().add_fmt())
             .add_step(
                 Cargo::new("fmt")
                     .name("Cargo Fmt")
@@ -139,9 +176,7 @@ impl Workflow {
 
     /// Creates the "Build and Test" job for the workflow.
     fn test_job(&self) -> Job {
-        Job::new("Build and Test")
-            .permissions(Permissions::default().contents(Level::Read))
-            .add_step(Step::checkout())
+        self.init_job("Build and Test")
             .add_step(Toolchain::default().add_stable())
             .add_step(
                 Cargo::new("test")
