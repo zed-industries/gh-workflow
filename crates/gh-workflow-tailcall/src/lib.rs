@@ -1,4 +1,4 @@
-mod workflow;
+mod standard;
 
 pub use gh_workflow::*;
-pub use workflow::*;
+pub use standard::*;
