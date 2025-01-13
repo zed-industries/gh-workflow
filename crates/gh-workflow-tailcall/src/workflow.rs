@@ -1,9 +1,9 @@
-//! Workflow is designed to be used for most Rust projects that are built at
-//! Tailcall. Though gh-workflow makes it much easier to write workflows you
-//! still need to constantly keep referring to the Github documentation to write
-//! your own workflows. This module saves all that time by using feature flags
-//! to enable or disable features that you want in your workflow. Based on the
-//! features enabled or disabled a workflow is generated.
+//! StandardWorkflow is designed to be used for most Rust projects that are
+//! built at Tailcall. Though gh-workflow makes it much easier to write
+//! workflows you still need to constantly keep referring to the Github
+//! documentation to write your own workflows. This module saves all that time
+//! by using feature flags to enable or disable features that you want in your
+//! workflow. Based on the features enabled or disabled a workflow is generated.
 
 use ctx::Context;
 use derive_setters::Setters;
@@ -15,7 +15,7 @@ use release_plz::{Command, Release};
 use toolchain::Toolchain;
 
 #[derive(Debug, Clone, Setters)]
-pub struct Workflow {
+pub struct StandardWorkflow {
     /// When enabled, a release job is added to the workflow.
     /// *IMPORTANT:* Ensure `secrets.CARGO_REGISTRY_TOKEN` is set for your
     /// github action.
@@ -31,11 +31,10 @@ pub struct Workflow {
     pub auto_fix: bool,
 
     /// Steps to be executed before the checkout step
-    /// Steps to be executed before the checkout step
     pub setup: Vec<Step<Run>>,
 }
 
-impl Default for Workflow {
+impl Default for StandardWorkflow {
     fn default() -> Self {
         Self {
             auto_release: false,
@@ -47,7 +46,7 @@ impl Default for Workflow {
     }
 }
 
-impl Workflow {
+impl StandardWorkflow {
     /// Initialize a job with common configuration including:
     /// - Permissions
     /// - Setup steps
@@ -70,7 +69,7 @@ impl Workflow {
     /// # Example
     /// ```ignore
     /// use gh_workflow_tailcall::*;
-    /// let workflow = Workflow::default()
+    /// let workflow = StandardWorkflow::default()
     ///     .add_setup(Step::run("Configure git")
     ///         .command("git config --global core.autocrlf false"));
     /// ```
@@ -80,7 +79,7 @@ impl Workflow {
     }
 }
 
-impl Workflow {
+impl StandardWorkflow {
     /// Generates and tests the workflow file.
     pub fn generate(self) -> Result<()> {
         self.to_ci_workflow().generate()?;
