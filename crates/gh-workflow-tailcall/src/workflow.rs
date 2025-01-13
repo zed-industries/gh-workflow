@@ -168,7 +168,7 @@ impl StandardWorkflow {
                 Step::uses(
                     "autofix-ci",
                     "action",
-                    "ff86a557419858bb967097bfc916833f5647fa8c",
+                    "551dded8c6cc8a1054039c8bc0b8b48c51dfc6ef",
                 ),
             )
     }
