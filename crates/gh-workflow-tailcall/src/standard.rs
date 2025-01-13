@@ -147,30 +147,41 @@ impl StandardWorkflow {
             job
         };
 
-        job.add_step(Toolchain::default().add_nightly().add_clippy().add_fmt())
-            .add_step(
-                Cargo::new("fmt")
-                    .name("Cargo Fmt")
-                    .nightly()
-                    .add_args("--all")
-                    .add_args_when(!auto_fix, "--check"),
-            )
-            .add_step(
-                Cargo::new("clippy")
-                    .name("Cargo Clippy")
-                    .nightly()
-                    .add_args_when(auto_fix, "--fix")
-                    .add_args_when(auto_fix, "--allow-dirty")
-                    .add_args("--all-features --workspace -- -D warnings"),
-            )
-            .add_step_when(
-                auto_fix,
-                Step::uses(
-                    "autofix-ci",
-                    "action",
-                    "551dded8c6cc8a1054039c8bc0b8b48c51dfc6ef",
-                ),
-            )
+        job.add_step(
+            Toolchain::default()
+                .add_nightly()
+                .add_clippy()
+                .add_fmt()
+                .cache(true)
+                .cache_directories(vec![
+                    "~/.cargo/registry".into(),
+                    "~/.cargo/git".into(),
+                    "target".into(),
+                ]),
+        )
+        .add_step(
+            Cargo::new("fmt")
+                .name("Cargo Fmt")
+                .nightly()
+                .add_args("--all")
+                .add_args_when(!auto_fix, "--check"),
+        )
+        .add_step(
+            Cargo::new("clippy")
+                .name("Cargo Clippy")
+                .nightly()
+                .add_args_when(auto_fix, "--fix")
+                .add_args_when(auto_fix, "--allow-dirty")
+                .add_args("--all-features --workspace -- -D warnings"),
+        )
+        .add_step_when(
+            auto_fix,
+            Step::uses(
+                "autofix-ci",
+                "action",
+                "551dded8c6cc8a1054039c8bc0b8b48c51dfc6ef",
+            ),
+        )
     }
 
     /// Creates the "Build and Test" job for the workflow.

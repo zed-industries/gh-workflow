@@ -244,11 +244,7 @@ impl From<Toolchain> for Step<Use> {
         }
 
         if !value.cache_directories.is_empty() {
-            let cache_directories = value
-                .cache_directories
-                .iter()
-                .fold("".to_string(), |acc, a| format!("{}\n{}", acc, a));
-
+            let cache_directories = value.cache_directories.join("\n");
             input = input.add("cache-directories", cache_directories);
         }
 
