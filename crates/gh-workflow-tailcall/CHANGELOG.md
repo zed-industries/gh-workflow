@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0](https://github.com/tailcallhq/gh-workflow/compare/gh-workflow-tailcall-v0.2.1...gh-workflow-tailcall-v0.3.0) - 2025-01-13
+
+### Added
+
+- add setup steps to Workflow for job initialization
+
 ## [0.2.1](https://github.com/tailcallhq/gh-workflow/compare/gh-workflow-tailcall-v0.2.0...gh-workflow-tailcall-v0.2.1) - 2024-12-29
 
 ### Fixed
