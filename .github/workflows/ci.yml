@@ -43,7 +43,7 @@ jobs:
       with:
         toolchain: stable
     - name: Install nextest
-      run: cargo cargo install cargo-nextest --locked
+      run: cargo install cargo-nextest --locked
     - name: Cargo Nextest
       run: cargo nextest run --all-features --workspace
   lint:

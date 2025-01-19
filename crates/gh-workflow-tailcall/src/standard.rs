@@ -205,7 +205,9 @@ impl StandardWorkflow {
             .add_step(Toolchain::default().add_stable())
             .add_step_when(
                 matches!(self.test_runner, TestRunner::Nextest),
-                Cargo::new("cargo install cargo-nextest --locked").name("Install nextest"),
+                Cargo::new("install")
+                    .args("cargo-nextest --locked")
+                    .name("Install nextest"),
             )
             .add_step(match self.test_runner {
                 TestRunner::Cargo => Cargo::new("test")
