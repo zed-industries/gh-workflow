@@ -124,7 +124,7 @@ checksum = "3f9eec918d3f24069decb9af1554cad7c880e2da24a9afd88aca000531ab82c1"
 
 [[package]]
 name = "gh-workflow"
-version = "0.5.8"
+version = "0.5.9"
 dependencies = [
  "async-trait",
  "derive_more",
@@ -142,7 +142,7 @@ dependencies = [
 
 [[package]]
 name = "gh-workflow-macros"
-version = "0.5.8"
+version = "0.5.9"
 dependencies = [
  "heck",
  "quote",
@@ -151,7 +151,7 @@ dependencies = [
 
 [[package]]
 name = "gh-workflow-tailcall"
-version = "0.4.1"
+version = "0.5.0"
 dependencies = [
  "derive_setters",
  "gh-workflow",
@@ -373,9 +373,9 @@ dependencies = [
 
 [[package]]
 name = "similar"
-version = "2.6.0"
+version = "2.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1de1d4f81173b03af4c0cbed3c898f6bff5b870e4a7f5d6f4057d62a7a4b686e"
+checksum = "bbbb5d9659141646ae647b42fe094daf6c6192d1620870b449d9557f748b2daa"
 
 [[package]]
 name = "strsim"
