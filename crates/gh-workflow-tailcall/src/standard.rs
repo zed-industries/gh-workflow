@@ -14,6 +14,17 @@ use heck::ToTitleCase;
 use release_plz::{Command, Release};
 use toolchain::Toolchain;
 
+/// Defines the test runner to use for running tests
+#[derive(Debug, Clone, Default)]
+pub enum TestRunner {
+    /// Uses the default cargo test runner
+    Cargo,
+
+    /// Uses cargo-nextest for running tests
+    #[default]
+    Nextest,
+}
+
 #[derive(Debug, Clone, Setters)]
 pub struct StandardWorkflow {
     /// When enabled, a release job is added to the workflow.
@@ -32,6 +43,9 @@ pub struct StandardWorkflow {
 
     /// Steps to be executed before the checkout step
     pub setup: Vec<Step<Run>>,
+
+    /// The test runner to use for running tests
+    pub test_runner: TestRunner,
 }
 
 impl Default for StandardWorkflow {
@@ -42,6 +56,7 @@ impl Default for StandardWorkflow {
             benchmarks: false,
             auto_fix: false,
             setup: Vec::new(),
+            test_runner: TestRunner::default(),
         }
     }
 }
@@ -70,8 +85,8 @@ impl StandardWorkflow {
     /// ```ignore
     /// use gh_workflow_tailcall::*;
     /// let workflow = StandardWorkflow::default()
-    ///     .add_setup(Step::run("Configure git")
-    ///         .command("git config --global core.autocrlf false"));
+    ///     .add_setup(Step::run("git config --global core.autocrlf false")
+    ///         .name("Configure git"));
     /// ```
     pub fn add_setup<S: Into<Step<Run>>>(mut self, step: S) -> Self {
         self.setup.push(step.into());
@@ -160,14 +175,14 @@ impl StandardWorkflow {
                 ]),
         )
         .add_step(
-            Cargo::new("fmt")
+            Cargo::run("fmt")
                 .name("Cargo Fmt")
                 .nightly()
                 .add_args("--all")
                 .add_args_when(!auto_fix, "--check"),
         )
         .add_step(
-            Cargo::new("clippy")
+            Cargo::run("clippy")
                 .name("Cargo Clippy")
                 .nightly()
                 .add_args_when(auto_fix, "--fix")
@@ -188,14 +203,21 @@ impl StandardWorkflow {
     fn test_job(&self) -> Job {
         self.init_job("Build and Test")
             .add_step(Toolchain::default().add_stable())
-            .add_step(
-                Cargo::new("test")
+            .add_step_when(
+                matches!(self.test_runner, TestRunner::Nextest),
+                Cargo::run("cargo install cargo-nextest --locked").name("Install nextest"),
+            )
+            .add_step(match self.test_runner {
+                TestRunner::Cargo => Cargo::run("test")
                     .args("--all-features --workspace")
                     .name("Cargo Test"),
-            )
+                TestRunner::Nextest => Cargo::run("nextest")
+                    .args("run --all-features --workspace")
+                    .name("Cargo Nextest"),
+            })
             .add_step_when(
                 self.benchmarks,
-                Cargo::new("bench").args("--workspace").name("Cargo Bench"),
+                Cargo::run("bench").args("--workspace").name("Cargo Bench"),
             )
     }
 
