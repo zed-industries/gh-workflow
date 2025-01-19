@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.9](https://github.com/tailcallhq/gh-workflow/compare/gh-workflow-v0.5.8...gh-workflow-v0.5.9) - 2025-01-19
+
+### Added
+
+- add convenience method to add multiple steps to a job
+
 ## [0.5.8](https://github.com/tailcallhq/gh-workflow/compare/gh-workflow-v0.5.7...gh-workflow-v0.5.8) - 2025-01-13
 
 ### Added
