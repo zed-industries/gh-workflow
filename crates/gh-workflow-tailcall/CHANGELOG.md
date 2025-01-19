@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0](https://github.com/tailcallhq/gh-workflow/compare/gh-workflow-tailcall-v0.4.1...gh-workflow-tailcall-v0.5.0) - 2025-01-19
+
+### Fixed
+
+- correct cargo install command in CI workflow and standard workflow
+
 ## [0.4.1](https://github.com/tailcallhq/gh-workflow/compare/gh-workflow-tailcall-v0.4.0...gh-workflow-tailcall-v0.4.1) - 2025-01-13
 
 ### Added
