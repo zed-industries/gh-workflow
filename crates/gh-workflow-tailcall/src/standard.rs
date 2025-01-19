@@ -175,14 +175,14 @@ impl StandardWorkflow {
                 ]),
         )
         .add_step(
-            Cargo::run("fmt")
+            Cargo::new("fmt")
                 .name("Cargo Fmt")
                 .nightly()
                 .add_args("--all")
                 .add_args_when(!auto_fix, "--check"),
         )
         .add_step(
-            Cargo::run("clippy")
+            Cargo::new("clippy")
                 .name("Cargo Clippy")
                 .nightly()
                 .add_args_when(auto_fix, "--fix")
@@ -205,19 +205,19 @@ impl StandardWorkflow {
             .add_step(Toolchain::default().add_stable())
             .add_step_when(
                 matches!(self.test_runner, TestRunner::Nextest),
-                Cargo::run("cargo install cargo-nextest --locked").name("Install nextest"),
+                Cargo::new("cargo install cargo-nextest --locked").name("Install nextest"),
             )
             .add_step(match self.test_runner {
-                TestRunner::Cargo => Cargo::run("test")
+                TestRunner::Cargo => Cargo::new("test")
                     .args("--all-features --workspace")
                     .name("Cargo Test"),
-                TestRunner::Nextest => Cargo::run("nextest")
+                TestRunner::Nextest => Cargo::new("nextest")
                     .args("run --all-features --workspace")
                     .name("Cargo Nextest"),
             })
             .add_step_when(
                 self.benchmarks,
-                Cargo::run("bench").args("--workspace").name("Cargo Bench"),
+                Cargo::new("bench").args("--workspace").name("Cargo Bench"),
             )
     }
 
