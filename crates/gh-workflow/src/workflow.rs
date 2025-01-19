@@ -515,7 +515,17 @@ pub struct StepValue {
 }
 
 impl StepValue {
-    /// Creates a new `StepValue` that runs a command.
+    /// Creates a new `StepValue` that runs the provided shell command.
+    ///
+    /// # Arguments
+    /// * `cmd` - The actual shell command to execute, not just a
+    ///   name/description
+    ///
+    /// # Example
+    /// ```rust
+    /// let step = StepValue::run("cargo test --workspace");  // Correct
+    /// // Not correct: StepValue::run("Run Tests"); // This would be a name, not a command
+    /// ```
     pub fn run<T: ToString>(cmd: T) -> Self {
         StepValue { run: Some(cmd.to_string()), ..Default::default() }
     }
@@ -552,7 +562,17 @@ impl<T> Step<T> {
 
 /// Represents a step that runs a command.
 impl Step<Run> {
-    /// Creates a new `Step<Run>` that runs a command.
+    /// Creates a new `Step<Run>` that runs the provided shell command.
+    ///
+    /// # Arguments
+    /// * `cmd` - The actual shell command to execute, not just a
+    ///   name/description
+    ///
+    /// # Example
+    /// ```rust
+    /// let step = Step::run("cargo test --workspace");  // Correct
+    /// // Not correct: Step::run("Run Tests"); // This would be a name, not a command
+    /// ```
     pub fn run<T: ToString>(cmd: T) -> Self {
         Step { value: StepValue::run(cmd), marker: Default::default() }
     }
