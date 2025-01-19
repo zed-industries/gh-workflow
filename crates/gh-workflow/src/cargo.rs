@@ -25,7 +25,7 @@ pub struct Cargo {
 
 impl Cargo {
     /// Creates a new `Cargo` instance with the specified command.
-    pub fn new<T: ToString>(cmd: T) -> Cargo {
+    pub fn run<T: ToString>(cmd: T) -> Cargo {
         Cargo {
             command: cmd.to_string(),
             id: Default::default(),
