@@ -20,6 +20,19 @@ impl Jobs {
     pub fn insert(&mut self, key: String, value: Job) {
         self.0.insert(key, value);
     }
+
+    /// Gets a reference to a job by its key.
+    ///
+    /// # Arguments
+    ///
+    /// * `key` - The key of the job to retrieve
+    ///
+    /// # Returns
+    ///
+    /// Returns `Some(&Job)` if the job exists, `None` otherwise.
+    pub fn get(&self, key: &str) -> Option<&Job> {
+        self.0.get(key)
+    }
 }
 
 /// Represents the configuration for a GitHub workflow.
