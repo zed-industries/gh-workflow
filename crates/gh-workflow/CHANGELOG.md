@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.10](https://github.com/tailcallhq/gh-workflow/compare/gh-workflow-v0.5.9...gh-workflow-v0.5.10) - 2025-01-29
+
+### Added
+
+- add get method to Jobs struct for retrieving jobs by key (#134)
+
 ## [0.5.9](https://github.com/tailcallhq/gh-workflow/compare/gh-workflow-v0.5.8...gh-workflow-v0.5.9) - 2025-01-19
 
 ### Fixed
