@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.11](https://github.com/tailcallhq/gh-workflow/compare/gh-workflow-v0.5.10...gh-workflow-v0.5.11) - 2025-02-17
+
+### Fixed
+
+- *(deps)* update rust crate strum_macros to v0.27.1 (#142)
+
 ## [0.5.10](https://github.com/tailcallhq/gh-workflow/compare/gh-workflow-v0.5.9...gh-workflow-v0.5.10) - 2025-01-29
 
 ### Added
