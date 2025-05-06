@@ -29,6 +29,8 @@ on:
   push:
     branches:
     - main
+    tags:
+    - v*
 jobs:
   lint:
     name: Lint Fix
