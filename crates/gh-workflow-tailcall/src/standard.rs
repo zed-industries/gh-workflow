@@ -239,7 +239,7 @@ impl StandardWorkflow {
 
     fn workflow_event(&self) -> Event {
         Event::default()
-            .push(Push::default().add_branch("main"))
+            .push(Push::default().add_branch("main").add_tag("v*"))
             .pull_request(
                 PullRequest::default()
                     .add_type(PullRequestType::Opened)
