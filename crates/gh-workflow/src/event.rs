@@ -643,6 +643,9 @@ pub struct Push {
     /// Filter on specific file paths
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub paths: Vec<String>,
+    /// Filter on specific tags
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub tags: Vec<String>,
 }
 
 impl Push {
@@ -655,6 +658,12 @@ impl Push {
     /// Adds a file path to filter on
     pub fn add_path<S: Into<String>>(mut self, path: S) -> Self {
         self.paths.push(path.into());
+        self
+    }
+
+    /// Adds a tag name to filter on
+    pub fn add_tag<S: Into<String>>(mut self, tag: S) -> Self {
+        self.tags.push(tag.into());
         self
     }
 }
