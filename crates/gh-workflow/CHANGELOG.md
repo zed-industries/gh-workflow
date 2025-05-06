@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.0](https://github.com/tailcallhq/gh-workflow/compare/gh-workflow-v0.5.10...gh-workflow-v0.6.0) - 2025-05-06
+
+### Added
+
+- *(event)* add tags filter to Push struct for event handling ([#157](https://github.com/tailcallhq/gh-workflow/pull/157))
+
 ## [0.5.10](https://github.com/tailcallhq/gh-workflow/compare/gh-workflow-v0.5.9...gh-workflow-v0.5.10) - 2025-01-29
 
 ### Added
