@@ -35,6 +35,7 @@ pub enum Component {
     Clippy,
     Rustfmt,
     RustDoc,
+    Nextest,
 }
 
 impl Display for Component {
@@ -43,6 +44,7 @@ impl Display for Component {
             Component::Clippy => "clippy",
             Component::Rustfmt => "rustfmt",
             Component::RustDoc => "rust-doc",
+            Component::Nextest => "nextest",
         };
         write!(f, "{val}")
     }
@@ -169,6 +171,11 @@ impl Toolchain {
 
     pub fn add_stable(mut self) -> Self {
         self.toolchain.push(Version::Stable);
+        self
+    }
+
+    pub fn add_nextest(mut self) -> Self {
+        self.components.push(Component::Nextest);
         self
     }
 

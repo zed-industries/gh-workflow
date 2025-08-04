@@ -202,18 +202,10 @@ impl StandardWorkflow {
     /// Creates the "Build and Test" job for the workflow.
     fn test_job(&self) -> Job {
         self.init_job("Build and Test")
-            .add_step(Toolchain::default().add_stable())
-            .add_step_when(
-                matches!(self.test_runner, TestRunner::Nextest),
-                Cargo::new("install")
-                    .args("cargo-nextest --locked")
-                    .name("Install nextest"),
-            )
-            .add_step(
-                Step::uses("Swatinem", "rust-cache", "v2")
-                    .name("Cache Rust dependencies")
-                    .add_with(("cache-all-crates", "true")),
-            )
+            .add_step(match self.test_runner {
+                TestRunner::Cargo => Toolchain::default(),
+                TestRunner::Nextest => Toolchain::default().add_nextest(),
+            })
             .add_step(match self.test_runner {
                 TestRunner::Cargo => Cargo::new("test")
                     .args("--all-features --workspace")
