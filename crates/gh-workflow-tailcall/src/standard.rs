@@ -209,6 +209,11 @@ impl StandardWorkflow {
                     .args("cargo-nextest --locked")
                     .name("Install nextest"),
             )
+            .add_step(
+                Step::uses("Swatinem", "rust-cache", "v2")
+                    .name("Cache Rust dependencies")
+                    .add_with(("cache-all-crates", "true")),
+            )
             .add_step(match self.test_runner {
                 TestRunner::Cargo => Cargo::new("test")
                     .args("--all-features --workspace")
