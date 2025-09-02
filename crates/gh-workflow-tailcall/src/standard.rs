@@ -170,14 +170,14 @@ impl StandardWorkflow {
                     "target".into(),
                 ]),
         );
-        
+
         // Add cargo fmt step
         if auto_fix {
             job = job.add_step(
                 Cargo::new("fmt")
                     .name("Cargo Fmt")
                     .nightly()
-                    .add_args("--all")
+                    .add_args("--all"),
             );
         } else {
             job = job.add_step(
@@ -185,10 +185,10 @@ impl StandardWorkflow {
                     .name("Cargo Fmt")
                     .nightly()
                     .add_args("--all")
-                    .add_args("--check")
+                    .add_args("--check"),
             );
         }
-        
+
         // Add cargo clippy step
         if auto_fix {
             job = job.add_step(
@@ -197,14 +197,14 @@ impl StandardWorkflow {
                     .nightly()
                     .add_args("--fix")
                     .add_args("--allow-dirty")
-                    .add_args("--all-features --workspace -- -D warnings")
+                    .add_args("--all-features --workspace -- -D warnings"),
             );
         } else {
             job = job.add_step(
                 Cargo::new("clippy")
                     .name("Cargo Clippy")
                     .nightly()
-                    .add_args("--all-features --workspace -- -D warnings")
+                    .add_args("--all-features --workspace -- -D warnings"),
             );
         }
 

@@ -58,8 +58,6 @@ impl Cargo {
         );
         self
     }
-
-
 }
 
 impl From<Cargo> for Step<Run> {

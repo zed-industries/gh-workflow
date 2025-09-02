@@ -114,8 +114,6 @@ impl Workflow {
         Ok(serde_yaml::to_string(self)?)
     }
 
-
-
     /// Adds a job to the workflow with the specified ID and job configuration.
     pub fn add_job<T: ToString, J: Into<Job>>(mut self, id: T, job: J) -> Self {
         let key = id.to_string();
@@ -148,8 +146,6 @@ impl Workflow {
         self
     }
 
-
-
     /// Adds an environment variable to the workflow.
     pub fn add_env<T: Into<Env>>(mut self, new_env: T) -> Self {
         let mut env = self.env.unwrap_or_default();
@@ -158,8 +154,6 @@ impl Workflow {
         self.env = Some(env);
         self
     }
-
-
 
     /// Performs a reverse lookup to get the ID of a job.
     pub fn get_id(&self, job: &Job) -> Option<&str> {
@@ -256,8 +250,6 @@ impl Job {
         }
     }
 
-
-
     /// Adds a step to the job.
     pub fn add_step<S: Into<Step<T>>, T: StepType>(mut self, step: S) -> Self {
         let mut steps = self.steps.unwrap_or_default();
@@ -277,8 +269,6 @@ impl Job {
         self
     }
 
-
-
     /// Add multiple steps to the job at once.
     ///
     /// This is a convenience method that takes a vector of steps and adds them
@@ -297,8 +287,6 @@ impl Job {
         self.tmp_needs = Some(needs);
         self
     }
-
-
 }
 
 /// Represents a step in the workflow.
@@ -560,8 +548,6 @@ impl Step<Use> {
 
         self
     }
-
-
 }
 
 /// Represents a key-value pair for inputs.
