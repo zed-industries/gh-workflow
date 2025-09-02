@@ -10,7 +10,7 @@ use crate::error::{Error, Result};
 use crate::Workflow;
 
 #[derive(Setters, Clone)]
-#[setters(into, borrow_self)]
+#[setters(strip_option, into)]
 pub struct Generate {
     workflow: Workflow,
     name: String,

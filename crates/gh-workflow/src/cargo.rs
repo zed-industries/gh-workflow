@@ -4,7 +4,7 @@ use crate::toolchain::Version;
 use crate::{Run, Step};
 
 #[derive(Clone, Setters)]
-#[setters(strip_option, into, borrow_self)]
+#[setters(strip_option, into)]
 pub struct Cargo {
     /// The command to be executed for eg: fmt, clippy, build, test, etc.
     pub command: String,

@@ -26,7 +26,7 @@ pub enum TestRunner {
 }
 
 #[derive(Debug, Clone, Setters)]
-#[setters(borrow_self)]
+#[setters(strip_option, into)]
 pub struct StandardWorkflow {
     /// When enabled, a release job is added to the workflow.
     /// *IMPORTANT:* Ensure `secrets.CARGO_REGISTRY_TOKEN` is set for your

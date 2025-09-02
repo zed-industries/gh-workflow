@@ -140,7 +140,7 @@ pub struct Target {
 /// NOTE: The public API should be close to the original action as much as
 /// possible.
 #[derive(Default, Clone, Setters)]
-#[setters(strip_option, into, borrow_self)]
+#[setters(strip_option, into)]
 pub struct Toolchain {
     pub toolchain: Vec<Version>,
     #[setters(skip)]
