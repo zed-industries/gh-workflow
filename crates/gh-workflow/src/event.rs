@@ -102,7 +102,7 @@ pub struct BranchProtectionRule {
 
 impl BranchProtectionRule {
     /// Adds a branch protection rule event type to filter on
-    pub fn add_type(&mut self, type_: BranchProtectionRuleType) -> &Self {
+    pub fn add_type(mut self, type_: BranchProtectionRuleType) -> Self {
         self.types.push(type_);
         self
     }
@@ -132,7 +132,7 @@ pub struct CheckRun {
 
 impl CheckRun {
     /// Adds a check run event type to filter on
-    pub fn add_type(&mut self, type_: CheckRunType) -> &Self {
+    pub fn add_type(mut self, type_: CheckRunType) -> Self {
         self.types.push(type_);
         self
     }
@@ -158,7 +158,7 @@ pub struct CheckSuite {
 
 impl CheckSuite {
     /// Adds a check suite event type to filter on
-    pub fn add_type(&mut self, type_: CheckSuiteType) -> &Self {
+    pub fn add_type(mut self, type_: CheckSuiteType) -> Self {
         self.types.push(type_);
         self
     }
@@ -179,13 +179,13 @@ pub struct Create {
 
 impl Create {
     /// Adds a branch name to filter on
-    pub fn add_branch<S: Into<String>>(&mut self, branch: S) -> &Self {
+    pub fn add_branch<S: Into<String>>(mut self, branch: S) -> Self {
         self.branches.push(branch.into());
         self
     }
 
     /// Adds a tag name to filter on
-    pub fn add_tag<S: Into<String>>(&mut self, tag: S) -> &Self {
+    pub fn add_tag<S: Into<String>>(mut self, tag: S) -> Self {
         self.tags.push(tag.into());
         self
     }
@@ -206,13 +206,13 @@ pub struct Delete {
 
 impl Delete {
     /// Adds a branch name to filter on
-    pub fn add_branch<S: Into<String>>(&mut self, branch: S) -> &Self {
+    pub fn add_branch<S: Into<String>>(mut self, branch: S) -> Self {
         self.branches.push(branch.into());
         self
     }
 
     /// Adds a tag name to filter on
-    pub fn add_tag<S: Into<String>>(&mut self, tag: S) -> &Self {
+    pub fn add_tag<S: Into<String>>(mut self, tag: S) -> Self {
         self.tags.push(tag.into());
         self
     }
@@ -231,7 +231,7 @@ pub struct Deployment {
 
 impl Deployment {
     /// Adds a branch name to filter on
-    pub fn add_branch<S: Into<String>>(&mut self, branch: S) -> &Self {
+    pub fn add_branch<S: Into<String>>(mut self, branch: S) -> Self {
         self.branches.push(branch.into());
         self
     }
@@ -250,7 +250,7 @@ pub struct DeploymentStatus {
 
 impl DeploymentStatus {
     /// Adds a deployment state to filter on
-    pub fn add_state<S: Into<String>>(&mut self, state: S) -> &Self {
+    pub fn add_state<S: Into<String>>(mut self, state: S) -> Self {
         self.states.push(state.into());
         self
     }
@@ -300,7 +300,7 @@ pub struct Discussion {
 
 impl Discussion {
     /// Adds a discussion event type to filter on
-    pub fn add_type(&mut self, type_: DiscussionType) -> &Self {
+    pub fn add_type(mut self, type_: DiscussionType) -> Self {
         self.types.push(type_);
         self
     }
@@ -330,7 +330,7 @@ pub struct DiscussionComment {
 
 impl DiscussionComment {
     /// Adds a discussion comment event type to filter on
-    pub fn add_type(&mut self, type_: DiscussionCommentType) -> &Self {
+    pub fn add_type(mut self, type_: DiscussionCommentType) -> Self {
         self.types.push(type_);
         self
     }
@@ -359,7 +359,7 @@ pub enum IssueCommentType {
 
 impl IssueComment {
     /// Adds an issue comment event type to filter on
-    pub fn add_type(&mut self, type_: IssueCommentType) -> &Self {
+    pub fn add_type(mut self, type_: IssueCommentType) -> Self {
         self.types.push(type_);
         self
     }
@@ -416,7 +416,7 @@ pub struct Issues {
 
 impl Issues {
     /// Adds an issue event type to filter on
-    pub fn add_type(&mut self, type_: IssuesType) -> &Self {
+    pub fn add_type(mut self, type_: IssuesType) -> Self {
         self.types.push(type_);
         self
     }
@@ -447,7 +447,7 @@ pub struct Label {
 
 impl Label {
     /// Adds a label event type to filter on
-    pub fn add_type(&mut self, type_: LabelType) -> &Self {
+    pub fn add_type(mut self, type_: LabelType) -> Self {
         self.types.push(type_);
         self
     }
@@ -467,7 +467,7 @@ pub struct MergeGroup {
 }
 
 impl MergeGroup {
-    pub fn add_type(&mut self, type_: MergeGroupType) -> &Self {
+    pub fn add_type(mut self, type_: MergeGroupType) -> Self {
         self.types.push(type_);
         self
     }
@@ -491,7 +491,7 @@ pub struct Milestone {
 }
 
 impl Milestone {
-    pub fn add_type(&mut self, type_: MilestoneType) -> &Self {
+    pub fn add_type(mut self, type_: MilestoneType) -> Self {
         self.types.push(type_);
         self
     }
@@ -528,17 +528,17 @@ pub struct PullRequest {
 }
 
 impl PullRequest {
-    pub fn add_type(&mut self, type_: PullRequestType) -> &mut Self {
+    pub fn add_type(mut self, type_: PullRequestType) -> Self {
         self.types.push(type_);
         self
     }
 
-    pub fn add_branch<S: Into<String>>(&mut self, branch: S) -> &mut Self {
+    pub fn add_branch<S: Into<String>>(mut self, branch: S) -> Self {
         self.branches.push(branch.into());
         self
     }
 
-    pub fn add_path<S: Into<String>>(&mut self, path: S) -> &mut Self {
+    pub fn add_path<S: Into<String>>(mut self, path: S) -> Self {
         self.paths.push(path.into());
         self
     }
@@ -569,7 +569,7 @@ pub struct PullRequestReview {
 
 impl PullRequestReview {
     /// Adds a pull request review event type to filter on
-    pub fn add_type(&mut self, type_: PullRequestReviewType) -> &Self {
+    pub fn add_type(mut self, type_: PullRequestReviewType) -> Self {
         self.types.push(type_);
         self
     }
@@ -599,7 +599,7 @@ pub struct PullRequestReviewComment {
 
 impl PullRequestReviewComment {
     /// Adds a pull request review comment event type to filter on
-    pub fn add_type(&mut self, type_: PullRequestReviewCommentType) -> &Self {
+    pub fn add_type(mut self, type_: PullRequestReviewCommentType) -> Self {
         self.types.push(type_);
         self
     }
@@ -620,13 +620,13 @@ pub struct PullRequestTarget {
 
 impl PullRequestTarget {
     /// Adds a pull request event type to filter on
-    pub fn add_type(&mut self, type_: PullRequestType) -> &Self {
+    pub fn add_type(mut self, type_: PullRequestType) -> Self {
         self.types.push(type_);
         self
     }
 
     /// Adds a branch name to filter on
-    pub fn add_branch<S: Into<String>>(&mut self, branch: S) -> &Self {
+    pub fn add_branch<S: Into<String>>(mut self, branch: S) -> Self {
         self.branches.push(branch.into());
         self
     }
@@ -650,19 +650,19 @@ pub struct Push {
 
 impl Push {
     /// Adds a branch name to filter on
-    pub fn add_branch<S: Into<String>>(&mut self, branch: S) -> &mut Self {
+    pub fn add_branch<S: Into<String>>(mut self, branch: S) -> Self {
         self.branches.push(branch.into());
         self
     }
 
     /// Adds a file path to filter on
-    pub fn add_path<S: Into<String>>(&mut self, path: S) -> &mut Self {
+    pub fn add_path<S: Into<String>>(mut self, path: S) -> Self {
         self.paths.push(path.into());
         self
     }
 
     /// Adds a tag name to filter on
-    pub fn add_tag<S: Into<String>>(&mut self, tag: S) -> &mut Self {
+    pub fn add_tag<S: Into<String>>(mut self, tag: S) -> Self {
         self.tags.push(tag.into());
         self
     }
@@ -691,7 +691,7 @@ pub struct RegistryPackage {
 
 impl RegistryPackage {
     /// Adds a registry package event type to filter on
-    pub fn add_type(&mut self, type_: RegistryPackageType) -> &Self {
+    pub fn add_type(mut self, type_: RegistryPackageType) -> Self {
         self.types.push(type_);
         self
     }
@@ -730,7 +730,7 @@ pub struct Release {
 
 impl Release {
     /// Adds a release event type to filter on
-    pub fn add_type(&mut self, type_: ReleaseType) -> &Self {
+    pub fn add_type(mut self, type_: ReleaseType) -> Self {
         self.types.push(type_);
         self
     }
@@ -744,7 +744,7 @@ pub struct RepositoryDispatch {
 }
 
 impl RepositoryDispatch {
-    pub fn add_type<S: Into<String>>(&mut self, type_: S) -> &Self {
+    pub fn add_type<S: Into<String>>(mut self, type_: S) -> Self {
         self.types.push(type_.into());
         self
     }
@@ -758,7 +758,7 @@ pub struct Schedule {
 }
 
 impl Schedule {
-    pub fn add_cron<S: Into<String>>(&mut self, cron: S) -> &Self {
+    pub fn add_cron<S: Into<String>>(mut self, cron: S) -> Self {
         self.cron.push(cron.into());
         self
     }
@@ -772,7 +772,7 @@ pub struct Watch {
 }
 
 impl Watch {
-    pub fn add_type<S: Into<String>>(&mut self, type_: S) -> &Self {
+    pub fn add_type<S: Into<String>>(mut self, type_: S) -> Self {
         self.types.push(type_.into());
         self
     }
@@ -895,19 +895,19 @@ pub struct WorkflowRun {
 
 impl WorkflowRun {
     /// Adds a workflow run event type to filter on
-    pub fn add_type(&mut self, type_: WorkflowRunType) -> &Self {
+    pub fn add_type(mut self, type_: WorkflowRunType) -> Self {
         self.types.push(type_);
         self
     }
 
     /// Adds a workflow name to filter on
-    pub fn add_workflow<S: Into<String>>(&mut self, workflow: S) -> &Self {
+    pub fn add_workflow<S: Into<String>>(mut self, workflow: S) -> Self {
         self.workflows.push(workflow.into());
         self
     }
 
     /// Adds a branch name to filter on
-    pub fn add_branch<S: Into<String>>(&mut self, branch: S) -> &Self {
+    pub fn add_branch<S: Into<String>>(mut self, branch: S) -> Self {
         self.branches.push(branch.into());
         self
     }

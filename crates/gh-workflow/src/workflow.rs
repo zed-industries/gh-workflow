@@ -17,8 +17,9 @@ use crate::{private, Event};
 #[serde(transparent)]
 pub struct Jobs(pub(crate) IndexMap<String, Job>);
 impl Jobs {
-    pub fn insert(&mut self, key: String, value: Job) {
+    pub fn add(mut self, key: String, value: Job) -> Self {
         self.0.insert(key, value);
+        self
     }
 
     /// Gets a reference to a job by its key.
@@ -115,11 +116,9 @@ impl Workflow {
     }
 
     /// Adds a job to the workflow with the specified ID and job configuration.
-    pub fn add_job<T: ToString, J: Into<Job>>(&mut self, id: T, job: J) -> &mut Self {
+    pub fn add_job<T: ToString, J: Into<Job>>(mut self, id: T, job: J) -> Self {
         let key = id.to_string();
-        let mut jobs = self.jobs.take().unwrap_or_default();
-
-        jobs.insert(key, job.into());
+        let jobs = self.jobs.take().unwrap_or_default().add(key, job.into());
 
         self.jobs = Some(jobs);
         self
@@ -136,7 +135,7 @@ impl Workflow {
     }
 
     /// Adds an event to the workflow.
-    pub fn add_event<T: Into<Event>>(&mut self, that: T) -> &mut Self {
+    pub fn add_event<T: Into<Event>>(mut self, that: T) -> Self {
         if let Some(mut this) = self.on.take() {
             this.merge(that.into());
             self.on = Some(this);
@@ -147,7 +146,7 @@ impl Workflow {
     }
 
     /// Adds an environment variable to the workflow.
-    pub fn add_env<T: Into<Env>>(&mut self, new_env: T) -> &mut Self {
+    pub fn add_env<T: Into<Env>>(mut self, new_env: T) -> Self {
         let mut env = self.env.take().unwrap_or_default();
 
         env.0.extend(new_env.into().0);
@@ -236,7 +235,7 @@ impl Job {
     }
 
     /// Adds a step to the job.
-    pub fn add_step<S: Into<Step<T>>, T: StepType>(&mut self, step: S) -> &mut Self {
+    pub fn add_step<S: Into<Step<T>>, T: StepType>(mut self, step: S) -> Self {
         let mut steps = self.steps.take().unwrap_or_default();
         let step: Step<T> = step.into();
         let step: StepValue = T::to_value(step);
@@ -246,7 +245,7 @@ impl Job {
     }
 
     /// Adds an environment variable to the job.
-    pub fn add_env<T: Into<Env>>(&mut self, new_env: T) -> &mut Self {
+    pub fn add_env<T: Into<Env>>(mut self, new_env: T) -> Self {
         let mut env = self.env.take().unwrap_or_default();
 
         env.0.extend(new_env.into().0);
@@ -254,7 +253,7 @@ impl Job {
         self
     }
 
-    pub fn add_needs<J: ToString>(&mut self, job_id: J) -> &mut Self {
+    pub fn add_needs<J: ToString>(mut self, job_id: J) -> Self {
         if let Some(needs) = self.needs.as_mut() {
             needs.push(job_id.to_string());
         } else {

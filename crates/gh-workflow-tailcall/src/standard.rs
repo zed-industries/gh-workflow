@@ -70,18 +70,14 @@ impl StandardWorkflow {
     ///
     /// This reduces duplication across different job types.
     fn init_job(&self, name: impl ToString) -> Job {
-        let mut job = Job::new(name);
-
-        job.permissions(Permissions::default().contents(Level::Read).to_owned());
+        let mut job = Job::new(name).permissions(Permissions::default().contents(Level::Read));
 
         // Add setup steps in reverse order to maintain the correct sequence
         for step in self.setup.iter().rev() {
-            job.add_step(step.clone());
+            job = job.add_step(step.clone());
         }
 
-        job.add_step(Step::checkout());
-
-        job
+        job.add_step(Step::checkout())
     }
 
     /// Add a setup step to be executed before the checkout step.
@@ -112,26 +108,22 @@ impl StandardWorkflow {
     /// Converts the workflow into a Github workflow.
     fn to_autofix_workflow(&self) -> GHWorkflow {
         // NOTE: The workflow name needs to by `autofix.ci`
-        let mut workflow = GHWorkflow::new("autofix.ci");
-        workflow
+        GHWorkflow::new("autofix.ci")
             .add_env(self.workflow_flags())
             .on(self.workflow_event())
-            .add_job("lint", self.lint_job(true));
-
-        workflow
+            .add_job("lint", self.lint_job(true))
     }
 
     /// Converts the workflow into a Github workflow.
     pub fn to_ci_workflow(&self) -> GHWorkflow {
-        let mut workflow = GHWorkflow::new(self.name.clone());
-        workflow
+        let mut workflow = GHWorkflow::new(self.name.clone())
             .add_env(self.workflow_flags())
             .on(self.workflow_event())
             .add_job("build", self.test_job())
             .add_job("lint", self.lint_job(false));
 
         if self.auto_release {
-            workflow
+            workflow = workflow
                 .add_job("release", self.release_job(Command::Release))
                 .add_job("release-pr", self.release_job(Command::ReleasePR));
         }
@@ -140,71 +132,68 @@ impl StandardWorkflow {
     }
 
     fn release_job(&self, cmd: Command) -> Job {
-        let mut job = self.init_job(cmd.to_string().to_title_case());
-        job.concurrency(
-            Concurrency::new(Expression::new("release-${{github.ref}}"))
-                .cancel_in_progress(false)
-                .to_owned(),
-        )
-        .cond(self.workflow_cond())
-        .add_needs("build")
-        .add_needs("lint")
-        .add_env(Env::github())
-        .add_env(Env::new(
-            "CARGO_REGISTRY_TOKEN",
-            "${{ secrets.CARGO_REGISTRY_TOKEN }}",
-        ))
-        .permissions(self.write_permissions())
-        .add_step(Release::default().command(cmd).to_owned());
-
-        job
+        self.init_job(cmd.to_string().to_title_case())
+            .concurrency(
+                Concurrency::new(Expression::new("release-${{github.ref}}"))
+                    .cancel_in_progress(false),
+            )
+            .cond(self.workflow_cond())
+            .add_needs("build")
+            .add_needs("lint")
+            .add_env(Env::github())
+            .add_env(Env::new(
+                "CARGO_REGISTRY_TOKEN",
+                "${{ secrets.CARGO_REGISTRY_TOKEN }}",
+            ))
+            .permissions(self.write_permissions())
+            .add_step(Release::default().command(cmd))
     }
 
     fn lint_job(&self, auto_fix: bool) -> Job {
         let mut job = self.init_job(if auto_fix { "Lint Fix" } else { "Lint" });
 
         if auto_fix {
-            job.concurrency(
+            job = job.concurrency(
                 Concurrency::new(Expression::new("autofix-${{github.ref}}"))
-                    .cancel_in_progress(false)
-                    .to_owned(),
+                    .cancel_in_progress(false),
             );
         }
 
-        let mut fmt_step = Cargo::new("fmt");
-        fmt_step.name("Cargo Fmt").nightly().add_args("--all");
+        let mut fmt_step = Cargo::new("fmt")
+            .name("Cargo Fmt")
+            .nightly()
+            .add_args("--all");
 
         if !auto_fix {
-            fmt_step.add_args("--check");
+            fmt_step = fmt_step.add_args("--check");
         }
 
-        let mut clippy_step = Cargo::new("clippy");
-        clippy_step.name("Cargo Clippy").nightly();
+        let mut clippy_step = Cargo::new("clippy").name("Cargo Clippy").nightly();
 
         if auto_fix {
-            clippy_step.add_args("--fix").add_args("--allow-dirty");
+            clippy_step = clippy_step.add_args("--fix").add_args("--allow-dirty");
         }
 
-        clippy_step.add_args("--all-features --workspace -- -D warnings");
+        clippy_step = clippy_step.add_args("--all-features --workspace -- -D warnings");
 
-        job.add_step(
-            Toolchain::default()
-                .add_nightly()
-                .add_clippy()
-                .add_fmt()
-                .cache(true)
-                .cache_directories(vec![
-                    "~/.cargo/registry".into(),
-                    "~/.cargo/git".into(),
-                    "target".into(),
-                ])
-                .to_owned(),
-        )
-        .add_step(fmt_step.to_owned())
-        .add_step(clippy_step.to_owned());
+        job = job
+            .add_step(
+                Toolchain::default()
+                    .add_nightly()
+                    .add_clippy()
+                    .add_fmt()
+                    .cache(true)
+                    .cache_directories(vec![
+                        "~/.cargo/registry".into(),
+                        "~/.cargo/git".into(),
+                        "target".into(),
+                    ]),
+            )
+            .add_step(fmt_step)
+            .add_step(clippy_step);
 
         if auto_fix {
-            job.add_step(Step::uses(
+            job = job.add_step(Step::uses(
                 "autofix-ci",
                 "action",
                 "551dded8c6cc8a1054039c8bc0b8b48c51dfc6ef",
@@ -215,40 +204,34 @@ impl StandardWorkflow {
 
     /// Creates the "Build and Test" job for the workflow.
     fn test_job(&self) -> Job {
-        let mut job = self.init_job("Build and Test");
-        job.add_step(Toolchain::default().add_stable());
+        let mut job = self
+            .init_job("Build and Test")
+            .add_step(Toolchain::default().add_stable());
 
         if matches!(self.test_runner, TestRunner::Nextest) {
-            job.add_step(
+            job = job.add_step(
                 Cargo::new("install")
                     .args("cargo-nextest --locked")
-                    .name("Install nextest")
-                    .to_owned(),
+                    .name("Install nextest"),
             );
         }
-        job.add_step(
-            Step::uses("Swatinem", "rust-cache", "v2")
-                .name("Cache Rust dependencies")
-                .add_with(("cache-all-crates", "true")),
-        )
-        .add_step(match self.test_runner {
-            TestRunner::Cargo => Cargo::new("test")
-                .args("--all-features --workspace")
-                .name("Cargo Test")
-                .to_owned(),
-            TestRunner::Nextest => Cargo::new("nextest")
-                .args("run --all-features --workspace")
-                .name("Cargo Nextest")
-                .to_owned(),
-        });
+        job = job
+            .add_step(
+                Step::uses("Swatinem", "rust-cache", "v2")
+                    .name("Cache Rust dependencies")
+                    .add_with(("cache-all-crates", "true")),
+            )
+            .add_step(match self.test_runner {
+                TestRunner::Cargo => Cargo::new("test")
+                    .args("--all-features --workspace")
+                    .name("Cargo Test"),
+                TestRunner::Nextest => Cargo::new("nextest")
+                    .args("run --all-features --workspace")
+                    .name("Cargo Nextest"),
+            });
 
         if self.benchmarks {
-            job.add_step(
-                Cargo::new("bench")
-                    .args("--workspace")
-                    .name("Cargo Bench")
-                    .to_owned(),
-            );
+            job = job.add_step(Cargo::new("bench").args("--workspace").name("Cargo Bench"));
         }
 
         job
@@ -259,7 +242,6 @@ impl StandardWorkflow {
             .pull_requests(Level::Write)
             .packages(Level::Write)
             .contents(Level::Write)
-            .to_owned()
     }
 
     fn workflow_cond(&self) -> Context<bool> {
@@ -271,16 +253,14 @@ impl StandardWorkflow {
 
     fn workflow_event(&self) -> Event {
         Event::default()
-            .push(Push::default().add_branch("main").add_tag("v*").to_owned())
+            .push(Push::default().add_branch("main").add_tag("v*"))
             .pull_request(
                 PullRequest::default()
                     .add_type(PullRequestType::Opened)
                     .add_type(PullRequestType::Synchronize)
                     .add_type(PullRequestType::Reopened)
-                    .add_branch("main")
-                    .to_owned(),
+                    .add_branch("main"),
             )
-            .to_owned()
     }
 
     fn workflow_flags(&self) -> RustFlags {
