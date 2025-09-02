@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.0](https://github.com/tailcallhq/gh-workflow/compare/gh-workflow-v0.6.1...gh-workflow-v0.7.0) - 2025-09-02
+
+### Other
+
+- improve API ergonomics with builder pattern and method chaining ([#165](https://github.com/tailcallhq/gh-workflow/pull/165))
+
 ## [0.6.1](https://github.com/tailcallhq/gh-workflow/compare/gh-workflow-v0.6.0...gh-workflow-v0.6.1) - 2025-08-16
 
 ### Other
