@@ -1,7 +1,7 @@
 use derive_setters::Setters;
 use serde::{Deserialize, Serialize};
 
-use crate::workflow::Expression;
+use crate::expression::Expression;
 
 /// Represents concurrency settings for workflows.
 #[derive(Debug, Setters, Serialize, Deserialize, Clone, Default, PartialEq, Eq)]

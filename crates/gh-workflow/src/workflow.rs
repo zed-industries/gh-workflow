@@ -1,19 +1,20 @@
 //!
 //! The serde representation of Github Actions Workflow.
 
-use std::fmt::Display;
-
 use derive_setters::Setters;
 use indexmap::IndexMap;
 use merge::Merge;
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
 
 use crate::concurrency::Concurrency;
+use crate::defaults::Defaults;
+// Import the moved types
+use crate::env::Env;
 use crate::error::Result;
 use crate::generate::Generate;
 use crate::job::Job;
 use crate::permissions::Permissions;
+use crate::secret::Secret;
 use crate::Event;
 
 #[derive(Debug, Default, Serialize, Deserialize, Clone)]
@@ -156,205 +157,4 @@ impl Workflow {
         self.env = Some(env);
         self
     }
-}
-
-/// Represents the type of activity in the workflow.
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
-#[serde(rename_all = "kebab-case")]
-pub enum ActivityType {
-    Created,
-    Edited,
-    Deleted,
-}
-
-/// Represents environment variables in the workflow.
-#[derive(Default, Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
-#[serde(transparent)]
-pub struct Env(pub IndexMap<String, Value>);
-
-impl From<IndexMap<String, Value>> for Env {
-    /// Converts an `IndexMap` into an `Env`.
-    fn from(value: IndexMap<String, Value>) -> Self {
-        Env(value)
-    }
-}
-
-impl Env {
-    /// Sets the `GITHUB_TOKEN` environment variable.
-    pub fn github() -> Self {
-        let mut map = IndexMap::new();
-        map.insert(
-            "GITHUB_TOKEN".to_string(),
-            Value::from("${{ secrets.GITHUB_TOKEN }}"),
-        );
-        Env(map)
-    }
-
-    /// Creates a new `Env` with a specified key-value pair.
-    pub fn new<K: ToString, V: Into<Value>>(key: K, value: V) -> Self {
-        Env::default().add(key, value)
-    }
-
-    /// Adds an environment variable to the `Env`.
-    pub fn add<T1: ToString, T2: Into<Value>>(mut self, key: T1, value: T2) -> Self {
-        self.0.insert(key.to_string(), value.into());
-        self
-    }
-}
-
-/// Represents environment variables as key-value pairs.
-impl<S1: Display, S2: Display> From<(S1, S2)> for Env {
-    /// Converts a tuple into an `Env`.
-    fn from(value: (S1, S2)) -> Self {
-        let mut index_map: IndexMap<String, Value> = IndexMap::new();
-        index_map.insert(value.0.to_string(), Value::String(value.1.to_string()));
-        Env(index_map)
-    }
-}
-
-/// Represents the runner environment for jobs.
-#[derive(Debug, Serialize, Deserialize, Clone, Default, PartialEq, Eq)]
-#[serde(rename_all = "kebab-case")]
-pub enum Runner {
-    #[default]
-    Linux,
-    MacOS,
-    Windows,
-    Custom(String),
-}
-
-/// Represents the strategy for running jobs.
-#[derive(Debug, Setters, Serialize, Deserialize, Clone, Default, PartialEq, Eq)]
-#[serde(rename_all = "kebab-case")]
-#[setters(strip_option, into)]
-pub struct Strategy {
-    /// The matrix for job execution.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub matrix: Option<Value>,
-
-    /// Whether to fail fast on errors.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub fail_fast: Option<bool>,
-
-    /// The maximum number of jobs to run in parallel.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub max_parallel: Option<u32>,
-}
-
-/// Represents an environment for jobs.
-#[derive(Debug, Setters, Serialize, Deserialize, Clone, Default, PartialEq, Eq)]
-#[serde(rename_all = "kebab-case")]
-#[setters(strip_option, into)]
-pub struct Environment {
-    /// The name of the environment.
-    pub name: String,
-
-    /// The URL associated with the environment.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub url: Option<String>,
-}
-
-/// Represents default settings for jobs.
-#[derive(Debug, Setters, Serialize, Deserialize, Clone, Default, PartialEq, Eq)]
-#[serde(rename_all = "kebab-case")]
-#[setters(strip_option, into)]
-pub struct Defaults {
-    /// Default settings for running jobs.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub run: Option<RunDefaults>,
-
-    /// Default retry settings for jobs.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub retry: Option<RetryDefaults>,
-
-    /// Default concurrency settings for jobs.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub concurrency: Option<Concurrency>,
-}
-
-/// Represents default settings for running commands.
-#[derive(Debug, Setters, Serialize, Deserialize, Clone, Default, PartialEq, Eq)]
-#[serde(rename_all = "kebab-case")]
-#[setters(strip_option, into)]
-pub struct RunDefaults {
-    /// The shell to use for running commands.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub shell: Option<String>,
-
-    /// The working directory for running commands.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub working_directory: Option<String>,
-}
-
-/// Represents default settings for retries.
-#[derive(Debug, Serialize, Deserialize, Clone, Default, PartialEq, Eq)]
-#[serde(rename_all = "kebab-case")]
-pub struct RetryDefaults {
-    /// The maximum number of retry attempts.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub max_attempts: Option<u32>,
-}
-
-/// Represents an expression used in conditions.
-#[derive(Debug, Serialize, Deserialize, Clone, Default, PartialEq, Eq)]
-#[serde(transparent)]
-pub struct Expression(pub String);
-
-impl Expression {
-    /// Creates a new `Expression` from a string.
-    pub fn new<T: ToString>(expr: T) -> Self {
-        Self(expr.to_string())
-    }
-}
-
-/// Represents a secret required for the workflow.
-#[derive(Debug, Setters, Serialize, Deserialize, Clone, Default, PartialEq, Eq)]
-#[serde(rename_all = "kebab-case")]
-#[setters(strip_option, into)]
-pub struct Secret {
-    /// Indicates if the secret is required.
-    pub required: bool,
-
-    /// A description of the secret.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub description: Option<String>,
-}
-
-/// Represents a strategy for retrying jobs.
-#[derive(Debug, Serialize, Deserialize, Clone, Default, PartialEq, Eq)]
-#[serde(rename_all = "kebab-case")]
-pub struct RetryStrategy {
-    /// The maximum number of retry attempts.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub max_attempts: Option<u32>,
-}
-
-/// Represents artifacts produced by jobs.
-#[derive(Debug, Setters, Serialize, Deserialize, Clone, Default, PartialEq, Eq)]
-#[serde(rename_all = "kebab-case")]
-#[setters(strip_option, into)]
-pub struct Artifacts {
-    /// Artifacts to upload after the job.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub upload: Option<Vec<Artifact>>,
-
-    /// Artifacts to download before the job.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub download: Option<Vec<Artifact>>,
-}
-
-/// Represents an artifact produced by a job.
-#[derive(Debug, Setters, Serialize, Deserialize, Clone, Default, PartialEq, Eq)]
-#[serde(rename_all = "kebab-case")]
-#[setters(strip_option, into)]
-pub struct Artifact {
-    /// The name of the artifact.
-    pub name: String,
-
-    /// The path to the artifact.
-    pub path: String,
-
-    /// The number of days to retain the artifact.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub retention_days: Option<u32>,
 }

@@ -8,11 +8,8 @@ use serde_json::Value;
 
 use crate::concurrency::Concurrency;
 use crate::step::{Step, StepType, StepValue};
-use crate::{Permissions};
-use crate::{Container};
-use crate::workflow::{
-    Artifacts, Defaults, Env, Expression, RetryStrategy,
-    Secret, Strategy,
+use crate::{
+    Artifacts, Container, Defaults, Env, Expression, Permissions, RetryStrategy, Secret, Strategy,
 };
 
 /// Represents the environment in which a job runs.

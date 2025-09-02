@@ -3,7 +3,7 @@
 use derive_setters::Setters;
 use serde::{Deserialize, Serialize};
 
-use crate::workflow::Env;
+use crate::env::Env;
 
 /// Represents a container configuration for jobs.
 #[derive(Debug, Setters, Serialize, Deserialize, Clone, Default, PartialEq, Eq)]

@@ -7,8 +7,7 @@ use merge::Merge;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-use crate::workflow::{Artifacts, Env, Expression, RetryStrategy};
-use crate::private;
+use crate::{private, Artifacts, Env, Expression, RetryStrategy};
 
 /// Represents a step in the workflow.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
