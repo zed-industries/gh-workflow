@@ -2,6 +2,7 @@ extern crate proc_macro;
 
 mod cargo;
 mod concurrency;
+mod container;
 pub mod error;
 mod event;
 mod job;
@@ -17,6 +18,7 @@ pub(crate) mod workflow;
 
 pub use cargo::*;
 pub use concurrency::*;
+pub use container::*;
 pub use event::*;
 pub use job::*;
 pub use permissions::*;
