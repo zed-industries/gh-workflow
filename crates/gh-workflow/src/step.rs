@@ -7,6 +7,7 @@ use merge::Merge;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
+use crate::toolchain::{Abi, Arch, Component, System, Target, Toolchain, Vendor, Version};
 use crate::{private, Artifacts, Env, Expression, RetryStrategy};
 
 /// Represents a step in the workflow.
@@ -16,7 +17,7 @@ pub struct Step<A> {
     /// The value of the step.
     pub value: StepValue,
     #[serde(skip)]
-    pub marker: std::marker::PhantomData<A>,
+    pub marker: A,
 }
 
 impl From<Step<Run>> for StepValue {
@@ -246,5 +247,53 @@ impl<S1: ToString, S2: ToString> From<(S1, S2)> for Input {
         let mut index_map: IndexMap<String, Value> = IndexMap::new();
         index_map.insert(value.0.to_string(), Value::String(value.1.to_string()));
         Input(index_map)
+    }
+}
+
+impl Step<Toolchain> {
+    pub fn toolchain() -> Step<Toolchain> {
+        Step { value: Default::default(), marker: Toolchain::default() }
+    }
+
+    pub fn add_version(mut self, version: Version) -> Self {
+        self.marker.version.push(version);
+        self
+    }
+
+    pub fn add_component(mut self, component: Component) -> Self {
+        self.marker.components.push(component);
+        self
+    }
+
+    pub fn add_stable(mut self) -> Self {
+        self.marker.version.push(Version::Stable);
+        self
+    }
+
+    pub fn add_nightly(mut self) -> Self {
+        self.marker.version.push(Version::Nightly);
+        self
+    }
+
+    pub fn add_clippy(mut self) -> Self {
+        self.marker.components.push(Component::Clippy);
+        self
+    }
+
+    pub fn add_fmt(mut self) -> Self {
+        self.marker.components.push(Component::Rustfmt);
+        self
+    }
+
+    pub fn target(mut self, arch: Arch, vendor: Vendor, system: System, abi: Option<Abi>) -> Self {
+        self.marker.target = Some(Target { arch, vendor, system, abi });
+        self
+    }
+}
+
+impl StepType for Toolchain {
+    fn to_value(s: Step<Self>) -> StepValue {
+        let step: Step<Use> = s.marker.into();
+        StepValue::from(step)
     }
 }
