@@ -1,9 +1,11 @@
 extern crate proc_macro;
 
 mod cargo;
+mod concurrency;
 pub mod error;
 mod event;
 mod job;
+mod permissions;
 mod step;
 
 pub mod ctx;
@@ -14,8 +16,10 @@ pub mod toolchain;
 pub(crate) mod workflow;
 
 pub use cargo::*;
+pub use concurrency::*;
 pub use event::*;
 pub use job::*;
+pub use permissions::*;
 pub use rust_flag::*;
 pub use step::*;
 pub use workflow::*;

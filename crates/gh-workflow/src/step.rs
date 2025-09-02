@@ -245,4 +245,3 @@ impl<S1: ToString, S2: ToString> From<(S1, S2)> for Input {
         Input(index_map)
     }
 }
-

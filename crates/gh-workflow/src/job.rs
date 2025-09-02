@@ -6,9 +6,11 @@ use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
+use crate::concurrency::Concurrency;
 use crate::step::{Step, StepType, StepValue};
+use crate::{Permissions};
 use crate::workflow::{
-    Artifacts, Concurrency, Container, Defaults, Env, Expression, Permissions, RetryStrategy,
+    Artifacts, Container, Defaults, Env, Expression, RetryStrategy,
     Secret, Strategy,
 };
 
