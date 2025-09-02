@@ -147,8 +147,8 @@ impl StandardWorkflow {
                 .to_owned(),
         )
         .cond(self.workflow_cond())
-        .add_needs(self.test_job())
-        .add_needs(self.lint_job(false))
+        .add_needs("build")
+        .add_needs("lint")
         .add_env(Env::github())
         .add_env(Env::new(
             "CARGO_REGISTRY_TOKEN",

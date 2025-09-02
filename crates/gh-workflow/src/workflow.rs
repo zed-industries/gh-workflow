@@ -186,10 +186,7 @@ where
 #[setters(strip_option, into, borrow_self)]
 pub struct Job {
     #[serde(skip_serializing_if = "Option::is_none")]
-    #[setters(skip)]
-    pub(crate) needs: Option<Vec<String>>,
-    #[serde(skip)]
-    pub(crate) tmp_needs: Option<Vec<Job>>,
+    pub needs: Option<Vec<String>>,
     #[serde(skip_serializing_if = "Option::is_none", rename = "if")]
     pub cond: Option<Expression>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -271,11 +268,12 @@ impl Job {
         self
     }
 
-    pub fn add_needs<J: Into<Job>>(&mut self, needs: J) -> &mut Self {
-        let job: Job = needs.into();
-        let mut needs = self.tmp_needs.take().unwrap_or_default();
-        needs.push(job);
-        self.tmp_needs = Some(needs);
+    pub fn add_needs<J: ToString>(&mut self, job_id: J) -> &mut Self {
+        if let Some(needs) = self.needs.as_mut() {
+            needs.push(job_id.to_string());
+        } else {
+            self.needs = Some(vec![job_id.to_string()]);
+        }
         self
     }
 }
@@ -809,6 +807,7 @@ pub struct RetryDefaults {
 
 /// Represents an expression used in conditions.
 #[derive(Debug, Serialize, Deserialize, Clone, Default, PartialEq, Eq)]
+#[serde(transparent)]
 pub struct Expression(String);
 
 impl Expression {
