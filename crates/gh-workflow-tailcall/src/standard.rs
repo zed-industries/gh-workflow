@@ -196,7 +196,7 @@ impl StandardWorkflow {
             job = job.add_step(Step::new("auto-fix").uses(
                 "autofix-ci",
                 "action",
-                "551dded8c6cc8a1054039c8bc0b8b48c51dfc6ef",
+                "v1",
             ));
         }
         job
