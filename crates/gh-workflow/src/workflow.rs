@@ -254,20 +254,6 @@ impl Job {
         self
     }
 
-    /// Add multiple steps to the job at once.
-    ///
-    /// This is a convenience method that takes a vector of steps and adds them
-    /// all to the job in order.
-    pub fn add_steps<T: StepType, I: IntoIterator<Item = Step<T>>>(
-        &mut self,
-        steps: I,
-    ) -> &mut Self {
-        for step in steps {
-            self.add_step(step);
-        }
-        self
-    }
-
     pub fn add_needs<J: ToString>(&mut self, job_id: J) -> &mut Self {
         if let Some(needs) = self.needs.as_mut() {
             needs.push(job_id.to_string());
