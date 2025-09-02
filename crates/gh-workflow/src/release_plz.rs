@@ -5,7 +5,7 @@ use derive_setters::Setters;
 use crate::{Step, Use};
 
 #[derive(Clone, Default, Setters)]
-#[setters(strip_option, into)]
+#[setters(strip_option, into, borrow_self)]
 pub struct Release {
     /// The release-plz command to run. Accepted values: release-pr, release.
     /// (By default it runs both commands).

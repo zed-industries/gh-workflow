@@ -43,7 +43,7 @@ impl Jobs {
 /// jobs, concurrency settings, and more.
 #[derive(Debug, Default, Setters, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "kebab-case")]
-#[setters(strip_option, into)]
+#[setters(strip_option, into, borrow_self)]
 pub struct Workflow {
     /// The name of the workflow. GitHub displays the names of your workflows
     /// under your repository's "Actions" tab.
@@ -220,7 +220,7 @@ where
 /// Represents a job in the workflow.
 #[derive(Debug, Setters, Serialize, Deserialize, Clone, Default, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
-#[setters(strip_option, into)]
+#[setters(strip_option, into, borrow_self)]
 pub struct Job {
     #[serde(skip_serializing_if = "Option::is_none")]
     #[setters(skip)]
@@ -647,7 +647,7 @@ pub enum Runner {
 /// Represents a container configuration for jobs.
 #[derive(Debug, Setters, Serialize, Deserialize, Clone, Default, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
-#[setters(strip_option, into)]
+#[setters(strip_option, into, borrow_self)]
 pub struct Container {
     /// The image to use for the container.
     pub image: String,
@@ -680,7 +680,7 @@ pub struct Container {
 /// Represents credentials for accessing a container.
 #[derive(Debug, Setters, Serialize, Deserialize, Clone, Default, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
-#[setters(strip_option, into)]
+#[setters(strip_option, into, borrow_self)]
 pub struct Credentials {
     /// The username for authentication.
     pub username: String,
@@ -703,7 +703,7 @@ pub enum Port {
 /// Represents a volume configuration for containers.
 #[derive(Debug, Setters, Serialize, Deserialize, Clone, Default, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
-#[setters(strip_option, into)]
+#[setters(strip_option, into, borrow_self)]
 pub struct Volume {
     /// The source path of the volume.
     pub source: String,
@@ -730,7 +730,7 @@ impl Volume {
 /// Represents concurrency settings for workflows.
 #[derive(Debug, Setters, Serialize, Deserialize, Clone, Default, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
-#[setters(strip_option, into)]
+#[setters(strip_option, into, borrow_self)]
 pub struct Concurrency {
     /// The group name for concurrency.
     pub group: String,
@@ -754,7 +754,7 @@ impl Concurrency {
 /// Represents permissions for the `GITHUB_TOKEN`.
 #[derive(Debug, Setters, Serialize, Deserialize, Clone, Default, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
-#[setters(strip_option, into)]
+#[setters(strip_option, into, borrow_self)]
 pub struct Permissions {
     /// Permissions for actions.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -810,7 +810,7 @@ pub enum Level {
 /// Represents the strategy for running jobs.
 #[derive(Debug, Setters, Serialize, Deserialize, Clone, Default, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
-#[setters(strip_option, into)]
+#[setters(strip_option, into, borrow_self)]
 pub struct Strategy {
     /// The matrix for job execution.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -828,7 +828,7 @@ pub struct Strategy {
 /// Represents an environment for jobs.
 #[derive(Debug, Setters, Serialize, Deserialize, Clone, Default, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
-#[setters(strip_option, into)]
+#[setters(strip_option, into, borrow_self)]
 pub struct Environment {
     /// The name of the environment.
     pub name: String,
@@ -841,7 +841,7 @@ pub struct Environment {
 /// Represents default settings for jobs.
 #[derive(Debug, Setters, Serialize, Deserialize, Clone, Default, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
-#[setters(strip_option, into)]
+#[setters(strip_option, into, borrow_self)]
 pub struct Defaults {
     /// Default settings for running jobs.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -859,7 +859,7 @@ pub struct Defaults {
 /// Represents default settings for running commands.
 #[derive(Debug, Setters, Serialize, Deserialize, Clone, Default, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
-#[setters(strip_option, into)]
+#[setters(strip_option, into, borrow_self)]
 pub struct RunDefaults {
     /// The shell to use for running commands.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -893,7 +893,7 @@ impl Expression {
 /// Represents a secret required for the workflow.
 #[derive(Debug, Setters, Serialize, Deserialize, Clone, Default, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
-#[setters(strip_option, into)]
+#[setters(strip_option, into, borrow_self)]
 pub struct Secret {
     /// Indicates if the secret is required.
     pub required: bool,
@@ -915,7 +915,7 @@ pub struct RetryStrategy {
 /// Represents artifacts produced by jobs.
 #[derive(Debug, Setters, Serialize, Deserialize, Clone, Default, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
-#[setters(strip_option, into)]
+#[setters(strip_option, into, borrow_self)]
 pub struct Artifacts {
     /// Artifacts to upload after the job.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -929,7 +929,7 @@ pub struct Artifacts {
 /// Represents an artifact produced by a job.
 #[derive(Debug, Setters, Serialize, Deserialize, Clone, Default, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
-#[setters(strip_option, into)]
+#[setters(strip_option, into, borrow_self)]
 pub struct Artifact {
     /// The name of the artifact.
     pub name: String,

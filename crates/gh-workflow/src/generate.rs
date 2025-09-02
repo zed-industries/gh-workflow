@@ -11,7 +11,7 @@ use crate::error::{Error, Result};
 use crate::{Job, Jobs, Workflow};
 
 #[derive(Setters, Clone)]
-#[setters(into)]
+#[setters(into, borrow_self)]
 pub struct Generate {
     workflow: Workflow,
     name: String,

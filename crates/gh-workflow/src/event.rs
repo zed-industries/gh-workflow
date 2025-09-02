@@ -11,7 +11,7 @@ use crate::is_default;
 /// Represents all possible webhook events that can trigger a workflow
 /// See: https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows
 #[derive(Default, Debug, Clone, Deserialize, Serialize, Merge, Setters, PartialEq, Eq)]
-#[setters(strip_option, into)]
+#[setters(strip_option, into, borrow_self)]
 pub struct Event {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub branch_protection_rule: Option<BranchProtectionRule>,
@@ -94,7 +94,7 @@ pub enum BranchProtectionRuleType {
 
 /// Configuration for branch protection rule events
 #[derive(Debug, Clone, Default, Deserialize, Serialize, Setters, PartialEq, Eq)]
-#[setters(strip_option, into)]
+#[setters(strip_option, into, borrow_self)]
 pub struct BranchProtectionRule {
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub types: Vec<BranchProtectionRuleType>,
@@ -124,7 +124,7 @@ pub enum CheckRunType {
 }
 
 #[derive(Debug, Clone, Default, Deserialize, Serialize, Setters, PartialEq, Eq)]
-#[setters(strip_option, into)]
+#[setters(strip_option, into, borrow_self)]
 pub struct CheckRun {
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub types: Vec<CheckRunType>,
@@ -150,7 +150,7 @@ pub enum CheckSuiteType {
 /// Configuration for check suite events
 
 #[derive(Debug, Clone, Default, Deserialize, Serialize, Setters, PartialEq, Eq)]
-#[setters(strip_option, into)]
+#[setters(strip_option, into, borrow_self)]
 pub struct CheckSuite {
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub types: Vec<CheckSuiteType>,
@@ -167,7 +167,7 @@ impl CheckSuite {
 /// Configuration for create events (branch or tag creation)
 /// See: https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#create
 #[derive(Debug, Clone, Default, Deserialize, Serialize, Setters, PartialEq, Eq)]
-#[setters(strip_option, into)]
+#[setters(strip_option, into, borrow_self)]
 pub struct Create {
     /// Filter on specific branch names
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -194,7 +194,7 @@ impl Create {
 /// Configuration for delete events (branch or tag deletion)
 /// See: https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#delete
 #[derive(Debug, Clone, Default, Deserialize, Serialize, Setters, PartialEq, Eq)]
-#[setters(strip_option, into)]
+#[setters(strip_option, into, borrow_self)]
 pub struct Delete {
     /// Filter on specific branch names
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -222,7 +222,7 @@ impl Delete {
 /// See: https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#deployment
 
 #[derive(Debug, Clone, Default, Deserialize, Serialize, Setters, PartialEq, Eq)]
-#[setters(strip_option, into)]
+#[setters(strip_option, into, borrow_self)]
 pub struct Deployment {
     /// Filter on specific branch names
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -241,7 +241,7 @@ impl Deployment {
 /// See: https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#deployment_status
 
 #[derive(Debug, Clone, Default, Deserialize, Serialize, Setters, PartialEq, Eq)]
-#[setters(strip_option, into)]
+#[setters(strip_option, into, borrow_self)]
 pub struct DeploymentStatus {
     /// Filter on specific deployment states
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -407,7 +407,7 @@ pub enum IssuesType {
 /// Configuration for issue events
 
 #[derive(Debug, Clone, Default, Deserialize, Serialize, Setters, PartialEq, Eq)]
-#[setters(strip_option, into)]
+#[setters(strip_option, into, borrow_self)]
 pub struct Issues {
     /// Filter on specific issue event types
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -438,7 +438,7 @@ pub enum LabelType {
 /// Configuration for label events
 
 #[derive(Debug, Clone, Default, Deserialize, Serialize, Setters, PartialEq, Eq)]
-#[setters(strip_option, into)]
+#[setters(strip_option, into, borrow_self)]
 pub struct Label {
     /// Filter on specific label event types
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -460,7 +460,7 @@ pub enum MergeGroupType {
 }
 
 #[derive(Debug, Clone, Default, Deserialize, Serialize, Setters, PartialEq, Eq)]
-#[setters(strip_option, into)]
+#[setters(strip_option, into, borrow_self)]
 pub struct MergeGroup {
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub types: Vec<MergeGroupType>,
@@ -484,7 +484,7 @@ pub enum MilestoneType {
 }
 
 #[derive(Debug, Clone, Default, Deserialize, Serialize, Setters, PartialEq, Eq)]
-#[setters(strip_option, into)]
+#[setters(strip_option, into, borrow_self)]
 pub struct Milestone {
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub types: Vec<MilestoneType>,
@@ -517,7 +517,7 @@ pub enum PullRequestType {
 }
 
 #[derive(Debug, Clone, Default, Deserialize, Serialize, Setters, PartialEq, Eq)]
-#[setters(strip_option, into)]
+#[setters(strip_option, into, borrow_self)]
 pub struct PullRequest {
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub types: Vec<PullRequestType>,
@@ -560,7 +560,7 @@ pub enum PullRequestReviewType {
 /// Configuration for pull request review events
 
 #[derive(Debug, Clone, Default, Deserialize, Serialize, Setters, PartialEq, Eq)]
-#[setters(strip_option, into)]
+#[setters(strip_option, into, borrow_self)]
 pub struct PullRequestReview {
     /// Filter on specific pull request review event types
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -590,7 +590,7 @@ pub enum PullRequestReviewCommentType {
 
 /// Configuration for pull request review comment events
 #[derive(Debug, Clone, Default, Deserialize, Serialize, Setters, PartialEq, Eq)]
-#[setters(strip_option, into)]
+#[setters(strip_option, into, borrow_self)]
 pub struct PullRequestReviewComment {
     /// Filter on specific pull request review comment event types
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -608,7 +608,7 @@ impl PullRequestReviewComment {
 /// Configuration for pull request target events
 /// See: https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#pull_request_target
 #[derive(Debug, Clone, Default, Deserialize, Serialize, Setters, PartialEq, Eq)]
-#[setters(strip_option, into)]
+#[setters(strip_option, into, borrow_self)]
 pub struct PullRequestTarget {
     /// Filter on specific pull request event types
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -635,7 +635,7 @@ impl PullRequestTarget {
 /// Configuration for push events
 /// See: https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#push
 #[derive(Debug, Clone, Default, Deserialize, Serialize, Setters, PartialEq, Eq)]
-#[setters(strip_option, into)]
+#[setters(strip_option, into, borrow_self)]
 pub struct Push {
     /// Filter on specific branch names
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -682,7 +682,7 @@ pub enum RegistryPackageType {
 /// Configuration for registry package events
 
 #[derive(Debug, Clone, Default, Deserialize, Serialize, Setters, PartialEq, Eq)]
-#[setters(strip_option, into)]
+#[setters(strip_option, into, borrow_self)]
 pub struct RegistryPackage {
     /// Filter on specific registry package event types
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -721,7 +721,7 @@ pub enum ReleaseType {
 /// Configuration for release events
 
 #[derive(Debug, Clone, Default, Deserialize, Serialize, Setters, PartialEq, Eq)]
-#[setters(strip_option, into)]
+#[setters(strip_option, into, borrow_self)]
 pub struct Release {
     /// Filter on specific release event types
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -737,7 +737,7 @@ impl Release {
 }
 
 #[derive(Debug, Clone, Default, Deserialize, Serialize, Setters, PartialEq, Eq)]
-#[setters(strip_option, into)]
+#[setters(strip_option, into, borrow_self)]
 pub struct RepositoryDispatch {
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub types: Vec<String>,
@@ -751,7 +751,7 @@ impl RepositoryDispatch {
 }
 
 #[derive(Debug, Clone, Default, Deserialize, Serialize, Setters, PartialEq, Eq)]
-#[setters(strip_option, into)]
+#[setters(strip_option, into, borrow_self)]
 pub struct Schedule {
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub cron: Vec<String>,
@@ -765,7 +765,7 @@ impl Schedule {
 }
 
 #[derive(Debug, Clone, Default, Deserialize, Serialize, Setters, PartialEq, Eq)]
-#[setters(strip_option, into)]
+#[setters(strip_option, into, borrow_self)]
 pub struct Watch {
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub types: Vec<String>,
@@ -781,7 +781,7 @@ impl Watch {
 /// Configuration for workflow call events
 /// See: https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_call
 #[derive(Debug, Clone, Default, Deserialize, Serialize, Setters, PartialEq, Eq)]
-#[setters(strip_option, into)]
+#[setters(strip_option, into, borrow_self)]
 pub struct WorkflowCall {
     /// Inputs for the workflow call
     #[serde(skip_serializing_if = "HashMap::is_empty")]
@@ -796,7 +796,7 @@ pub struct WorkflowCall {
 
 /// Configuration for workflow call input
 #[derive(Debug, Clone, Default, Deserialize, Serialize, PartialEq, Setters, Eq)]
-#[setters(strip_option, into)]
+#[setters(strip_option, into, borrow_self)]
 pub struct WorkflowCallInput {
     /// Description of the input
     #[serde(skip_serializing_if = "String::is_empty")]
@@ -814,7 +814,7 @@ pub struct WorkflowCallInput {
 
 /// Configuration for workflow call output
 #[derive(Debug, Clone, Default, Deserialize, Serialize, PartialEq, Setters, Eq)]
-#[setters(strip_option, into)]
+#[setters(strip_option, into, borrow_self)]
 pub struct WorkflowCallOutput {
     /// Description of the output
     #[serde(skip_serializing_if = "String::is_empty")]
@@ -826,7 +826,7 @@ pub struct WorkflowCallOutput {
 
 /// Configuration for workflow call secret
 #[derive(Debug, Clone, Default, Deserialize, Serialize, PartialEq, Setters, Eq)]
-#[setters(strip_option, into)]
+#[setters(strip_option, into, borrow_self)]
 pub struct WorkflowCallSecret {
     /// Description of the secret
     #[serde(skip_serializing_if = "String::is_empty")]
@@ -840,7 +840,7 @@ pub struct WorkflowCallSecret {
 /// See: https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_dispatch
 
 #[derive(Debug, Clone, Default, Deserialize, Serialize, Setters, PartialEq, Eq)]
-#[setters(strip_option, into)]
+#[setters(strip_option, into, borrow_self)]
 pub struct WorkflowDispatch {
     /// Inputs for the workflow dispatch
     #[serde(skip_serializing_if = "HashMap::is_empty")]
@@ -849,7 +849,7 @@ pub struct WorkflowDispatch {
 
 /// Configuration for workflow dispatch input
 #[derive(Debug, Clone, Default, Deserialize, Serialize, Setters, PartialEq, Eq)]
-#[setters(strip_option, into)]
+#[setters(strip_option, into, borrow_self)]
 pub struct WorkflowDispatchInput {
     /// Description of the input
     #[serde(skip_serializing_if = "String::is_empty")]
@@ -880,7 +880,7 @@ pub enum WorkflowRunType {
 
 /// Configuration for workflow run events
 #[derive(Debug, Clone, Default, Deserialize, Serialize, Setters, PartialEq, Eq)]
-#[setters(strip_option, into)]
+#[setters(strip_option, into, borrow_self)]
 pub struct WorkflowRun {
     /// Filter on specific workflow run event types
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
