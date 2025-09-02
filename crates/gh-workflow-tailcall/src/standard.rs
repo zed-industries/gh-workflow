@@ -193,11 +193,7 @@ impl StandardWorkflow {
             .add_step(clippy_step);
 
         if auto_fix {
-            job = job.add_step(Step::new("auto-fix").uses(
-                "autofix-ci",
-                "action",
-                "v1",
-            ));
+            job = job.add_step(Step::new("auto-fix").uses("autofix-ci", "action", "v1"));
         }
         job
     }
