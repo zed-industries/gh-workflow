@@ -150,17 +150,19 @@ mod tests {
     fn add_needs_job() {
         let base_job = Job::new("Base job");
 
-        let job1 =
-            Job::new("The first job that has dependency for base_job").add_needs(base_job.clone());
-        let job2 =
-            Job::new("The second job that has dependency for base_job").add_needs(base_job.clone());
+        let mut job1 = Job::new("The first job that has dependency for base_job");
+        job1.add_needs(base_job.clone());
 
-        let workflow = Workflow::new("All jobs were added to workflow")
+        let mut job2 = Job::new("The second job that has dependency for base_job");
+        job2.add_needs(base_job.clone());
+
+        let mut workflow = Workflow::new("All jobs were added to workflow");
+        workflow
             .add_job("base_job", base_job)
-            .add_job("with-dependency-1", job1)
-            .add_job("with-dependency-2", job2);
+            .add_job("with-dependency-1", job1.to_owned())
+            .add_job("with-dependency-2", job2.to_owned());
 
-        let workflow = Generate::new(workflow).workflow;
+        let workflow = Generate::new(workflow.to_owned()).workflow;
 
         assert_snapshot!(workflow.to_string().unwrap());
     }
@@ -169,16 +171,19 @@ mod tests {
     fn missing_add_job() {
         let base_job = Job::new("Base job");
 
-        let job1 =
-            Job::new("The first job that has dependency for base_job").add_needs(base_job.clone());
-        let job2 =
-            Job::new("The second job that has dependency for base_job").add_needs(base_job.clone());
+        let mut job1 = Job::new("The first job that has dependency for base_job");
+        job1.add_needs(base_job.clone());
 
-        let workflow = Workflow::new("base_job was not added to workflow jobs")
-            .add_job("with-dependency-1", job1)
-            .add_job("with-dependency-2", job2);
+        let mut job2 = Job::new("The second job that has dependency for base_job");
+        job2.add_needs(base_job.clone());
 
-        let workflow = Generate::new(workflow).workflow;
+        let mut workflow = Workflow::new("base_job was not added to workflow jobs");
+
+        workflow
+            .add_job("with-dependency-1", job1.to_owned())
+            .add_job("with-dependency-2", job2.to_owned());
+
+        let workflow = Generate::new(workflow.to_owned()).workflow;
 
         assert_snapshot!(workflow.to_string().unwrap());
     }

@@ -5,6 +5,7 @@ fn generate() {
     StandardWorkflow::default()
         .auto_release(true)
         .auto_fix(true)
+        .to_owned()
         .generate()
         .unwrap();
 }

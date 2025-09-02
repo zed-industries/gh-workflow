@@ -114,19 +114,10 @@ impl Workflow {
         Ok(serde_yaml::to_string(self)?)
     }
 
-    /// Adds a job to the workflow when a condition is met.
-    pub fn add_job_when<T: ToString, J: Into<Job>>(self, cond: bool, id: T, job: J) -> Self {
-        if cond {
-            self.add_job(id, job)
-        } else {
-            self
-        }
-    }
-
     /// Adds a job to the workflow with the specified ID and job configuration.
-    pub fn add_job<T: ToString, J: Into<Job>>(mut self, id: T, job: J) -> Self {
+    pub fn add_job<T: ToString, J: Into<Job>>(&mut self, id: T, job: J) -> &mut Self {
         let key = id.to_string();
-        let mut jobs = self.jobs.unwrap_or_default();
+        let mut jobs = self.jobs.take().unwrap_or_default();
 
         jobs.insert(key, job.into());
 
@@ -145,7 +136,7 @@ impl Workflow {
     }
 
     /// Adds an event to the workflow.
-    pub fn add_event<T: Into<Event>>(mut self, that: T) -> Self {
+    pub fn add_event<T: Into<Event>>(&mut self, that: T) -> &mut Self {
         if let Some(mut this) = self.on.take() {
             this.merge(that.into());
             self.on = Some(this);
@@ -155,41 +146,13 @@ impl Workflow {
         self
     }
 
-    /// Adds an event to the workflow when a condition is met.
-    pub fn add_event_when<T: Into<Event>>(self, cond: bool, that: T) -> Self {
-        if cond {
-            self.add_event(that)
-        } else {
-            self
-        }
-    }
-
     /// Adds an environment variable to the workflow.
-    pub fn add_env<T: Into<Env>>(mut self, new_env: T) -> Self {
-        let mut env = self.env.unwrap_or_default();
+    pub fn add_env<T: Into<Env>>(&mut self, new_env: T) -> &mut Self {
+        let mut env = self.env.take().unwrap_or_default();
 
         env.0.extend(new_env.into().0);
         self.env = Some(env);
         self
-    }
-
-    /// Adds an environment variable to the workflow when a condition is met.
-    pub fn add_env_when<T: Into<Env>>(self, cond: bool, new_env: T) -> Self {
-        if cond {
-            self.add_env(new_env)
-        } else {
-            self
-        }
-    }
-
-    /// Performs a reverse lookup to get the ID of a job.
-    pub fn get_id(&self, job: &Job) -> Option<&str> {
-        self.jobs
-            .as_ref()?
-            .0
-            .iter()
-            .find(|(_, j)| *j == job)
-            .map(|(id, _)| id.as_str())
     }
 }
 
@@ -225,10 +188,8 @@ pub struct Job {
     #[serde(skip_serializing_if = "Option::is_none")]
     #[setters(skip)]
     pub(crate) needs: Option<Vec<String>>,
-
     #[serde(skip)]
     pub(crate) tmp_needs: Option<Vec<Job>>,
-
     #[serde(skip_serializing_if = "Option::is_none", rename = "if")]
     pub cond: Option<Expression>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -277,18 +238,9 @@ impl Job {
         }
     }
 
-    /// Adds a step to the job when a condition is met.
-    pub fn add_step_when<S: Into<Step<T>>, T: StepType>(self, cond: bool, step: S) -> Self {
-        if cond {
-            self.add_step(step)
-        } else {
-            self
-        }
-    }
-
     /// Adds a step to the job.
-    pub fn add_step<S: Into<Step<T>>, T: StepType>(mut self, step: S) -> Self {
-        let mut steps = self.steps.unwrap_or_default();
+    pub fn add_step<S: Into<Step<T>>, T: StepType>(&mut self, step: S) -> &mut Self {
+        let mut steps = self.steps.take().unwrap_or_default();
         let step: Step<T> = step.into();
         let step: StepValue = T::to_value(step);
         steps.push(step);
@@ -297,49 +249,34 @@ impl Job {
     }
 
     /// Adds an environment variable to the job.
-    pub fn add_env<T: Into<Env>>(mut self, new_env: T) -> Self {
-        let mut env = self.env.unwrap_or_default();
+    pub fn add_env<T: Into<Env>>(&mut self, new_env: T) -> &mut Self {
+        let mut env = self.env.take().unwrap_or_default();
 
         env.0.extend(new_env.into().0);
         self.env = Some(env);
         self
     }
 
-    /// Adds an environment variable to the job when a condition is met.
-    pub fn add_env_when<T: Into<Env>>(self, cond: bool, new_env: T) -> Self {
-        if cond {
-            self.add_env(new_env)
-        } else {
-            self
-        }
-    }
-
     /// Add multiple steps to the job at once.
     ///
     /// This is a convenience method that takes a vector of steps and adds them
     /// all to the job in order.
-    pub fn add_steps<T: StepType, I: IntoIterator<Item = Step<T>>>(mut self, steps: I) -> Self {
+    pub fn add_steps<T: StepType, I: IntoIterator<Item = Step<T>>>(
+        &mut self,
+        steps: I,
+    ) -> &mut Self {
         for step in steps {
-            self = self.add_step(step);
+            self.add_step(step);
         }
         self
     }
 
-    pub fn add_needs<J: Into<Job>>(mut self, needs: J) -> Self {
+    pub fn add_needs<J: Into<Job>>(&mut self, needs: J) -> &mut Self {
         let job: Job = needs.into();
-        let mut needs = self.tmp_needs.unwrap_or_default();
+        let mut needs = self.tmp_needs.take().unwrap_or_default();
         needs.push(job);
         self.tmp_needs = Some(needs);
         self
-    }
-
-    /// Adds a dependency to the job when a condition is met.
-    pub fn add_needs_when<T: Into<Job>>(self, cond: bool, needs: T) -> Self {
-        if cond {
-            self.add_needs(needs)
-        } else {
-            self
-        }
     }
 }
 
@@ -555,7 +492,7 @@ impl StepValue {
 impl<T> Step<T> {
     /// Adds an environment variable to the step.
     pub fn add_env<R: Into<Env>>(mut self, new_env: R) -> Self {
-        let mut env = self.value.env.unwrap_or_default();
+        let mut env = self.value.env.take().unwrap_or_default();
 
         env.0.extend(new_env.into().0);
         self.value.env = Some(env);
@@ -592,7 +529,7 @@ impl Step<Use> {
 
     /// Adds a new input to the step.
     pub fn add_with<I: Into<Input>>(mut self, new_with: I) -> Self {
-        let mut with = self.value.with.unwrap_or_default();
+        let mut with = self.value.with.take().unwrap_or_default();
         with.merge(new_with.into());
         if with.0.is_empty() {
             self.value.with = None;
@@ -601,15 +538,6 @@ impl Step<Use> {
         }
 
         self
-    }
-
-    /// Adds a new input to the step when a condition is met.
-    pub fn add_with_when<I: Into<Input>>(self, cond: bool, new_with: I) -> Self {
-        if cond {
-            self.add_with(new_with)
-        } else {
-            self
-        }
     }
 }
 
@@ -798,7 +726,7 @@ pub struct Permissions {
 }
 
 /// Represents the level of permissions.
-#[derive(Debug, Serialize, Deserialize, Clone, Default, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, Default, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
 pub enum Level {
     Read,

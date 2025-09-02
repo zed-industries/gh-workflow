@@ -36,20 +36,20 @@ impl Cargo {
     }
 
     /// Sets the toolchain to nightly.
-    pub fn nightly(mut self) -> Self {
+    pub fn nightly(&mut self) -> &mut Self {
         self.toolchain = Some(Version::Nightly);
         self
     }
 
     /// Sets the arguments for the cargo command. If arguments are already set,
     /// it will be overwritten.
-    pub fn args<T: ToString>(mut self, args: T) -> Self {
+    pub fn args<T: ToString>(&mut self, args: T) -> &mut Self {
         self.args = vec![args.to_string()];
         self
     }
 
     /// Adds additional arguments to the cargo command.
-    pub fn add_args<T: ToString>(mut self, args: T) -> Self {
+    pub fn add_args<T: ToString>(&mut self, args: T) -> &mut Self {
         self.args.extend(
             args.to_string()
                 .split_whitespace()
@@ -57,15 +57,6 @@ impl Cargo {
                 .collect::<Vec<_>>(),
         );
         self
-    }
-
-    /// Adds the arguments to the cargo command when a condition is met.
-    pub fn add_args_when<T: ToString>(self, when: bool, args: T) -> Self {
-        if when {
-            self.add_args(args)
-        } else {
-            self
-        }
     }
 }
 
