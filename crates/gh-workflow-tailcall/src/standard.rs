@@ -193,7 +193,7 @@ impl StandardWorkflow {
             .add_step(clippy_step);
 
         if auto_fix {
-            job = job.add_step(Step::uses(
+            job = job.add_step(Step::new("auto-fix").uses(
                 "autofix-ci",
                 "action",
                 "551dded8c6cc8a1054039c8bc0b8b48c51dfc6ef",
@@ -217,8 +217,8 @@ impl StandardWorkflow {
         }
         job = job
             .add_step(
-                Step::uses("Swatinem", "rust-cache", "v2")
-                    .name("Cache Rust dependencies")
+                Step::new("Cache Rust dependencies")
+                    .uses("Swatinem", "rust-cache", "v2")
                     .add_with(("cache-all-crates", "true")),
             )
             .add_step(match self.test_runner {

@@ -98,7 +98,7 @@ impl Input {
 
 /// Represents a step value in the workflow.
 #[allow(clippy::duplicated_attributes)]
-#[derive(Debug, Setters, Serialize, Deserialize, Clone, Default, PartialEq, Eq)]
+#[derive(Debug, Setters, Serialize, Deserialize, Clone, Default, PartialEq, Eq, Merge)]
 #[serde(rename_all = "kebab-case")]
 #[setters(
     strip_option,
@@ -194,31 +194,35 @@ impl<T> Step<T> {
     }
 }
 
-/// Represents a step that runs a command.
-impl Step<Run> {
-    /// Creates a new `Step<Run>` that runs the provided shell command.
-    pub fn run<T: ToString>(cmd: T) -> Self {
-        Step { value: StepValue::run(cmd), marker: Default::default() }
+impl Step<()> {
+    pub fn new(name: impl ToString) -> Self {
+        Step {
+            value: StepValue::default().name(name.to_string()),
+            marker: Default::default(),
+        }
+    }
+
+    pub fn uses<Owner: ToString, Repo: ToString, Version: ToString>(
+        mut self,
+        owner: Owner,
+        repo: Repo,
+        version: Version,
+    ) -> Step<Use> {
+        self.value.merge(StepValue::uses(owner, repo, version));
+        Step { value: self.value, marker: Default::default() }
+    }
+
+    pub fn run(mut self, cmd: impl ToString) -> Step<Run> {
+        self.value.merge(StepValue::run(cmd));
+        Step { value: self.value, marker: Default::default() }
     }
 }
 
 /// Represents a step that uses an action.
 impl Step<Use> {
-    /// Creates a new `Step<Use>` that uses an action.
-    pub fn uses<Owner: ToString, Repo: ToString, Version: ToString>(
-        owner: Owner,
-        repo: Repo,
-        version: Version,
-    ) -> Self {
-        Step {
-            value: StepValue::uses(owner, repo, version),
-            marker: Default::default(),
-        }
-    }
-
     /// Creates a step pointing to the default GitHub's Checkout Action.
     pub fn checkout() -> Step<Use> {
-        Step::uses("actions", "checkout", "v5").name("Checkout Code")
+        Step::new("Checkout Code").uses("actions", "checkout", "v5")
     }
 
     /// Adds a new input to the step.

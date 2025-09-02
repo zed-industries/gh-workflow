@@ -68,7 +68,7 @@ impl From<Cargo> for Step<Run> {
             command.push(format!("+{toolchain}"));
         }
 
-        command.push(value.command);
+        command.push(value.command.clone());
 
         // Extend the command with non-empty arguments
         command.extend(
@@ -79,7 +79,7 @@ impl From<Cargo> for Step<Run> {
                 .filter(|arg| !arg.is_empty()),
         );
 
-        let mut step = Step::run(command.join(" "));
+        let mut step = Step::new(format!("Cargo {}", value.command)).run(command.join(" "));
 
         if let Some(id) = value.id {
             step = step.id(id);
