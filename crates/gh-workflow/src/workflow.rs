@@ -114,14 +114,7 @@ impl Workflow {
         Ok(serde_yaml::to_string(self)?)
     }
 
-    /// Adds a job to the workflow when a condition is met.
-    pub fn add_job_when<T: ToString, J: Into<Job>>(self, cond: bool, id: T, job: J) -> Self {
-        if cond {
-            self.add_job(id, job)
-        } else {
-            self
-        }
-    }
+
 
     /// Adds a job to the workflow with the specified ID and job configuration.
     pub fn add_job<T: ToString, J: Into<Job>>(mut self, id: T, job: J) -> Self {
@@ -155,14 +148,7 @@ impl Workflow {
         self
     }
 
-    /// Adds an event to the workflow when a condition is met.
-    pub fn add_event_when<T: Into<Event>>(self, cond: bool, that: T) -> Self {
-        if cond {
-            self.add_event(that)
-        } else {
-            self
-        }
-    }
+
 
     /// Adds an environment variable to the workflow.
     pub fn add_env<T: Into<Env>>(mut self, new_env: T) -> Self {
@@ -173,14 +159,7 @@ impl Workflow {
         self
     }
 
-    /// Adds an environment variable to the workflow when a condition is met.
-    pub fn add_env_when<T: Into<Env>>(self, cond: bool, new_env: T) -> Self {
-        if cond {
-            self.add_env(new_env)
-        } else {
-            self
-        }
-    }
+
 
     /// Performs a reverse lookup to get the ID of a job.
     pub fn get_id(&self, job: &Job) -> Option<&str> {
@@ -277,14 +256,7 @@ impl Job {
         }
     }
 
-    /// Adds a step to the job when a condition is met.
-    pub fn add_step_when<S: Into<Step<T>>, T: StepType>(self, cond: bool, step: S) -> Self {
-        if cond {
-            self.add_step(step)
-        } else {
-            self
-        }
-    }
+
 
     /// Adds a step to the job.
     pub fn add_step<S: Into<Step<T>>, T: StepType>(mut self, step: S) -> Self {
@@ -305,14 +277,7 @@ impl Job {
         self
     }
 
-    /// Adds an environment variable to the job when a condition is met.
-    pub fn add_env_when<T: Into<Env>>(self, cond: bool, new_env: T) -> Self {
-        if cond {
-            self.add_env(new_env)
-        } else {
-            self
-        }
-    }
+
 
     /// Add multiple steps to the job at once.
     ///
@@ -333,14 +298,7 @@ impl Job {
         self
     }
 
-    /// Adds a dependency to the job when a condition is met.
-    pub fn add_needs_when<T: Into<Job>>(self, cond: bool, needs: T) -> Self {
-        if cond {
-            self.add_needs(needs)
-        } else {
-            self
-        }
-    }
+
 }
 
 /// Represents a step in the workflow.
@@ -603,14 +561,7 @@ impl Step<Use> {
         self
     }
 
-    /// Adds a new input to the step when a condition is met.
-    pub fn add_with_when<I: Into<Input>>(self, cond: bool, new_with: I) -> Self {
-        if cond {
-            self.add_with(new_with)
-        } else {
-            self
-        }
-    }
+
 }
 
 /// Represents a key-value pair for inputs.

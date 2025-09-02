@@ -59,14 +59,7 @@ impl Cargo {
         self
     }
 
-    /// Adds the arguments to the cargo command when a condition is met.
-    pub fn add_args_when<T: ToString>(self, when: bool, args: T) -> Self {
-        if when {
-            self.add_args(args)
-        } else {
-            self
-        }
-    }
+
 }
 
 impl From<Cargo> for Step<Run> {
