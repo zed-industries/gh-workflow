@@ -5,7 +5,7 @@ use std::fmt::{Display, Formatter};
 
 use derive_setters::Setters;
 
-use crate::{Input, RustFlags, Step, Use};
+use crate::{private, Input, RustFlags, Step, Use};
 
 #[derive(Clone)]
 pub enum Version {
@@ -140,9 +140,13 @@ pub struct Target {
 /// NOTE: The public API should be close to the original action as much as
 /// possible.
 #[derive(Default, Clone, Setters)]
-#[setters(strip_option, into)]
+#[setters(
+    strip_option,
+    into,
+    generate_delegates(ty = "Step<Toolchain>", field = "marker")
+)]
 pub struct Toolchain {
-    pub toolchain: Vec<Version>,
+    pub version: Vec<Version>,
     #[setters(skip)]
     pub target: Option<Target>,
     pub components: Vec<Component>,
@@ -158,7 +162,7 @@ pub struct Toolchain {
 
 impl Toolchain {
     pub fn add_version(mut self, version: Version) -> Self {
-        self.toolchain.push(version);
+        self.version.push(version);
         self
     }
 
@@ -168,12 +172,12 @@ impl Toolchain {
     }
 
     pub fn add_stable(mut self) -> Self {
-        self.toolchain.push(Version::Stable);
+        self.version.push(Version::Stable);
         self
     }
 
     pub fn add_nightly(mut self) -> Self {
-        self.toolchain.push(Version::Nightly);
+        self.version.push(Version::Nightly);
         self
     }
 
@@ -195,11 +199,14 @@ impl Toolchain {
 
 impl From<Toolchain> for Step<Use> {
     fn from(value: Toolchain) -> Self {
-        let mut step = Step::uses("actions-rust-lang", "setup-rust-toolchain", "v1")
-            .name("Setup Rust Toolchain");
+        let mut step = Step::new("Setup Rust Toolchain").uses(
+            "actions-rust-lang",
+            "setup-rust-toolchain",
+            "v1",
+        );
 
         let toolchain = value
-            .toolchain
+            .version
             .iter()
             .map(|t| match t {
                 Version::Stable => "stable".to_string(),
@@ -283,3 +290,5 @@ impl From<Toolchain> for Step<Use> {
         step
     }
 }
+
+impl private::Sealed for Toolchain {}
