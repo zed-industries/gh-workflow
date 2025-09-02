@@ -35,7 +35,7 @@ Then you can start creating GitHub Actions in your [tests/ci.rs](https://github.
 - Add the following code to generate the GitHub Actions workflow:
 
   ```rust
-  use gh_workflows::*;
+  use gh_workflow::*;
 
   #[test]
   fn main() {
