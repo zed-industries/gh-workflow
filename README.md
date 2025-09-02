@@ -39,11 +39,26 @@ Then you can start creating GitHub Actions in your [tests/ci.rs](https://github.
 
   #[test]
   fn main() {
-      // Create a basic workflow
-      let workflow = Workflow::setup_rust();
+    // Create a basic workflow
+    let workflow = Workflow::default()
+        .on(Event::default()
+            .push(Push::default().add_branch("main"))
+            .pull_request(PullRequest::default().add_branch("main")))
+        .add_job("test", Job::new("Build & Test")
+        .add_step(Step::checkout())
+        .add_step(
+            Step::toolchain()
+                .add_nightly()
+                .add_clippy()
+                .add_fmt()
+                .cache(true),
+        )
+        .add_step(Step::new("Cargo formatting").run("cargo +nightly fmt --all -- --check"))
+        .add_step(Step::new("Cargo clippy").run("cargo +nightly clippy -- -D warnings"))
+        .add_step(Step::new("Cargo tests").run("cargo test")));
 
-      // Generate the ci.yml
-      workflow.generate().unwrap();
+    // Generate the ci.yml
+    workflow.generate().unwrap();
   }
   ```
 
