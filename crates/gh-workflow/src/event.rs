@@ -66,7 +66,7 @@ pub struct Event {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub repository_dispatch: Option<RepositoryDispatch>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub schedule: Option<Schedule>,
+    pub schedule: Option<Vec<Schedule>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub status: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -77,6 +77,22 @@ pub struct Event {
     pub workflow_dispatch: Option<WorkflowDispatch>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub workflow_run: Option<WorkflowRun>,
+}
+
+impl Event {
+    pub fn add_schedule(mut self, schedule: impl Into<Schedule>) -> Self {
+        if let Some(list) = self.schedule.as_mut() {
+            list.push(schedule.into());
+        } else {
+            self.schedule = Some(vec![schedule.into()])
+        }
+
+        self
+    }
+
+    pub fn add_cron_schedule(self, cron: impl ToString) -> Self {
+        self.add_schedule(Schedule::new(cron))
+    }
 }
 
 /// Types of branch protection rule events
@@ -753,14 +769,12 @@ impl RepositoryDispatch {
 #[derive(Debug, Clone, Default, Deserialize, Serialize, Setters, PartialEq, Eq)]
 #[setters(strip_option, into)]
 pub struct Schedule {
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    pub cron: Vec<String>,
+    pub cron: String,
 }
 
 impl Schedule {
-    pub fn add_cron<S: Into<String>>(mut self, cron: S) -> Self {
-        self.cron.push(cron.into());
-        self
+    pub fn new(cron: impl ToString) -> Self {
+        Self { cron: cron.to_string() }
     }
 }
 
