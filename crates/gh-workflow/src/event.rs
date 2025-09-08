@@ -66,7 +66,7 @@ pub struct Event {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub repository_dispatch: Option<RepositoryDispatch>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub schedule: Option<Schedule>,
+    pub schedule: Option<Vec<Schedule>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub status: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -753,15 +753,7 @@ impl RepositoryDispatch {
 #[derive(Debug, Clone, Default, Deserialize, Serialize, Setters, PartialEq, Eq)]
 #[setters(strip_option, into)]
 pub struct Schedule {
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    pub cron: Vec<String>,
-}
-
-impl Schedule {
-    pub fn add_cron<S: Into<String>>(mut self, cron: S) -> Self {
-        self.cron.push(cron.into());
-        self
-    }
+    pub cron: String,
 }
 
 #[derive(Debug, Clone, Default, Deserialize, Serialize, Setters, PartialEq, Eq)]
