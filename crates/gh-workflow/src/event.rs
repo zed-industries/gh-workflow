@@ -79,6 +79,18 @@ pub struct Event {
     pub workflow_run: Option<WorkflowRun>,
 }
 
+impl Event {
+    pub fn add_schedule(mut self, schedule: impl Into<Schedule>) -> Self {
+        if let Some(list) = self.schedule.as_mut() {
+            list.push(schedule.into());
+        } else {
+            self.schedule = Some(vec![schedule.into()])
+        }
+
+        self
+    }
+}
+
 /// Types of branch protection rule events
 /// See: https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#branch_protection_rule
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -754,6 +766,12 @@ impl RepositoryDispatch {
 #[setters(strip_option, into)]
 pub struct Schedule {
     pub cron: String,
+}
+
+impl Schedule {
+    pub fn new(cron: impl ToString) -> Self {
+        Self { cron: cron.to_string() }
+    }
 }
 
 #[derive(Debug, Clone, Default, Deserialize, Serialize, Setters, PartialEq, Eq)]
