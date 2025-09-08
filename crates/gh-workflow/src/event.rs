@@ -89,6 +89,10 @@ impl Event {
 
         self
     }
+
+    pub fn add_cron_schedule(self, cron: impl ToString) -> Self {
+        self.add_schedule(Schedule::new(cron))
+    }
 }
 
 /// Types of branch protection rule events
