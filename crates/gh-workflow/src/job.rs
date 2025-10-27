@@ -1,6 +1,8 @@
 //!
 //! Job-related structures and implementations for GitHub workflow jobs.
 
+use std::time::Duration;
+
 use derive_setters::Setters;
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
@@ -42,8 +44,8 @@ pub struct Job {
     pub runs_on: Option<RunsOn>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub permissions: Option<Permissions>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub env: Option<Env>,
+    #[serde(skip_serializing_if = "Option::is_none", rename = "env")]
+    pub envs: Option<Env>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub strategy: Option<Strategy>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -82,6 +84,11 @@ impl Job {
         }
     }
 
+    /// Sets the timeout for the job.
+    pub fn timeout(self, duration: Duration) -> Self {
+        self.timeout_minutes(duration.as_secs() as u32 / 60)
+    }
+
     /// Adds a step to the job.
     pub fn add_step<S: Into<Step<T>>, T: StepType>(mut self, step: S) -> Self {
         let mut steps = self.steps.take().unwrap_or_default();
@@ -94,10 +101,10 @@ impl Job {
 
     /// Adds an environment variable to the job.
     pub fn add_env<T: Into<Env>>(mut self, new_env: T) -> Self {
-        let mut env = self.env.take().unwrap_or_default();
+        let mut env = self.envs.take().unwrap_or_default();
 
         env.0.extend(new_env.into().0);
-        self.env = Some(env);
+        self.envs = Some(env);
         self
     }
 

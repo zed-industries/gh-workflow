@@ -56,8 +56,8 @@ pub struct Workflow {
     pub name: Option<String>,
 
     /// Environment variables that can be used in the workflow.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub env: Option<Env>,
+    #[serde(skip_serializing_if = "Option::is_none", rename = "env")]
+    pub envs: Option<Env>,
 
     /// The name for workflow runs generated from the workflow.
     /// GitHub displays the workflow run name in the list of workflow runs.
@@ -151,10 +151,10 @@ impl Workflow {
 
     /// Adds an environment variable to the workflow.
     pub fn add_env<T: Into<Env>>(mut self, new_env: T) -> Self {
-        let mut env = self.env.take().unwrap_or_default();
+        let mut env = self.envs.take().unwrap_or_default();
 
         env.0.extend(new_env.into().0);
-        self.env = Some(env);
+        self.envs = Some(env);
         self
     }
 }

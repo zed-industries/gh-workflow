@@ -1,6 +1,8 @@
 //!
 //! Step-related structures and implementations for GitHub workflow steps.
 
+use std::time::Duration;
+
 use derive_setters::Setters;
 use indexmap::IndexMap;
 use merge::Merge;
@@ -139,8 +141,8 @@ pub struct StepValue {
     pub shell: Option<String>,
 
     /// Environment variables for the step.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub env: Option<Env>,
+    #[serde(skip_serializing_if = "Option::is_none", rename = "env")]
+    pub envs: Option<Env>,
 
     /// The timeout for the step in minutes.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -191,10 +193,16 @@ impl StepValue {
 impl<T> Step<T> {
     /// Adds an environment variable to the step.
     pub fn add_env<R: Into<Env>>(mut self, new_env: R) -> Self {
-        let mut env = self.value.env.take().unwrap_or_default();
+        let mut env = self.value.envs.take().unwrap_or_default();
 
         env.0.extend(new_env.into().0);
-        self.value.env = Some(env);
+        self.value.envs = Some(env);
+        self
+    }
+
+    /// Sets the timeout for the job.
+    pub fn timeout(mut self, duration: Duration) -> Self {
+        self.value = self.value.timeout_minutes(duration.as_secs() as u32 / 60);
         self
     }
 }
