@@ -1,8 +1,7 @@
 #![allow(clippy::needless_update)]
 
-use std::collections::HashMap;
-
 use derive_setters::Setters;
+use indexmap::IndexMap;
 use merge::Merge;
 use serde::{Deserialize, Serialize};
 
@@ -798,14 +797,14 @@ impl Watch {
 #[setters(strip_option, into)]
 pub struct WorkflowCall {
     /// Inputs for the workflow call
-    #[serde(skip_serializing_if = "HashMap::is_empty")]
-    pub inputs: HashMap<String, WorkflowCallInput>,
+    #[serde(skip_serializing_if = "IndexMap::is_empty")]
+    pub inputs: IndexMap<String, WorkflowCallInput>,
     /// Outputs from the workflow call
-    #[serde(skip_serializing_if = "HashMap::is_empty")]
-    pub outputs: HashMap<String, WorkflowCallOutput>,
+    #[serde(skip_serializing_if = "IndexMap::is_empty")]
+    pub outputs: IndexMap<String, WorkflowCallOutput>,
     /// Secrets for the workflow call
-    #[serde(skip_serializing_if = "HashMap::is_empty")]
-    pub secrets: HashMap<String, WorkflowCallSecret>,
+    #[serde(skip_serializing_if = "IndexMap::is_empty")]
+    pub secrets: IndexMap<String, WorkflowCallSecret>,
 }
 
 impl WorkflowCall {
@@ -864,8 +863,8 @@ pub struct WorkflowCallSecret {
 #[setters(strip_option, into)]
 pub struct WorkflowDispatch {
     /// Inputs for the workflow dispatch
-    #[serde(skip_serializing_if = "HashMap::is_empty")]
-    pub inputs: HashMap<String, WorkflowDispatchInput>,
+    #[serde(skip_serializing_if = "IndexMap::is_empty")]
+    pub inputs: IndexMap<String, WorkflowDispatchInput>,
 }
 
 /// Configuration for workflow dispatch input
