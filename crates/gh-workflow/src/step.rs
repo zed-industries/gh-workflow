@@ -253,11 +253,11 @@ impl Step<Use> {
 }
 
 /// Represents a key-value pair for inputs.
-impl<S1: ToString, S2: ToString> From<(S1, S2)> for Input {
+impl<S1: ToString, S2: Into<Value>> From<(S1, S2)> for Input {
     /// Converts a tuple into an `Input`.
     fn from(value: (S1, S2)) -> Self {
         let mut index_map: IndexMap<String, Value> = IndexMap::new();
-        index_map.insert(value.0.to_string(), Value::String(value.1.to_string()));
+        index_map.insert(value.0.to_string(), value.1.into());
         Input(index_map)
     }
 }
