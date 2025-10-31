@@ -108,7 +108,7 @@ impl Job {
         self
     }
 
-    pub fn add_needs<J: ToString>(mut self, job_id: J) -> Self {
+    pub fn add_need<J: ToString>(mut self, job_id: J) -> Self {
         if let Some(needs) = self.needs.as_mut() {
             needs.push(job_id.to_string());
         } else {

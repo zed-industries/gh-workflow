@@ -138,8 +138,8 @@ impl StandardWorkflow {
                     .cancel_in_progress(false),
             )
             .cond(self.workflow_cond())
-            .add_needs("build")
-            .add_needs("lint")
+            .add_need("build")
+            .add_need("lint")
             .add_env(Env::github())
             .add_env(Env::new(
                 "CARGO_REGISTRY_TOKEN",
