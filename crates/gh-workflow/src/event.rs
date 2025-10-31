@@ -867,6 +867,13 @@ pub struct WorkflowDispatch {
     pub inputs: IndexMap<String, WorkflowDispatchInput>,
 }
 
+impl WorkflowDispatch {
+    pub fn add_input<I: ToString>(mut self, input_id: I, input: WorkflowDispatchInput) -> Self {
+        self.inputs.insert(input_id.to_string(), input);
+        self
+    }
+}
+
 /// Configuration for workflow dispatch input
 #[derive(Debug, Clone, Default, Deserialize, Serialize, Setters, PartialEq, Eq)]
 #[setters(strip_option, into)]
