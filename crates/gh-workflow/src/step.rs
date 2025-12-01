@@ -100,7 +100,6 @@ impl Input {
 }
 
 /// Represents a step value in the workflow.
-#[allow(clippy::duplicated_attributes)]
 #[derive(Debug, Setters, Serialize, Deserialize, Clone, Default, PartialEq, Eq, Merge)]
 #[serde(rename_all = "kebab-case")]
 #[setters(

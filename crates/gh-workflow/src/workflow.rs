@@ -15,14 +15,16 @@ use crate::generate::Generate;
 use crate::job::Job;
 use crate::permissions::Permissions;
 use crate::secret::Secret;
-use crate::Event;
+use crate::{Event, JobType, JobValue};
 
 #[derive(Debug, Default, Serialize, Deserialize, Clone)]
 #[serde(transparent)]
-pub struct Jobs(pub(crate) IndexMap<String, Job>);
+pub struct Jobs(pub(crate) IndexMap<String, JobValue>);
 impl Jobs {
-    pub fn add(mut self, key: String, value: Job) -> Self {
-        self.0.insert(key, value);
+    pub fn add<J: Into<Job<T>>, T: JobType>(mut self, key: String, value: J) -> Self {
+        let job: Job<T> = value.into();
+        let job: JobValue = T::to_value(job);
+        self.0.insert(key, job);
         self
     }
 
@@ -35,7 +37,7 @@ impl Jobs {
     /// # Returns
     ///
     /// Returns `Some(&Job)` if the job exists, `None` otherwise.
-    pub fn get(&self, key: &str) -> Option<&Job> {
+    pub fn get(&self, key: &str) -> Option<&JobValue> {
         self.0.get(key)
     }
 }
@@ -120,7 +122,7 @@ impl Workflow {
     }
 
     /// Adds a job to the workflow with the specified ID and job configuration.
-    pub fn add_job<T: ToString, J: Into<Job>>(mut self, id: T, job: J) -> Self {
+    pub fn add_job<I: ToString, J: Into<Job<T>>, T: JobType>(mut self, id: I, job: J) -> Self {
         let key = id.to_string();
         let jobs = self.jobs.take().unwrap_or_default().add(key, job.into());
 
