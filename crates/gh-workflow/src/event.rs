@@ -532,6 +532,7 @@ pub enum PullRequestType {
 }
 
 #[derive(Debug, Clone, Default, Deserialize, Serialize, Setters, PartialEq, Eq)]
+#[serde(rename_all = "kebab-case")]
 #[setters(strip_option, into)]
 pub struct PullRequest {
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
@@ -540,6 +541,9 @@ pub struct PullRequest {
     pub branches: Vec<String>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub paths: Vec<String>,
+    /// Ignore specific file paths
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub paths_ignore: Vec<String>,
 }
 
 impl PullRequest {
@@ -555,6 +559,11 @@ impl PullRequest {
 
     pub fn add_path<S: Into<String>>(mut self, path: S) -> Self {
         self.paths.push(path.into());
+        self
+    }
+
+    pub fn add_ignored_path<S: Into<String>>(mut self, path: S) -> Self {
+        self.paths_ignore.push(path.into());
         self
     }
 }
@@ -650,6 +659,7 @@ impl PullRequestTarget {
 /// Configuration for push events
 /// See: https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#push
 #[derive(Debug, Clone, Default, Deserialize, Serialize, Setters, PartialEq, Eq)]
+#[serde(rename_all = "kebab-case")]
 #[setters(strip_option, into)]
 pub struct Push {
     /// Filter on specific branch names
@@ -658,6 +668,9 @@ pub struct Push {
     /// Filter on specific file paths
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub paths: Vec<String>,
+    /// Ignore specific file paths
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub paths_ignore: Vec<String>,
     /// Filter on specific tags
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub tags: Vec<String>,
@@ -673,6 +686,12 @@ impl Push {
     /// Adds a file path to filter on
     pub fn add_path<S: Into<String>>(mut self, path: S) -> Self {
         self.paths.push(path.into());
+        self
+    }
+
+    /// Adds a file path to not trigger on
+    pub fn add_ignored_path<S: Into<String>>(mut self, path: S) -> Self {
+        self.paths_ignore.push(path.into());
         self
     }
 
