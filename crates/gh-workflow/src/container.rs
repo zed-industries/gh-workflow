@@ -11,6 +11,7 @@ use crate::env::Env;
 #[setters(strip_option, into)]
 pub struct Container {
     /// The image to use for the container.
+    #[setters(skip)]
     pub image: String,
 
     /// Credentials for accessing the container.
@@ -52,13 +53,31 @@ pub struct Credentials {
 
 /// Represents a network port.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
-#[serde(rename_all = "kebab-case")]
+#[serde(untagged)]
 pub enum Port {
     /// A port specified by its number.
     Number(u16),
 
-    /// A port specified by its name.
+    /// A port specified by its name/mapping (e.g., "8080:80").
     Name(String),
+}
+
+impl Container {
+    /// Creates a new `Container` with the specified image.
+    pub fn new<S: ToString>(image: S) -> Self {
+        Self {
+            image: image.to_string(),
+            ..Default::default()
+        }
+    }
+
+    /// Adds an environment variable to the container.
+    pub fn add_env<E: Into<Env>>(mut self, new_env: E) -> Self {
+        let mut env = self.env.take().unwrap_or_default();
+        env.0.extend(new_env.into().0);
+        self.env = Some(env);
+        self
+    }
 }
 
 /// Represents a volume configuration for containers.

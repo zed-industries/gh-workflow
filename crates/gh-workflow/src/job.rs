@@ -251,4 +251,12 @@ impl Job<RunJob> {
         self.config.envs = Some(env);
         self
     }
+
+    /// Adds a service container to the job.
+    pub fn add_service<S: ToString>(mut self, name: S, container: Container) -> Self {
+        let mut services = self.value.services.take().unwrap_or_default();
+        services.insert(name.to_string(), container);
+        self.value.services = Some(services);
+        self
+    }
 }
