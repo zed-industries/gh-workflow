@@ -108,6 +108,7 @@ impl Job {
         self
     }
 
+    /// Adds a job dependency.
     pub fn add_need<J: ToString>(mut self, job_id: J) -> Self {
         if let Some(needs) = self.needs.as_mut() {
             needs.push(job_id.to_string());
@@ -115,5 +116,100 @@ impl Job {
             self.needs = Some(vec![job_id.to_string()]);
         }
         self
+    }
+
+    /// Adds an output to the job.
+    pub fn add_output<K: ToString, V: ToString>(mut self, key: K, value: V) -> Self {
+        let mut outputs = self.outputs.take().unwrap_or_default();
+        outputs.insert(key.to_string(), value.to_string());
+        self.outputs = Some(outputs);
+        self
+    }
+
+    /// Adds a service container to the job.
+    ///
+    /// Services are Docker containers that provide additional functionality
+    /// for the job, such as databases or caches.
+    ///
+    /// # Example
+    /// ```ignore
+    /// use gh_workflow::{Job, Container, Port};
+    ///
+    /// let job = Job::new("test")
+    ///     .add_service(
+    ///         "postgres",
+    ///         Container::new("postgres:15")
+    ///             .add_env(("POSTGRES_USER", "postgres"))
+    ///             .add_env(("POSTGRES_PASSWORD", "postgres"))
+    ///             .add_port("5432:5432")
+    ///             .options("--health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5"),
+    ///     );
+    /// ```
+    pub fn add_service<K: ToString, V: Into<Container>>(mut self, name: K, service: V) -> Self {
+        let mut services = self.services.take().unwrap_or_default();
+        services.insert(name.to_string(), service.into());
+        self.services = Some(services);
+        self
+    }
+
+    /// Adds a secret to the job.
+    pub fn add_secret<K: ToString, V: Into<Secret>>(mut self, key: K, secret: V) -> Self {
+        let mut secrets = self.secrets.take().unwrap_or_default();
+        secrets.insert(key.to_string(), secret.into());
+        self.secrets = Some(secrets);
+        self
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::container::{Container, Port};
+
+    #[test]
+    fn test_job_with_service() {
+        let job = Job::new("test")
+            .add_service(
+                "postgres",
+                Container::new("postgres:15")
+                    .add_env(("POSTGRES_USER", "postgres"))
+                    .add_env(("POSTGRES_PASSWORD", "postgres"))
+                    .add_port(Port::Mapping("5432:5432".to_string()))
+                    .options("--health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5"),
+            );
+
+        let yaml = serde_yaml::to_string(&job).expect("serialize job");
+        println!("Job YAML:\n{}", yaml);
+
+        assert!(yaml.contains("services:"));
+        assert!(yaml.contains("postgres:"));
+        assert!(yaml.contains("image: postgres:15"));
+        assert!(yaml.contains("POSTGRES_USER: postgres"));
+        assert!(yaml.contains("5432:5432"));
+        assert!(yaml.contains("--health-cmd pg_isready"));
+    }
+
+    #[test]
+    fn test_job_with_multiple_services() {
+        let job = Job::new("integration-test")
+            .add_service(
+                "postgres",
+                Container::new("postgres:15")
+                    .add_env(("POSTGRES_PASSWORD", "postgres"))
+                    .add_port("5432:5432"),
+            )
+            .add_service(
+                "redis",
+                Container::new("redis:7")
+                    .add_port("6379:6379"),
+            );
+
+        let yaml = serde_yaml::to_string(&job).expect("serialize job");
+        println!("Job with multiple services YAML:\n{}", yaml);
+
+        assert!(yaml.contains("postgres:"));
+        assert!(yaml.contains("redis:"));
+        assert!(yaml.contains("postgres:15"));
+        assert!(yaml.contains("redis:7"));
     }
 }
