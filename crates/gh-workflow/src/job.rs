@@ -126,7 +126,11 @@ pub struct Job<J: JobType = RunJob> {
 
 #[derive(Debug, Setters, Serialize, Deserialize, Clone, Default, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
-#[setters(strip_option, into, generate_delegates(ty = "Job", field = "value"))]
+#[setters(
+    strip_option,
+    into,
+    generate_delegates(ty = "Job<T>", generics = "<T: JobType>", field = "value")
+)]
 pub struct JobValue {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub needs: Option<Vec<String>>,
