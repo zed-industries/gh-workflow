@@ -118,15 +118,21 @@ impl JobType for UsesJob {
 }
 
 /// Represents a job in the workflow.
-#[derive(Debug, Clone, Default, PartialEq, Eq)]
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Job<J: JobType = RunJob> {
+    #[serde(flatten)]
     config: J,
+    #[serde(flatten)]
     value: JobValue,
 }
 
 #[derive(Debug, Setters, Serialize, Deserialize, Clone, Default, PartialEq, Eq)]
 #[serde(rename_all = "kebab-case")]
-#[setters(strip_option, into, generate_delegates(ty = "Job", field = "value"))]
+#[setters(
+    strip_option,
+    into,
+    generate_delegates(ty = "Job<T>", generics = "<T: JobType>", field = "value")
+)]
 pub struct JobValue {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub needs: Option<Vec<String>>,
@@ -193,6 +199,24 @@ impl Job {
                     path.to_string(),
                     version.to_string()
                 ),
+                ..Default::default()
+            },
+            value: self.value,
+        }
+    }
+
+    /// Creates a new `Job` that uses a local reusable workflow.
+    pub fn uses_local<Path: ToString>(self, path: Path) -> Job<UsesJob> {
+        Job {
+            config: UsesJob {
+                uses: {
+                    let path = path.to_string();
+                    if path.starts_with("./") {
+                        path
+                    } else {
+                        format!("./{path}")
+                    }
+                },
                 ..Default::default()
             },
             value: self.value,
