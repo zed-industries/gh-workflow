@@ -13,8 +13,8 @@ use serde_json::Value;
 use crate::concurrency::Concurrency;
 use crate::step::{Step, StepType, StepValue};
 use crate::{
-    private, Artifacts, Container, Defaults, Env, Expression, Input, Permissions, RetryStrategy,
-    Strategy,
+    private, Artifacts, Container, Defaults, Env, Environment, Expression, Input, Permissions,
+    RetryStrategy, Strategy,
 };
 
 /// Represents the environment in which a job runs.
@@ -144,6 +144,8 @@ pub struct JobValue {
     pub runs_on: Option<RunsOn>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub permissions: Option<Permissions>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub environment: Option<Environment>,
     #[serde(skip_serializing_if = "Option::is_none", rename = "env")]
     #[setters(skip)]
     pub envs: Option<Env>,
