@@ -4,6 +4,7 @@ use derive_setters::Setters;
 use indexmap::IndexMap;
 use merge::Merge;
 use serde::{Deserialize, Serialize};
+use serde_json::Number;
 
 use crate::is_default;
 
@@ -817,7 +818,7 @@ impl Watch {
 pub struct WorkflowCall {
     /// Inputs for the workflow call
     #[serde(skip_serializing_if = "IndexMap::is_empty")]
-    pub inputs: IndexMap<String, WorkflowCallInput>,
+    pub inputs: IndexMap<String, WorkflowCallInputValue>,
     /// Outputs from the workflow call
     #[serde(skip_serializing_if = "IndexMap::is_empty")]
     pub outputs: IndexMap<String, WorkflowCallOutput>,
@@ -827,28 +828,118 @@ pub struct WorkflowCall {
 }
 
 impl WorkflowCall {
-    pub fn add_input(mut self, name: impl Into<String>, input: WorkflowCallInput) -> Self {
-        self.inputs.insert(name.into(), input);
+    pub fn add_input(
+        mut self,
+        name: impl Into<String>,
+        input: impl Into<WorkflowCallInputValue>,
+    ) -> Self {
+        self.inputs.insert(name.into(), input.into());
         self
     }
 }
 
 /// Configuration for workflow call input
-#[derive(Debug, Clone, Default, Deserialize, Serialize, PartialEq, Setters, Eq)]
+///
+/// The type parameter is the Rust type of the input's default value
+/// (`bool`, [`Number`] or `String`) and determines the input's declared
+/// `type` when serialized, so the two can never disagree.
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Setters, Eq)]
 #[setters(strip_option, into)]
-pub struct WorkflowCallInput {
+pub struct WorkflowCallInput<T> {
     /// Description of the input
-    #[serde(skip_serializing_if = "String::is_empty")]
+    #[serde(default, skip_serializing_if = "String::is_empty")]
     pub description: String,
     /// Indicates if the input is required
-    #[serde(skip_serializing_if = "is_default")]
+    #[serde(default, skip_serializing_if = "is_default")]
     pub required: bool,
-    /// Type of the input
-    #[serde(rename = "type")]
-    pub input_type: String,
     /// Default value for the input
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub default: Option<String>,
+    #[setters(skip)]
+    pub default: Option<T>,
+}
+
+impl<T> Default for WorkflowCallInput<T> {
+    fn default() -> Self {
+        Self {
+            description: Default::default(),
+            required: Default::default(),
+            default: None,
+        }
+    }
+}
+
+impl WorkflowCallInput<bool> {
+    /// Creates a new input of type `boolean`.
+    pub fn boolean() -> Self {
+        Self::default()
+    }
+}
+
+impl WorkflowCallInput<Number> {
+    /// Creates a new input of type `number`.
+    pub fn number() -> Self {
+        Self::default()
+    }
+}
+
+impl WorkflowCallInput<String> {
+    /// Creates a new input of type `string`.
+    pub fn string() -> Self {
+        Self::default()
+    }
+}
+
+impl<T> WorkflowCallInput<T> {
+    /// Sets the default value of the input. Only values matching the
+    /// input's declared type are accepted:
+    ///
+    /// ```compile_fail
+    /// use gh_workflow::WorkflowCallInput;
+    ///
+    /// WorkflowCallInput::boolean().set_default("true"); // not a bool!
+    /// ```
+    ///
+    /// Integers convert implicitly into `number` defaults; for floats,
+    /// use [`Number::from_f64`].
+    pub fn set_default(mut self, value: impl Into<T>) -> Self {
+        self.default = Some(value.into());
+        self
+    }
+}
+
+/// A workflow call input of any type, tagged with the input's declared
+/// type when serialized.
+///
+/// Pairing the declared type with the matching [`WorkflowCallInput`]
+/// guarantees that the default always matches the declared input type,
+/// e.g. `default: true` instead of `default: 'true'` for a `boolean`
+/// input.
+///
+/// See: https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#onworkflow_callinputsinput_idtype
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq)]
+#[serde(tag = "type", rename_all = "lowercase")]
+pub enum WorkflowCallInputValue {
+    Boolean(WorkflowCallInput<bool>),
+    Number(WorkflowCallInput<Number>),
+    String(WorkflowCallInput<String>),
+}
+
+impl From<WorkflowCallInput<bool>> for WorkflowCallInputValue {
+    fn from(input: WorkflowCallInput<bool>) -> Self {
+        Self::Boolean(input)
+    }
+}
+
+impl From<WorkflowCallInput<Number>> for WorkflowCallInputValue {
+    fn from(input: WorkflowCallInput<Number>) -> Self {
+        Self::Number(input)
+    }
+}
+
+impl From<WorkflowCallInput<String>> for WorkflowCallInputValue {
+    fn from(input: WorkflowCallInput<String>) -> Self {
+        Self::String(input)
+    }
 }
 
 /// Configuration for workflow call output
@@ -956,5 +1047,51 @@ impl WorkflowRun {
     pub fn add_branch<S: Into<String>>(mut self, branch: S) -> Self {
         self.branches.push(branch.into());
         self
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use pretty_assertions::assert_eq;
+
+    use super::*;
+
+    #[test]
+    fn test_workflow_call_input_defaults_are_typed() {
+        let call = WorkflowCall::default()
+            .add_input("verbose", WorkflowCallInput::boolean().set_default(true))
+            .add_input("retries", WorkflowCallInput::number().set_default(3))
+            .add_input(
+                "ratio",
+                WorkflowCallInput::number().set_default(Number::from_f64(0.5).unwrap()),
+            )
+            .add_input(
+                "environment",
+                WorkflowCallInput::string()
+                    .description("The environment to deploy to")
+                    .required(true),
+            )
+            .add_input(
+                "region",
+                WorkflowCallInput::string().set_default("eu-central-1"),
+            );
+
+        let yaml = serde_yml::to_string(&call).unwrap();
+        let expected = "inputs:\n  verbose:\n    type: boolean\n    default: true\n  retries:\n    type: number\n    default: 3\n  ratio:\n    type: number\n    default: 0.5\n  environment:\n    type: string\n    description: The environment to deploy to\n    required: true\n  region:\n    type: string\n    default: eu-central-1";
+        assert_eq!(yaml, expected);
+
+        // The YAML round-trips into the same representation.
+        let parsed: WorkflowCall = serde_yml::from_str(&yaml).unwrap();
+        assert_eq!(parsed, call);
+    }
+
+    #[test]
+    fn test_workflow_call_input_rejects_mismatched_default() {
+        // A `boolean` input cannot carry a string default.
+        let yaml = "inputs:\n  verbose:\n    type: boolean\n    default: 'true'\n";
+        assert!(serde_yml::from_str::<WorkflowCall>(yaml).is_err());
+
+        let yaml = "inputs:\n  verbose:\n    type: array\n";
+        assert!(serde_yml::from_str::<WorkflowCall>(yaml).is_err());
     }
 }
