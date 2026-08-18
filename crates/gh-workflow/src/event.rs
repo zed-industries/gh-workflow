@@ -4,13 +4,13 @@ use derive_setters::Setters;
 use indexmap::IndexMap;
 use merge::Merge;
 use serde::{Deserialize, Serialize};
-use serde_json::Number;
+use serde_yaml::Number;
 
 use crate::is_default;
 
 /// Represents all possible webhook events that can trigger a workflow
 /// See: https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows
-#[derive(Default, Debug, Clone, Deserialize, Serialize, Merge, Setters, PartialEq, Eq)]
+#[derive(Default, Debug, Clone, Deserialize, Serialize, Merge, Setters, PartialEq)]
 #[setters(strip_option, into)]
 pub struct Event {
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -813,7 +813,7 @@ impl Watch {
 
 /// Configuration for workflow call events
 /// See: https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_call
-#[derive(Debug, Clone, Default, Deserialize, Serialize, Setters, PartialEq, Eq)]
+#[derive(Debug, Clone, Default, Deserialize, Serialize, Setters, PartialEq)]
 #[setters(strip_option, into)]
 pub struct WorkflowCall {
     /// Inputs for the workflow call
@@ -916,7 +916,7 @@ impl<T> WorkflowCallInput<T> {
 /// input.
 ///
 /// See: https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#onworkflow_callinputsinput_idtype
-#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq)]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 #[serde(tag = "type", rename_all = "lowercase")]
 pub enum WorkflowCallInputValue {
     Boolean(WorkflowCallInput<bool>),
@@ -1063,7 +1063,7 @@ mod tests {
             .add_input("retries", WorkflowCallInput::number().set_default(3))
             .add_input(
                 "ratio",
-                WorkflowCallInput::number().set_default(Number::from_f64(0.5).unwrap()),
+                WorkflowCallInput::number().set_default(Number::from(0.5)),
             )
             .add_input(
                 "environment",
@@ -1076,12 +1076,12 @@ mod tests {
                 WorkflowCallInput::string().set_default("eu-central-1"),
             );
 
-        let yaml = serde_yml::to_string(&call).unwrap();
+        let yaml = serde_yaml::to_string(&call).unwrap();
         let expected = "inputs:\n  verbose:\n    type: boolean\n    default: true\n  retries:\n    type: number\n    default: 3\n  ratio:\n    type: number\n    default: 0.5\n  environment:\n    type: string\n    description: The environment to deploy to\n    required: true\n  region:\n    type: string\n    default: eu-central-1";
         assert_eq!(yaml, expected);
 
         // The YAML round-trips into the same representation.
-        let parsed: WorkflowCall = serde_yml::from_str(&yaml).unwrap();
+        let parsed: WorkflowCall = serde_yaml::from_str(&yaml).unwrap();
         assert_eq!(parsed, call);
     }
 
@@ -1089,9 +1089,9 @@ mod tests {
     fn test_workflow_call_input_rejects_mismatched_default() {
         // A `boolean` input cannot carry a string default.
         let yaml = "inputs:\n  verbose:\n    type: boolean\n    default: 'true'\n";
-        assert!(serde_yml::from_str::<WorkflowCall>(yaml).is_err());
+        assert!(serde_yaml::from_str::<WorkflowCall>(yaml).is_err());
 
         let yaml = "inputs:\n  verbose:\n    type: array\n";
-        assert!(serde_yml::from_str::<WorkflowCall>(yaml).is_err());
+        assert!(serde_yaml::from_str::<WorkflowCall>(yaml).is_err());
     }
 }
